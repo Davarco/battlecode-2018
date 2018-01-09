@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  BFS
-//
-//  Created by Jeong Yang on 1/8/18.
-//  Copyright © 2018 Jonathan Yang. All rights reserved.
-//
 
 #include <iostream>
 #include <queue>
