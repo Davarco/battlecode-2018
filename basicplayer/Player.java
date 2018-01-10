@@ -21,6 +21,8 @@ public class Player {
             // Get units and moves them
             UpdatePointsOfInterest();
             move();
+            attack();
+            abilities();
             // Complete round, move on to next one
             gc.nextTurn();
         }
@@ -63,6 +65,14 @@ public class Player {
              }
          }
     }
+    public static void attack() {
+    	
+    }
+
+    public static void abilities() {
+    
+    }
+
     public static void initResearch() {
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
