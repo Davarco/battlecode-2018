@@ -12,10 +12,6 @@ public class Worker {
         gc = controller;
 
         // Move unit (placeholder for now)
-        for (Direction direction: Direction.values()) {
-            if (gc.isMoveReady(worker.id()) && gc.canMove(worker.id(), direction)) {
-                gc.moveRobot(worker.id(), direction);
-            }
-        }
+        Pathing.move(worker, worker.location().mapLocation(), new MapLocation(Planet.Earth, 10, 10));
     }
 }

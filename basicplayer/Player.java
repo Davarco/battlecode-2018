@@ -1,5 +1,7 @@
 import bc.*;
 
+import java.nio.file.Path;
+
 public class Player {
 
     private static GameController gc;
@@ -8,6 +10,12 @@ public class Player {
 
         // Start game by connecting to game controller
         gc = new GameController();
+
+        // Initialize path searching
+        Pathing.init(gc);
+
+        // Initialize the research tree
+        initResearch();
 
         /*
         Main runner for player, do not change.
@@ -50,7 +58,8 @@ public class Player {
     Initializes research path.
     The total number of turns should be equal to ~1000.
      */
-    public static void initResearch() {
+    private static void initResearch() {
+        System.out.println("Initializing research tree!");
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
