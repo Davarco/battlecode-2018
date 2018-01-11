@@ -15,6 +15,16 @@ public class Worker {
         worker = unit;
 
         // Move unit (placeholder for now)
+        move();
+    }
+
+    private static void move() {
+
+        // See if unit needs to escape
+        if (Pathing.escape(worker))
+            return;
+
+        // Otherwise move towards the closest kryptonite
 
     }
 }

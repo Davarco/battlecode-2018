@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2d8036f0-3279-4e97-a485-0fdc08d76088" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/basicplayer/Healer.java" afterPath="$PROJECT_DIR$/basicplayer/Healer.java" />
-      <change beforePath="$PROJECT_DIR$/basicplayer/Knight.java" afterPath="$PROJECT_DIR$/basicplayer/Knight.java" />
-      <change beforePath="$PROJECT_DIR$/basicplayer/Mage.java" afterPath="$PROJECT_DIR$/basicplayer/Mage.java" />
       <change beforePath="$PROJECT_DIR$/basicplayer/Pathing.java" afterPath="$PROJECT_DIR$/basicplayer/Pathing.java" />
-      <change beforePath="$PROJECT_DIR$/basicplayer/Player.java" afterPath="$PROJECT_DIR$/basicplayer/Player.java" />
-      <change beforePath="$PROJECT_DIR$/basicplayer/Ranger.java" afterPath="$PROJECT_DIR$/basicplayer/Ranger.java" />
       <change beforePath="$PROJECT_DIR$/basicplayer/Worker.java" afterPath="$PROJECT_DIR$/basicplayer/Worker.java" />
-      <change beforePath="$PROJECT_DIR$/replay.bc18" afterPath="$PROJECT_DIR$/replay.bc18" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -21,13 +14,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Pathing.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Pathing.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/basicplayer/Pathing.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="800">
-              <caret line="150" column="20" lean-forward="false" selection-start-line="150" selection-start-column="20" selection-end-line="150" selection-end-column="20" />
+            <state relative-caret-position="152">
+              <caret line="167" column="0" lean-forward="false" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="method#init#0;class#Pathing#0" expanded="false" />
+                <element signature="method#path#0;class#Pathing#0" expanded="false" />
+                <element signature="method#opposite#0;class#Pathing#0" expanded="false" />
+                <element signature="method#move#0;class#Pathing#0" expanded="false" />
+                <element signature="method#move#1;class#Pathing#0" expanded="false" />
+                <element signature="method#advancedMove#0;class#Pathing#0" expanded="false" />
+                <element signature="method#advancedMove#1;class#Pathing#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -58,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Worker.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/basicplayer/Worker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="450">
+              <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
               <folding>
                 <element signature="e#163#164#0" expanded="true" />
                 <element signature="e#194#195#0" expanded="true" />
@@ -114,10 +114,10 @@
         <option value="$PROJECT_DIR$/basicplayer/Knight.java" />
         <option value="$PROJECT_DIR$/basicplayer/Mage.java" />
         <option value="$PROJECT_DIR$/basicplayer/Ranger.java" />
-        <option value="$PROJECT_DIR$/basicplayer/Worker.java" />
         <option value="$PROJECT_DIR$/basicplayer/Util.java" />
         <option value="$PROJECT_DIR$/basicplayer/Player.java" />
         <option value="$PROJECT_DIR$/basicplayer/Pathing.java" />
+        <option value="$PROJECT_DIR$/basicplayer/Worker.java" />
       </list>
     </option>
   </component>
@@ -369,7 +369,9 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <option name="time" value="1" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
@@ -401,6 +403,13 @@
           <caret line="50" column="4" lean-forward="false" selection-start-line="50" selection-start-column="4" selection-end-line="50" selection-end-column="4" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="method#init#0;class#Pathing#0" expanded="false" />
+            <element signature="method#path#0;class#Pathing#0" expanded="false" />
+            <element signature="method#opposite#0;class#Pathing#0" expanded="false" />
+            <element signature="method#move#0;class#Pathing#0" expanded="false" />
+            <element signature="method#move#1;class#Pathing#0" expanded="false" />
+            <element signature="method#advancedMove#0;class#Pathing#0" expanded="false" />
+            <element signature="method#advancedMove#1;class#Pathing#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -465,14 +474,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basicplayer/Worker.java">
+    <entry file="file://$PROJECT_DIR$/basicplayer/Player.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-          <folding>
-            <element signature="e#163#164#0" expanded="true" />
-            <element signature="e#194#195#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-432">
+          <caret line="2" column="26" lean-forward="true" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -489,20 +495,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basicplayer/Player.java">
+    <entry file="file://$PROJECT_DIR$/basicplayer/Pathing.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-432">
-          <caret line="2" column="26" lean-forward="true" selection-start-line="2" selection-start-column="26" selection-end-line="2" selection-end-column="26" />
-          <folding />
+        <state relative-caret-position="152">
+          <caret line="167" column="0" lean-forward="false" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#init#0;class#Pathing#0" expanded="false" />
+            <element signature="method#path#0;class#Pathing#0" expanded="false" />
+            <element signature="method#opposite#0;class#Pathing#0" expanded="false" />
+            <element signature="method#move#0;class#Pathing#0" expanded="false" />
+            <element signature="method#move#1;class#Pathing#0" expanded="false" />
+            <element signature="method#advancedMove#0;class#Pathing#0" expanded="false" />
+            <element signature="method#advancedMove#1;class#Pathing#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/basicplayer/Pathing.java">
+    <entry file="file://$PROJECT_DIR$/basicplayer/Worker.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="800">
-          <caret line="150" column="20" lean-forward="false" selection-start-line="150" selection-start-column="20" selection-end-line="150" selection-end-column="20" />
+        <state relative-caret-position="450">
+          <caret line="25" column="0" lean-forward="true" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#163#164#0" expanded="true" />
+            <element signature="e#194#195#0" expanded="true" />
           </folding>
         </state>
       </provider>

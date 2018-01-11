@@ -4,9 +4,7 @@ import java.util.LinkedList;
 
 public class Pathing {
 
-    /*
-    Movements correspond from N -> NE... -> W -> SW.
-     */
+    // Movements correspond from N -> NE... -> W -> SW.
     private static int move[][] = {
             {0, 1}, {1, 1}, {1, 0}, {1, -1},
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
@@ -122,6 +120,95 @@ public class Pathing {
         }
     }
 
+    public static void advancedMove(Unit unit, MapLocation start, MapLocation end) {
+
+        // Get the optimal direction
+        Direction direction = path(start, end);
+
+        // Get idx of direction
+        int idx = -1;
+        for (int i = 0; i < Direction.values().length; i++) {
+            if (Direction.values()[i].equals(direction)) {
+                idx = i;
+                break;
+            }
+        }
+
+        // Set left and right, search circularly
+        int left=idx, right=idx;
+        int fin = -1;
+        for (int i = 0; i < 4; i++) {
+            if (gc.canMove(unit.id(), Direction.values()[left])) {
+                fin = left;
+                break;
+            }
+            if (gc.canMove(unit.id(), Direction.values()[right])) {
+                fin = right;
+                break;
+            }
+            if (left == 0) {
+                left = 7;
+            } else {
+                left -= 1;
+            }
+            if (right == 7) {
+                right = 0;
+            } else {
+                right += 1;
+            }
+        }
+
+        // Don't move if no idx was found, otherwise move in the best direction
+        if (fin == -1) {
+            System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
+            return;
+        }
+        move(unit, Direction.values()[fin]);
+    }
+
+    public static void advancedMove(Unit unit, Direction direction) {
+
+        // Get idx of direction
+        int idx = -1;
+        for (int i = 0; i < Direction.values().length; i++) {
+            if (Direction.values()[i].equals(direction)) {
+                idx = i;
+                break;
+            }
+        }
+
+        // Set left and right, search circularly
+        int left=idx, right=idx;
+        int fin = -1;
+        for (int i = 0; i < 4; i++) {
+            if (gc.canMove(unit.id(), Direction.values()[left])) {
+                fin = left;
+                break;
+            }
+            if (gc.canMove(unit.id(), Direction.values()[right])) {
+                fin = right;
+                break;
+            }
+            if (left == 0) {
+                left = 7;
+            } else {
+                left -= 1;
+            }
+            if (right == 7) {
+                right = 0;
+            } else {
+                right += 1;
+            }
+        }
+
+        // Don't move if no idx was found, otherwise move in the best direction
+        if (fin == -1) {
+            System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
+            return;
+        }
+        move(unit, Direction.values()[fin]);
+    }
+
     /*
     Code that moves the robot away from the closest enemy.
     Best used for Worker, Healers, Low HP units.
@@ -147,7 +234,7 @@ public class Pathing {
 
         // Get opposite direction
         Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));
-        move(unit, opposite);
+        advancedMove(unit, opposite);
         return true;
     }
 }
