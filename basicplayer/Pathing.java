@@ -81,6 +81,32 @@ public class Pathing {
     }
 
     /*
+    Gets the direction opposite of an input direction.
+     */
+    private static Direction opposite(Direction direction) {
+        switch (direction) {
+            case North:
+                return Direction.South;
+            case Northeast:
+                return Direction.Southwest;
+            case East:
+                return Direction.West;
+            case Southeast:
+                return Direction.Northwest;
+            case South:
+                return Direction.North;
+            case Southwest:
+                return Direction.Northeast;
+            case West:
+                return Direction.East;
+            case Northwest:
+                return Direction.Southeast;
+        }
+
+        return null;
+    }
+
+    /*
     Actually moves the robot, but checks before moving.
      */
     public static void move(Unit unit, MapLocation start, MapLocation end) {
@@ -88,5 +114,40 @@ public class Pathing {
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
         }
+    }
+
+    public static void move(Unit unit, Direction direction) {
+        if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
+            gc.moveRobot(unit.id(), direction);
+        }
+    }
+
+    /*
+    Code that moves the robot away from the closest enemy.
+    Best used for Worker, Healers, Low HP units.
+     */
+    public static boolean escape(Unit unit) {
+
+        // Return false if no units are found
+        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), Util.enemyTeam());
+        if (enemies.size() == 0)
+            return false;
+
+        // Find the closest enemy
+        MapLocation ourLoc = unit.location().mapLocation();
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < enemies.size(); i++) {
+            long dist = ourLoc.distanceSquaredTo(enemies.get(i).location().mapLocation());
+            if (dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+
+        // Get opposite direction
+        Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));
+        move(unit, opposite);
+        return true;
     }
 }

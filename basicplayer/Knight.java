@@ -7,11 +7,14 @@ public class Knight {
     private static Unit knight;
     private static GameController gc;
 
-    public static void run(Unit unit, GameController controller) {
+    public static void init(GameController controller) {
+        gc = controller;
+    }
+
+    public static void run(Unit unit) {
 
         // Receive knight from main runner
         knight = unit;
-        gc = controller;
 
         // Move unit (placeholder for now)
         for (Direction direction: Direction.values()) {

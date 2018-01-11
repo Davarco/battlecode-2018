@@ -11,6 +11,16 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
 
+        // Initialize the different types of troops
+        Worker.init(gc);
+        Knight.init(gc);
+        Ranger.init(gc);
+        Mage.init(gc);
+        Healer.init(gc);
+
+        // Initialize utils
+        Util.init(gc);
+
         // Initialize path searching
         Pathing.init(gc);
 
@@ -32,19 +42,19 @@ public class Player {
                 Unit unit = units.get(i);
                 switch (unit.unitType() ) {
                     case Worker:
-                        Worker.run(unit, gc);
+                        Worker.run(unit);
                         break;
                     case Knight:
-                        Knight.run(unit, gc);
+                        Knight.run(unit);
                         break;
                     case Ranger:
-                        Ranger.run(unit, gc);
+                        Ranger.run(unit);
                         break;
                     case Mage:
-                        Mage.run(unit, gc);
+                        Mage.run(unit);
                         break;
                     case Healer:
-                        Healer.run(unit, gc);
+                        Healer.run(unit);
                         break;
                 }
             }
