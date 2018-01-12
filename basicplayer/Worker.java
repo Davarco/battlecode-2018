@@ -24,7 +24,6 @@ public class Worker {
         if (Pathing.escape(worker))
             return;
 
-        // Otherwise move towards the closest kryptonite
-
+        // See if we have enough factories, build if necessary
     }
 }
