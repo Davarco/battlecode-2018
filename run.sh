@@ -1,8 +1,5 @@
 #!/bin/sh
-docker stop $(docker ps -q)
-docker container rm $(docker container ls -aq)
-docker volume rm $(docker volume ls -q)$
-docker volume prune
-
-docker run -it --privileged -p 16147:16147 -p 6147:6147 -v $PWD:/player --rm
-battlecode/battlecode-2018
+# build the java files.
+# there will eventually be a separate build step, but for now the build counts against your time.
+javac *.java -classpath /battlecode-java:.
+java -classpath /battlecode-java:. Player
