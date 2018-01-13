@@ -15,10 +15,12 @@ public class Ranger {
 
     public static void run(Unit unit) {
 
-        // Make sure it's not in the factory
-        
         // Receive ranger from main runner
         ranger = unit;
+
+        // Check if in garrison or space
+        if (ranger.location().isInGarrison() || ranger.location().isInSpace())
+            return;
 
         // Attack lowest HP unit
         attack();
@@ -43,7 +45,7 @@ public class Ranger {
         }
         if (idx == -1)
             return;
-        if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
+        if (gc.canAttack(ranger.id(), enemies.get(idx).id()) && gc.isAttackReady(ranger.id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
     }
