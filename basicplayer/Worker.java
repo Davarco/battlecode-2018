@@ -51,7 +51,7 @@ public class Worker {
         }
         if (idx != -1) {
             Pathing.move(worker, factories.get(idx).location().mapLocation());
-            System.out.println("Moving towards friendly factory.");
+            // System.out.println("Moving towards friendly factory.");
             return;
         }
 

@@ -40,7 +40,14 @@ public class Player {
             VecUnit units = gc.myUnits();
             Count.reset();
             for (int i = 0; i < units.size(); i++) {
-                Count.addUnit(units.get(i).unitType());
+                Unit unit = units.get(i);
+                Count.addUnit(unit.unitType());
+                if (unit.unitType() == UnitType.Factory) {
+                    Factory.run(unit);
+                }
+                if (unit.unitType() == UnitType.Rocket) {
+                    Rocket.run(unit);
+                }
             }
 
             // Run corresponding code for each type of unit
@@ -62,12 +69,14 @@ public class Player {
                     case Healer:
                         Healer.run(unit);
                         break;
+                        /*
                     case Factory:
                         Factory.run(unit);
                         break;
                     case Rocket:
                         Rocket.run(unit);
                         break;
+                        */
                 }
             }
 
