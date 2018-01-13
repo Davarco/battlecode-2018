@@ -51,8 +51,7 @@ public class Pathing {
                 int a = location.getX() + move[i][0];
                 int b = location.getY() + move[i][1];
                 MapLocation temp = new MapLocation(planet, a, b);
-                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 &&
-                        (temp.isWithinRange(unit.visionRange(), temp) || gc.isOccupiable(temp) == 1) && !visited[a][b]) {
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || gc.isOccupiable(temp) == 1) && !visited[a][b]) {
                     prev[a][b] = i;
                     // System.out.println(prev[a][b] + " " + a + " " + b);
                     visited[a][b] = true;
@@ -182,15 +181,21 @@ public class Pathing {
 
         // Find the closest enemy
         MapLocation ourLoc = unit.location().mapLocation();
-        long minDist = Long.MAX_VALUE;
+        long maxDist = -Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
-            long dist = ourLoc.distanceSquaredTo(enemies.get(i).location().mapLocation());
-            if (dist < minDist) {
-                minDist = dist;
+            if (enemies.get(i).unitType() == UnitType.Worker || enemies.get(i).unitType() == UnitType.Rocket || enemies.get(i).unitType() == UnitType.Factory)
+                continue;
+            long dist = enemies.get(i).attackRange() - ourLoc.distanceSquaredTo(enemies.get(i).location().mapLocation());
+            if (dist > maxDist) {
+                maxDist = dist;
                 idx = i;
             }
         }
+
+        // They aren't in range of shooting us, continue
+        if (maxDist <= 0)
+            return false;
 
         // Get opposite direction
         Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));

@@ -28,13 +28,14 @@ public class Worker {
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
             isAttacked = true;
+            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
             return;
         } else {
             isAttacked = false;
         }
 
         // Otherwise move to a random location
-        Pathing.move(worker, worker.location().mapLocation(), new MapLocation(Planet.Earth, 5, 14)); // Placeholder
+        Pathing.move(worker, worker.location().mapLocation(), new MapLocation(Planet.Earth, 10, 10)); // Placeholder
     }
 
     private static void build() {
