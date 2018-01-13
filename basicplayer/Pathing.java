@@ -30,7 +30,7 @@ public class Pathing {
     /*
     Runs BFS to get the right direction for the robot to move from point A to B.
      */
-    private static Direction path(MapLocation start, MapLocation end) {
+    private static Direction path(Unit unit, MapLocation start, MapLocation end) {
 
         // Initialize direction grid
         // System.out.println("Running pathing! " + start + " to " + end);
@@ -51,7 +51,8 @@ public class Pathing {
                 int a = location.getX() + move[i][0];
                 int b = location.getY() + move[i][1];
                 MapLocation temp = new MapLocation(planet, a, b);
-                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 &&
+                        (temp.isWithinRange(unit.visionRange(), temp) || gc.isOccupiable(temp) == 1) && !visited[a][b]) {
                     prev[a][b] = i;
                     // System.out.println(prev[a][b] + " " + a + " " + b);
                     visited[a][b] = true;
@@ -74,7 +75,7 @@ public class Pathing {
         }
 
         Direction dir = end.directionTo(lastLoc);
-        // System.out.println(dir);
+        System.out.println(dir);
         return dir;
     }
 
@@ -108,12 +109,12 @@ public class Pathing {
     Actually moves the robot, but checks before moving.
      */
     public static void move(Unit unit, MapLocation start, MapLocation end) {
-        Direction direction = path(start, end);
-        System.out.println(direction);
+        Direction direction = path(unit, start, end);
+        // System.out.println(direction);
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
         } else {
-            System.out.println("Cannot move " + direction + "! " + unit);
+            System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
         }
     }
 
@@ -121,7 +122,7 @@ public class Pathing {
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
         } else {
-            System.out.println("Cannot move " + direction + "! " + unit);
+            System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
         }
     }
 
