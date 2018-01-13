@@ -2,7 +2,7 @@ import bc.*;
 
 import java.util.HashMap;
 
-public class Util {
+public class TeamUtil {
 
     private static GameController gc;
     private static Team friendly;
@@ -22,5 +22,9 @@ public class Util {
 
     public static Team enemyTeam() {
         return enemy;
+    }
+
+    public static boolean friendlyUnit(Unit unit) {
+        return unit.team().equals(friendlyTeam());
     }
 }

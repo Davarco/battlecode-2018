@@ -1,7 +1,5 @@
 import bc.*;
 
-import java.nio.file.Path;
-
 public class Player {
 
     private static GameController gc;
@@ -21,7 +19,7 @@ public class Player {
         Rocket.init(gc);
 
         // Initialize utils
-        Util.init(gc);
+        TeamUtil.init(gc);
 
         // Initialize path searching
         Pathing.init(gc);

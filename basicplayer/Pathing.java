@@ -74,7 +74,7 @@ public class Pathing {
         }
 
         Direction dir = end.directionTo(lastLoc);
-        System.out.println(dir);
+        // System.out.println(dir);
         return dir;
     }
 
@@ -107,13 +107,13 @@ public class Pathing {
     /*
     Actually moves the robot, but checks before moving.
      */
-    public static void move(Unit unit, MapLocation start, MapLocation end) {
-        Direction direction = path(unit, start, end);
+    public static void move(Unit unit, MapLocation end) {
+        Direction direction = path(unit, unit.location().mapLocation(), end);
         // System.out.println(direction);
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
         } else {
-            System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
+            // System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
         }
     }
 
@@ -121,7 +121,7 @@ public class Pathing {
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
         } else {
-            System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
+            // System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
         }
     }
 
@@ -175,7 +175,7 @@ public class Pathing {
     public static boolean escape(Unit unit) {
 
         // Return false if no units are found
-        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), Util.enemyTeam());
+        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), TeamUtil.enemyTeam());
         if (enemies.size() == 0)
             return false;
 

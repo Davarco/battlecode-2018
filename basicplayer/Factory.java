@@ -16,6 +16,9 @@ public class Factory {
 
         // Build best unit possible
         build();
+
+        // Unload any units in queue
+        unload();
     }
 
     private static void build() {
@@ -23,6 +26,16 @@ public class Factory {
         // See if the factory can build the robot
         if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
             gc.produceRobot(factory.id(), UnitType.Ranger);
+        }
+    }
+
+    private static void unload() {
+
+        // Check all possible directions
+        for (Direction dir: Direction.values()) {
+            if (gc.canUnload(factory.id(), dir)) {
+                gc.unload(factory.id(), dir);
+            }
         }
     }
 }
