@@ -1,14 +1,43 @@
+import java.util.HashMap;
+
 import bc.*;
 
 public class Player {
 
     private static GameController gc;
-    private static ArrayList<MapLocation> pointsofinterest;
-
+    public static HashMap<Integer, Pathway> unitpaths;
+    public static int X1, Y1, X2, Y2;
+    
     public static void main(String[] args) {
+
         // Start game by connecting to game controller
         gc = new GameController();
-        pointsofinterest = new  ArrayList<MapLocation>();
+        unitpaths = new HashMap<Integer, Pathway>();
+
+
+        // Initialize the different types of troops
+        Worker.init(gc);
+        Knight.init(gc);
+        Ranger.init(gc);
+        Mage.init(gc);
+        Healer.init(gc);
+        Factory.init(gc);
+        Rocket.init(gc);
+
+        // Initialize utils
+        TeamUtil.init(gc);
+
+        // Initialize path searching
+        Pathing.init(gc);
+
+        // Initialize the research tree
+        initResearch();
+        X1 = (int)(Math.random()*19+1);
+        Y1 = (int)(Math.random()*19+1);
+        X2 = (int)(Math.random()*19+1);
+        Y2 = (int)(Math.random()*19+1);
+        System.out.println(X1+" "+Y1+", "+X2+" "+Y2);
+
         /*
         Main runner for player, do not change.
          */
@@ -16,13 +45,43 @@ public class Player {
         while (!quit) {
 
             // Debug, print current round
-            System.out.println("Current round: " + gc.round());
+            // System.out.println("Current round: " + gc.round());
 
-            // Get units and moves them
-            UpdatePointsOfInterest();
-            move();
-            attack();
-            abilities();
+            // Get units and get counts
+            VecUnit units = gc.myUnits();
+            Count.reset();
+            for (int i = 0; i < units.size(); i++) {
+                Count.addUnit(units.get(i).unitType());
+            }
+
+            // Run corresponding code for each type of unit
+            for (int i = 0; i < units.size(); i++) {
+                Unit tempunit = units.get(i);
+                switch (tempunit.unitType() ) {
+                    case Worker:
+                        Worker.run(tempunit);
+                        break;
+                    case Knight:
+                        Knight.run(tempunit);
+                        break;
+                    case Ranger:
+                        Ranger.run(tempunit);
+                        break;
+                    case Mage:
+                        Mage.run(tempunit);
+                        break;
+                    case Healer:
+                        Healer.run(tempunit);
+                        break;
+                    case Factory:
+                        Factory.run(tempunit);
+                        break;
+                    case Rocket:
+                        Rocket.run(tempunit);
+                        break;
+                }
+            }
+
             // Complete round, move on to next one
             gc.nextTurn();
         }
@@ -31,49 +90,9 @@ public class Player {
     /*
     Initializes research path.
     The total number of turns should be equal to ~1000.
-    Ideally, this would be dependent on the situation.
      */
-    
-    public static void UpdatePointsOfInterest() {
-    		//BFS here to find width of areas?
-    		//look at enemy troops?
-    		//arbitrary or random choice?
-    }
-    
-    public static void move() {
-    		//Analyze points of interest to move the players 
-    		//The points of interest for workers will probably be different than those of the battle troops
-    	 VecUnit units = gc.myUnits();
-         for (int i = 0; i < units.size(); i++) {
-             Unit unit = units.get(i);
-             switch (unit.unitType()) {
-                 case Worker:
-                     Worker.run(unit, gc);
-                     break;
-                 case Knight:
-                     Knight.run(unit, gc);
-                     break;
-                 case Ranger:
-                     Ranger.run(unit, gc);
-                     break;
-                 case Mage:
-                     Mage.run(unit, gc);
-                     break;
-                 case Healer:
-                     Healer.run(unit, gc);
-                     break;
-             }
-         }
-    }
-    public static void attack() {
-    	
-    }
-
-    public static void abilities() {
-    
-    }
-
-    public static void initResearch() {
+    private static void initResearch() {
+        System.out.println("Initializing research tree!");
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
