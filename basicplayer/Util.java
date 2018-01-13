@@ -1,5 +1,7 @@
 import bc.*;
 
+import java.util.HashMap;
+
 public class Util {
 
     private static GameController gc;

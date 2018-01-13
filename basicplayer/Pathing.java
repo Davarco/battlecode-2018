@@ -109,14 +109,19 @@ public class Pathing {
      */
     public static void move(Unit unit, MapLocation start, MapLocation end) {
         Direction direction = path(start, end);
+        System.out.println(direction);
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
+        } else {
+            System.out.println("Cannot move " + direction + "! " + unit);
         }
     }
 
     public static void move(Unit unit, Direction direction) {
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
+        } else {
+            System.out.println("Cannot move " + direction + "! " + unit);
         }
     }
 

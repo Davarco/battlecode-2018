@@ -17,6 +17,8 @@ public class Player {
         Ranger.init(gc);
         Mage.init(gc);
         Healer.init(gc);
+        Factory.init(gc);
+        Rocket.init(gc);
 
         // Initialize utils
         Util.init(gc);
@@ -34,10 +36,16 @@ public class Player {
         while (!quit) {
 
             // Debug, print current round
-            System.out.println("Current round: " + gc.round());
+            // System.out.println("Current round: " + gc.round());
 
-            // Get units and run corresponding code
+            // Get units and get counts
             VecUnit units = gc.myUnits();
+            Count.reset();
+            for (int i = 0; i < units.size(); i++) {
+                Count.addUnit(units.get(i).unitType());
+            }
+
+            // Run corresponding code for each type of unit
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
                 switch (unit.unitType() ) {
@@ -55,6 +63,12 @@ public class Player {
                         break;
                     case Healer:
                         Healer.run(unit);
+                        break;
+                    case Factory:
+                        Factory.run(unit);
+                        break;
+                    case Rocket:
+                        Rocket.run(unit);
                         break;
                 }
             }
