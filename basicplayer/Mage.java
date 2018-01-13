@@ -1,4 +1,6 @@
+
 import bc.Direction;
+import java.util.*;
 import bc.GameController;
 import bc.Unit;
 
@@ -7,11 +9,14 @@ public class Mage {
     private static Unit mage;
     private static GameController gc;
 
-    public static void run(Unit unit, GameController controller) {
+    public static void init(GameController controller) {
+        gc = controller;
+    }
+
+    public static void run(Unit unit) {
 
         // Receive mage from main runner
         mage = unit;
-        gc = controller;
 
         // Move unit (placeholder for now)
         for (Direction direction: Direction.values()) {
