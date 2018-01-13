@@ -29,10 +29,10 @@ public class Worker {
         // Otherwise move towards the closest kryptonite
     	System.out.println("I WANT TO MOVE");
     	if(worker.team() == Team.Blue) {
-    	   Pathing.move(worker, new MapLocation(Planet.Earth, 10, 10));
+    	   Pathing.move(worker, new MapLocation(Planet.Earth, Player.X1, Player.Y1));
     }
     	else {
-     	   Pathing.move(worker, new MapLocation(Planet.Earth, 10, 10));
+       Pathing.move(worker, new MapLocation(Planet.Earth, Player.X2, Player.Y2));
     	}
   }
 }
