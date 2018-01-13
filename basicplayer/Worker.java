@@ -57,12 +57,9 @@ public class Worker {
 
         // Move towards karbonite
         // Placeholder, moves randomly atm
-        for (Direction direction: Direction.values()) {
-            if (gc.isMoveReady(worker.id()) && gc.canMove(worker.id(), direction)) {
-                gc.moveRobot(worker.id(), direction);
-                return;
-            }
-        }
+        // Move unit (placeholder for now)
+        int rand = (int)(Math.random()*8);
+        Pathing.tryMove(worker, Direction.values()[rand]);
     }
 
     private static void build() {

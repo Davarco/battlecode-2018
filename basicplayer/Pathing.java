@@ -68,6 +68,7 @@ public class Pathing {
             // Subtract direction, NOT add
             lastLoc.setX(end.getX());
             lastLoc.setY(end.getY());
+            System.out.println(a + " and " + b);
             end.setX(end.getX()-move[prev[a][b]][0]);
             end.setY(end.getY()-move[prev[a][b]][1]);
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
@@ -125,7 +126,7 @@ public class Pathing {
         }
     }
 
-    public static void escapeMove(Unit unit, Direction direction) {
+    public static void tryMove(Unit unit, Direction direction) {
 
         // Get idx of direction
         int idx = -1;
@@ -199,7 +200,7 @@ public class Pathing {
 
         // Get opposite direction
         Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));
-        escapeMove(unit, opposite);
+        tryMove(unit, opposite);
         return true;
     }
 }

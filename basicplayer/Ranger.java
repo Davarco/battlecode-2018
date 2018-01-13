@@ -22,18 +22,25 @@ public class Ranger {
         if (ranger.location().isInGarrison() || ranger.location().isInSpace())
             return;
 
-        // Attack lowest HP unit
-        attack();
-
-        // Move unit in ideal direction
-        move();
+        /*
+        Scenario 1: Attack first and then run away to get out of enemy range
+        Scenario 2: Move first to get into range and then attack
+         */
+        if (!attack()) {
+            move();
+            attack();
+        } else {
+            move();
+        }
     }
 
-    private static void attack() {
+    private static boolean attack() {
 
         // Get enemy units
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), TeamUtil.enemyTeam());
-        
+        if (enemies.size() == 0)
+            return false;
+
         // Attack lowest HP target
         long minHp = Long.MAX_VALUE;
         int idx = -1;
@@ -43,20 +50,37 @@ public class Ranger {
                 idx = 0;
             }
         }
-        if (idx == -1)
-            return;
         if (gc.canAttack(ranger.id(), enemies.get(idx).id()) && gc.isAttackReady(ranger.id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
+
+        return true;
     }
 
     private static void move() {
-        
-        // Move unit (placeholder for now)
-        for (Direction direction: Direction.values()) {
-            if (gc.isMoveReady(ranger.id()) && gc.canMove(ranger.id(), direction)) {
-                gc.moveRobot(ranger.id(), direction);
+
+        // Avoid enemy units if HP is low
+        if (ranger.health() <= 50 && Pathing.escape(ranger)) {
+            return;
+        }
+
+        // Otherwise move towards enemies
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < enemies.size(); i++) {
+            long dist = ranger.location().mapLocation().distanceSquaredTo(enemies.get(i).location().mapLocation());
+            if (dist < minDist) {
+                minDist = dist;
+                idx = i;
             }
         }
+        if (idx != -1) {
+            Pathing.move(ranger, enemies.get(idx).location().mapLocation());
+            return;
+        }
+
+        // If none of the above work, move in a random direction (placeholder for now)
+        int rand = (int)(Math.random()*8);
+        Pathing.tryMove(ranger, Direction.values()[rand]);
     }
 }
