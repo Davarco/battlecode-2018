@@ -34,6 +34,7 @@ public class Player {
         Y1 = (int)(Math.random()*19+1);
         X2 = (int)(Math.random()*19+1);
         Y2 = (int)(Math.random()*19+1);
+        System.out.println(X1+" "+Y1+", "+X2+" "+Y2);
 
 
         /*
