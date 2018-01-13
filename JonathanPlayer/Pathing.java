@@ -68,7 +68,7 @@ public class Pathing {
             lastLoc.setY(end.getY());
             end.setX(end.getX()-move[prev[end.getX()][end.getY()]][0]);
             end.setY(end.getY()-move[prev[end.getX()][end.getY()]][1]);
-            ml.add(lastLoc);
+            ml.add(lastLoc.clone());
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
         Collections.reverse(ml);
@@ -116,17 +116,7 @@ public class Pathing {
     			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end));
     		}
     		MapLocation next = Player.unitpaths.get(TroopUnit.id()).getNextLocation();
-    		System.out.print("FROM (");
-    		System.out.print(TroopUnit.location().mapLocation().getX());
-    		System.out.print(", ");
-    		System.out.print(TroopUnit.location().mapLocation().getY());
-    		System.out.print(") to (");
-    		System.out.print(next.getX());
-    		System.out.print(", ");
-    		System.out.print(next.getY());
-    		System.out.print(") ");
     		if (gc.isMoveReady(TroopUnit.id()) && gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) {
-    			System.out.println("HI");
     			gc.moveRobot(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next));
     		}
     		
