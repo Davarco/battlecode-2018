@@ -10,12 +10,6 @@ public class Pathway {
 		unitpathway = p;
 		index = 0;
 		goal = g;
-		/*if(unitpathway == null) {
-			System.out.println("HI");
-		}
-		for(MapLocation sadf:unitpathway) {
-			System.out.println(sadf.getX()+", "+sadf.getY()+", ");
-		}*/
 	}
 	
 	public MapLocation getNextLocation() {
