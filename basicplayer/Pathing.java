@@ -31,7 +31,8 @@ public class Pathing {
     /*
     Runs BFS to get the right direction for the robot to move from point A to B.
      */
-    private static ArrayList<MapLocation> path(MapLocation start, MapLocation end) {
+    private static ArrayList<MapLocation> path(Unit unit, MapLocation start, MapLocation end) {
+
         // Initialize direction grid
         // System.out.println("Running pathing! " + start + " to " + end);
         Planet planet = start.getPlanet();
@@ -40,8 +41,12 @@ public class Pathing {
 
         // Run BFS from start node
         LinkedList<MapLocation> queue = new LinkedList<>();
-        boolean visited[][] = new boolean[W][H];
+        boolean[][] visited = new boolean[W][H];
         visited[x][y] = true;
+        prev[x][y] = 9;
+        for (int i1 = 0; i1 < H; i1++)
+            for (int j1 = 0; j1 < W; j1++)
+                prev[j1][i1] = 9;
         queue.add(new MapLocation(planet, x, y));
 
         // Run until queue is empty
@@ -51,7 +56,7 @@ public class Pathing {
                 int a = location.getX() + move[i][0];
                 int b = location.getY() + move[i][1];
                 MapLocation temp = new MapLocation(planet, a, b);
-                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b] && !gc.hasUnitAtLocation(new MapLocation(planet, a, b))) {
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || !gc.hasUnitAtLocation(temp)) && !visited[a][b]) {
                     prev[a][b] = i;
                     // System.out.println(prev[a][b] + " " + a + " " + b);
                     visited[a][b] = true;
@@ -59,14 +64,25 @@ public class Pathing {
                 }
             }
         }
+        /*
+        Use this to debug.
+        for (int i = H-1; i > 0; i--) {
+            for (int j = 0; j < W; j++) {
+                System.out.print(prev[j][i]);
+            }
+            System.out.println();
+        }
+        */
 
         // Go backwards from end point
+        
         MapLocation lastLoc = end.clone();
         ArrayList<MapLocation> ml = new ArrayList<MapLocation>();
-        while (!end.equals(start)) {
+        while (!end.equals(start) && prev[end.getX()][end.getY()] != 9) {
             // Subtract direction, NOT add
             lastLoc.setX(end.getX());
             lastLoc.setY(end.getY());
+            System.out.println(end.getX()+" "+end.getY()+" "+prev[end.getX()][end.getY()]);
             end.setX(end.getX()-move[prev[end.getX()][end.getY()]][0]);
             end.setY(end.getY()-move[prev[end.getX()][end.getY()]][1]);
             ml.add(lastLoc.clone());
@@ -76,6 +92,9 @@ public class Pathing {
         // System.out.println(dir);
         return ml.size() == 0?null:ml;
     }
+    
+ //        return ml.size() == 0?null:ml;
+//    !gc.hasUnitAtLocation(new MapLocation(planet, a, b)
 
     /*
     Gets the direction opposite of an input direction.
@@ -117,7 +136,7 @@ public class Pathing {
     	Criterion 1
     Next, checks if the unit has had a pathway
     		Creates one if not
-    			If pathway does not exist, then returns;
+    	If pathway does not exist, then returns;
     	Criterion 2
     	If goal changed from previous (for units with previous pathways)
     			Recalculate path
@@ -129,7 +148,6 @@ public class Pathing {
     			returns (because can't move)
     		If not, then recalculates path
     			If path is null then return
-    			
     Move unit
        */
     
@@ -143,17 +161,17 @@ public class Pathing {
 		}
 		//Critertion 1
 		if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
-			Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit.location().mapLocation(), end), end.clone()));
-			if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-				return;
-			}
+			Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone()));
+		}
+		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+			return;
 		}
 		Pathway TroopPath = Player.unitpaths.get(TroopUnit.id());
 		MapLocation next = TroopPath.getNextLocation();
 		
 		//Criterion 2
 		if(!end.equals(TroopPath.goal)) {
-			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end), end.clone());
+			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
 			if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
 				return;
 			}
@@ -166,7 +184,7 @@ public class Pathing {
 				return;
 			}
 			else {
-				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end), end.clone());
+				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
 				if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
 					return;
 				}
