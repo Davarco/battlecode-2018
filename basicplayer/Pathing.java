@@ -14,6 +14,7 @@ public class Pathing {
     private static PlanetMap map;
     private static int H, W;
     private static int prev[][];
+    private static boolean visited[][];
 
     public static void init(GameController controller) {
 
@@ -40,8 +41,12 @@ public class Pathing {
 
         // Run BFS from start node
         LinkedList<MapLocation> queue = new LinkedList<>();
-        boolean visited[][] = new boolean[W][H];
+        visited = new boolean[W][H];
         visited[x][y] = true;
+        prev[x][y] = 9;
+        for (int i1 = 0; i1 < H; i1++)
+            for (int j1 = 0; j1 < W; j1++)
+                prev[j1][i1] = 9;
         queue.add(new MapLocation(planet, x, y));
 
         // Run until queue is empty
@@ -59,16 +64,23 @@ public class Pathing {
                 }
             }
         }
+        for (int i = H-1; i >= 0; i++) {
+            for (int j = 0; j < W; j++) {
+                System.out.print(prev[j][i]);
+            }
+            System.out.println();
+        }
 
         // Go backwards from end point
         MapLocation lastLoc = end.clone();
+        System.out.println(start + " " + end);
         while (!end.equals(start)) {
             int a=end.getX(), b=end.getY();
 
             // Subtract direction, NOT add
             lastLoc.setX(end.getX());
             lastLoc.setY(end.getY());
-            System.out.println(a + " and " + b);
+            System.out.println(move[prev[a][b]][0] + " " + move[prev[a][b]][1]);
             end.setX(end.getX()-move[prev[a][b]][0]);
             end.setY(end.getY()-move[prev[a][b]][1]);
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);

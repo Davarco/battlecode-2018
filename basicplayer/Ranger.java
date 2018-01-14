@@ -59,8 +59,8 @@ public class Ranger {
 
     private static void move() {
 
-        // Avoid enemy units if HP is low
-        if (ranger.health() <= 50 && Pathing.escape(ranger)) {
+        // Avoid enemy units, walk outside of their view range
+        if (Pathing.escape(ranger)) {
             return;
         }
 
