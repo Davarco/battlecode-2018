@@ -56,7 +56,7 @@ public class Pathing {
                 int a = location.getX() + move[i][0];
                 int b = location.getY() + move[i][1];
                 MapLocation temp = new MapLocation(planet, a, b);
-                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || gc.isOccupiable(temp) == 1) && !visited[a][b]) {
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || !gc.hasUnitAtLocation(temp)) && !visited[a][b]) {
                     prev[a][b] = i;
                     // System.out.println(prev[a][b] + " " + a + " " + b);
                     visited[a][b] = true;
@@ -64,17 +64,20 @@ public class Pathing {
                 }
             }
         }
-        for (int i = H-1; i >= 0; i++) {
+        /*
+        Use this to debug.
+        for (int i = H-1; i > 0; i--) {
             for (int j = 0; j < W; j++) {
                 System.out.print(prev[j][i]);
             }
             System.out.println();
         }
+        */
 
         // Go backwards from end point
         MapLocation lastLoc = end.clone();
         System.out.println(start + " " + end);
-        while (!end.equals(start)) {
+        while (!end.equals(start) && prev[end.getX()][end.getY()] != 9) {
             int a=end.getX(), b=end.getY();
 
             // Subtract direction, NOT add
@@ -83,7 +86,7 @@ public class Pathing {
             System.out.println(move[prev[a][b]][0] + " " + move[prev[a][b]][1]);
             end.setX(end.getX()-move[prev[a][b]][0]);
             end.setY(end.getY()-move[prev[a][b]][1]);
-            // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
+            System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
 
         Direction dir = end.directionTo(lastLoc);
