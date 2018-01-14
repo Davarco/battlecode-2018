@@ -6,6 +6,7 @@ import java.util.HashMap;
 public class Count {
 
     private static HashMap<UnitType, Integer> unitCounts;
+    public static long totalUnits;
 
     public static void reset() {
         unitCounts = new HashMap<>();

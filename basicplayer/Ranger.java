@@ -5,6 +5,7 @@ public class Ranger {
     private static Unit ranger;
     private static GameController gc;
     private static VecUnit enemies;
+    private static Direction curr;
 
     public static void init(GameController controller) {
         gc = controller;

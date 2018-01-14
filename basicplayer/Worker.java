@@ -17,6 +17,10 @@ public class Worker {
         // Receive worker from main runner
         worker = unit;
 
+        // Check if in garrison or space
+        if (worker.location().isInGarrison() || worker.location().isInSpace())
+            return;
+
         // Move unit (placeholder for now)
         move();
 
@@ -72,6 +76,16 @@ public class Worker {
         // Only build rockets past turn 300, good number to have is around NUM_TURNS/200
         if (gc.round() >= 300 && Count.number(UnitType.Rocket) < gc.round()/200) {
             create(UnitType.Rocket);
+        }
+
+        // If we have enough units, have workers replicate themselves
+        if (Count.totalUnits >= Count.number(UnitType.Worker)*8) {
+            for (Direction dir: Direction.values()) {
+                if (gc.canReplicate(worker.id(), dir)) {
+                    gc.replicate(worker.id(), dir);
+                    break; // Don't replicate more than once
+                }
+            }
         }
     }
 

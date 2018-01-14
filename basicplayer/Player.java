@@ -43,13 +43,8 @@ public class Player {
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
                 Count.addUnit(unit.unitType());
-                if (unit.unitType() == UnitType.Factory) {
-                    Factory.run(unit);
-                }
-                if (unit.unitType() == UnitType.Rocket) {
-                    Rocket.run(unit);
-                }
             }
+            Count.totalUnits = units.size();
 
             // Run corresponding code for each type of unit
             for (int i = 0; i < units.size(); i++) {
@@ -70,14 +65,12 @@ public class Player {
                     case Healer:
                         Healer.run(unit);
                         break;
-                        /*
                     case Factory:
                         Factory.run(unit);
                         break;
                     case Rocket:
                         Rocket.run(unit);
                         break;
-                        */
                 }
             }
 
