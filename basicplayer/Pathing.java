@@ -125,31 +125,31 @@ public class Pathing {
     }
 
     /*
-     Critertion for (re)calculating path:
+    Criterion for (re)calculating path:
      	1. If the unit was just made
      	2. If the goal changed
      	3. If unit is blocking the goal
-     If recalculated path is null given the update of the situation, then the unit cannot move (function returns)
+    If recalculated path is null given the update of the situation, then the unit cannot move (function returns)
      	
     First, checks if the unit movement cooldown is up
     Next, checks if the unit is already at the location
     		If it is, then returns (mission accomplished)
     	
-    	Criterion 1
+    Criterion 1
     Next, checks if the unit has had a pathway
-    		Creates one if not
-    	If pathway does not exist, then returns;
+    	Creates one if not
+    If pathway does not exist, then returns;
     	Criterion 2
-    	If goal changed from previous (for units with previous pathways)
-    			Recalculate path
-    			If recalculation is null, then returns (can't move)
+    If goal changed from previous (for units with previous pathways)
+    	Recalculate path
+    	If recalculation is null, then returns (can't move)
     			
     Criterion 3
     Next, checks if the next location to move is blocked
-    		If blocked and next location is final destination, doesn't recalculate
-    			returns (because can't move)
-    		If not, then recalculates path
-    			If path is null then return
+   	    If blocked and next location is final destination, doesn't recalculate
+    		returns (because can't move)
+    	If not, then recalculates path
+    		If path is null then return
     Move unit
     
     True if move successful, false if not

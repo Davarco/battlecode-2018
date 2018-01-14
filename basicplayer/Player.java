@@ -12,7 +12,7 @@ public class Player {
 
         // Start game by connecting to game controller
         gc = new GameController();
-        unitpaths = new HashMap<Integer, Pathway>();
+        unitpaths = new HashMap<>();
 
         // Initialize the different types of troops
         Worker.init(gc);
