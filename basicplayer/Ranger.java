@@ -85,7 +85,6 @@ public class Ranger {
         if (Player.focalPoint == null) {
             if (idx != -1) {
                 Player.focalPoint = enemies.get(idx).location().mapLocation();
-                System.out.println("New focal point: " + Player.focalPoint);
             }
         }
 

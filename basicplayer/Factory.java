@@ -24,7 +24,7 @@ public class Factory {
     private static void build() {
 
         // See if the factory can build the robot
-        if (gc.canProduceRobot(factory.id(), UnitType.Ranger) && Count.number(UnitType.Ranger) == 0) {
+        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
             gc.produceRobot(factory.id(), UnitType.Ranger);
         }
     }
