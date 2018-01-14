@@ -149,22 +149,24 @@ public class Pathing {
     		If not, then recalculates path
     			If path is null then return
     Move unit
+    
+    True if move successful, false if not
        */
     
     
-    public static void move(Unit TroopUnit, MapLocation end) {
+    public static boolean move(Unit TroopUnit, MapLocation end) {
 		if(!gc.isMoveReady(TroopUnit.id())) { //check if unit can move
-			return;
+			return false;
 		}
 		if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
-			return;
+			return false;
 		}
 		//Critertion 1
 		if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
 			Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone()));
 		}
 		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-			return;
+			return false;
 		}
 		Pathway TroopPath = Player.unitpaths.get(TroopUnit.id());
 		MapLocation next = TroopPath.getNextLocation();
@@ -173,7 +175,7 @@ public class Pathing {
 		if(!end.equals(TroopPath.goal)) {
 			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
 			if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-				return;
+				return false;
 			}
 		}
 		
@@ -181,12 +183,12 @@ public class Pathing {
 		if(!gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) { 	//check if unit is in the way and unit is not in final location
 			//might need to override later
 			if(TroopPath.NextLocationIsEnd()) {
-				return;
+				return false;
 			}
 			else {
 				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
 				if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-					return;
+					return false;
 				}
 			}
 		}
@@ -194,6 +196,7 @@ public class Pathing {
 		//Move unit
 		gc.moveRobot(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next));
 		TroopPath.index++; 
+		return true;
     }
 
     public static void move(Unit unit, Direction direction) {
