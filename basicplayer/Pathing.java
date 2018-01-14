@@ -76,17 +76,17 @@ public class Pathing {
 
         // Go backwards from end point
         MapLocation lastLoc = end.clone();
-        System.out.println(start + " " + end);
+        // System.out.println(start + " " + end);
         while (!end.equals(start) && prev[end.getX()][end.getY()] != 9) {
             int a=end.getX(), b=end.getY();
 
             // Subtract direction, NOT add
             lastLoc.setX(end.getX());
             lastLoc.setY(end.getY());
-            System.out.println(move[prev[a][b]][0] + " " + move[prev[a][b]][1]);
+            // System.out.println(move[prev[a][b]][0] + " " + move[prev[a][b]][1]);
             end.setX(end.getX()-move[prev[a][b]][0]);
             end.setY(end.getY()-move[prev[a][b]][1]);
-            System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
+            // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
 
         Direction dir = end.directionTo(lastLoc);

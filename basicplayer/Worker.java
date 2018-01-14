@@ -68,6 +68,11 @@ public class Worker {
         if (Count.number(UnitType.Factory) < 1) {
             create(UnitType.Factory);
         }
+
+        // Only build rockets past turn 300, good number to have is around NUM_TURNS/200
+        if (gc.round() >= 300 && Count.number(UnitType.Rocket) < gc.round()/200) {
+            create(UnitType.Rocket);
+        }
     }
 
     private static void repair() {

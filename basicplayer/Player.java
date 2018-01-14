@@ -3,6 +3,7 @@ import bc.*;
 public class Player {
 
     private static GameController gc;
+    public static MapLocation focalPoint;
 
     public static void main(String[] args) {
 

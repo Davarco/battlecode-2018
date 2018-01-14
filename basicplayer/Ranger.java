@@ -1,7 +1,4 @@
-import bc.Direction;
-import bc.GameController;
-import bc.Unit;
-import bc.VecUnit;
+import bc.*;
 
 public class Ranger {
 
@@ -64,7 +61,7 @@ public class Ranger {
             return;
         }
 
-        // Otherwise move towards enemies
+        // Get closest enemy
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
@@ -74,6 +71,30 @@ public class Ranger {
                 idx = i;
             }
         }
+
+        // Remove focal point if no units exist there
+        if (Player.focalPoint != null) {
+            if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
+                    gc.hasUnitAtLocation(Player.focalPoint)) {
+                // System.out.println("Works");
+                Player.focalPoint = null;
+            }
+        }
+
+        // Set new focal point
+        if (Player.focalPoint == null) {
+            if (idx != -1) {
+                Player.focalPoint = enemies.get(idx).location().mapLocation();
+                System.out.println("New focal point: " + Player.focalPoint);
+            }
+        }
+
+        // Move towards focal point
+        if (Player.focalPoint != null) {
+            Pathing.move(ranger, Player.focalPoint);
+        }
+
+        // Otherwise move towards enemies
         if (idx != -1) {
             Pathing.move(ranger, enemies.get(idx).location().mapLocation());
             return;
