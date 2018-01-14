@@ -1,14 +1,18 @@
+import java.util.HashMap;
+
 import bc.*;
 
 public class Player {
 
     private static GameController gc;
     public static MapLocation focalPoint;
+    public static HashMap<Integer, Pathway> unitpaths;
 
     public static void main(String[] args) {
 
         // Start game by connecting to game controller
         gc = new GameController();
+        unitpaths = new HashMap<Integer, Pathway>();
 
         // Initialize the different types of troops
         Worker.init(gc);
