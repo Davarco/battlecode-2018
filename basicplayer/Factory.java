@@ -31,7 +31,15 @@ public class Factory {
             }
         }
 
-        // See if the factory can build the robot
+        // Build healers if there are a lot of other troops
+        if (Count.totalUnits >= Count.number(UnitType.Healer)*6) {
+            if (gc.canProduceRobot(factory.id(), UnitType.Healer)) {
+                gc.produceRobot(factory.id(), UnitType.Healer);
+                Count.addUnit(UnitType.Healer);
+            }
+        }
+
+        // See if the factory can build the ranger
         if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
             gc.produceRobot(factory.id(), UnitType.Ranger);
             Count.addUnit(UnitType.Ranger);
