@@ -51,7 +51,7 @@ public class Pathing {
         }
         visited[x][y] = true;
         queue.add(new MapLocation(planet, x, y));
-        System.out.println(start.getX()+" "+start.getY()+" "+end.getX()+" "+end.getY());
+        System.out.println("Moving Troop Number"+unit.id()+"("+start.getX()+", "+start.getY()+") to ("+end.getX()+", "+end.getY()+")");
         // Run until queue is empty
         boolean found = false;
         boolean ReachedEnd = false;
