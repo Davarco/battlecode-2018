@@ -49,7 +49,7 @@ public class Worker {
         int idx = -1;
         for (int i = 0; i < factories.size(); i++) {
             long dist = factories.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
-            if (TeamUtil.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
@@ -67,7 +67,7 @@ public class Worker {
         idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
-            if (TeamUtil.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
@@ -135,6 +135,16 @@ public class Worker {
         for (Direction dir: Direction.values()) {
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
+
+                // Add rocket to dest map
+                // TODO Don't forget to change this when workers see rockets on Mars
+                if (type.equals(UnitType.Rocket)) {
+                    MapLocation temp = worker.location().mapLocation().add(dir);
+                    System.out.println("prev " + worker.location().mapLocation() + "\t next " + temp);
+                    if (gc.canSenseLocation(temp)) {
+                        Rocket.destPlanets.putIfAbsent(gc.senseUnitAtLocation(temp).id(), Util.oppositePlanet(temp.getPlanet()));
+                    }
+                }
             }
         }
     }

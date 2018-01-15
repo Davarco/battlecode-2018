@@ -20,7 +20,7 @@ public class Player {
         Rocket.init(gc);
 
         // Initialize utils
-        TeamUtil.init(gc);
+        Util.init(gc);
 
         // Initialize path searching
         Pathing.init(gc);

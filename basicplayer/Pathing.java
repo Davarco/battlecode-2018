@@ -192,7 +192,7 @@ public class Pathing {
     public static boolean escape(Unit unit) {
 
         // Return false if no units are found
-        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), TeamUtil.enemyTeam());
+        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), Util.enemyTeam());
         if (enemies.size() == 0)
             return false;
 

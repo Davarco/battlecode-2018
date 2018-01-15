@@ -31,7 +31,7 @@ public class Ranger {
     private static boolean attack() {
 
         // Get enemy units
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), TeamUtil.enemyTeam());
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
         if (enemies.size() == 0)
             return false;
 
@@ -63,7 +63,7 @@ public class Ranger {
         }
 
         // Get closest enemy
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), TeamUtil.enemyTeam());
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {

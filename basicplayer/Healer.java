@@ -35,7 +35,7 @@ public class Healer {
     private static boolean heal() {
 
         // Get friendly units
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), TeamUtil.friendlyTeam());
+        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), Util.friendlyTeam());
         if (friendlies.size() == 0)
             return false;
 
@@ -68,12 +68,12 @@ public class Healer {
 
         // Otherwise move towards a low HP troop
         // TODO Implement this as a heuristic
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), TeamUtil.friendlyTeam());
+        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < friendlies.size(); i++) {
             long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(healer.location().mapLocation());
-            if (TeamUtil.friendlyUnit(friendlies.get(i)) && friendlies.get(i).health() < friendlies.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(friendlies.get(i)) && friendlies.get(i).health() < friendlies.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
