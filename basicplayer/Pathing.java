@@ -56,7 +56,7 @@ public class Pathing {
                 int a = location.getX() + move[i][0];
                 int b = location.getY() + move[i][1];
                 MapLocation temp = new MapLocation(planet, a, b);
-                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || temp.equals(end) || !gc.hasUnitAtLocation(temp)) && !visited[a][b]) {
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && (!temp.isWithinRange(unit.visionRange(), start) || !gc.hasUnitAtLocation(temp)) && !visited[a][b]) {
                     prev[a][b] = i;
                     // System.out.println(prev[a][b] + " " + a + " " + b);
                     visited[a][b] = true;
@@ -89,7 +89,7 @@ public class Pathing {
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
         if (!end.equals(start)) {
-            System.out.println("No possible BFS found from " + start + " to " + end);
+            return null;
         }
 
         Direction dir = end.directionTo(lastLoc);
@@ -128,6 +128,9 @@ public class Pathing {
      */
     public static void move(Unit unit, MapLocation end) {
         Direction direction = path(unit, unit.location().mapLocation(), end);
+        if (direction == null) {
+            return;
+        }
         // System.out.println(direction);
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
