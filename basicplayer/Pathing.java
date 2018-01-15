@@ -1,7 +1,5 @@
 import bc.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 
 public class Pathing {
@@ -33,7 +31,7 @@ public class Pathing {
     /*
     Runs BFS to get the right direction for the robot to move from point A to B.
      */
-    private static ArrayList<MapLocation> path(Unit unit, MapLocation start, MapLocation end) {
+    private static Direction path(Unit unit, MapLocation start, MapLocation end) {
 
         // Initialize direction grid
         // System.out.println("Running pathing! " + start + " to " + end);
@@ -43,7 +41,7 @@ public class Pathing {
 
         // Run BFS from start node
         LinkedList<MapLocation> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[W][H];
+        visited = new boolean[W][H];
         visited[x][y] = true;
         prev[x][y] = 9;
         for (int i1 = 0; i1 < H; i1++)
@@ -77,26 +75,24 @@ public class Pathing {
         */
 
         // Go backwards from end point
-        
         MapLocation lastLoc = end.clone();
-        ArrayList<MapLocation> ml = new ArrayList<MapLocation>();
+        // System.out.println(start + " " + end);
         while (!end.equals(start) && prev[end.getX()][end.getY()] != 9) {
+            int a=end.getX(), b=end.getY();
+
             // Subtract direction, NOT add
             lastLoc.setX(end.getX());
             lastLoc.setY(end.getY());
-            System.out.println(end.getX()+" "+end.getY()+" "+prev[end.getX()][end.getY()]);
-            end.setX(end.getX()-move[prev[end.getX()][end.getY()]][0]);
-            end.setY(end.getY()-move[prev[end.getX()][end.getY()]][1]);
-            ml.add(lastLoc.clone());
+            // System.out.println(move[prev[a][b]][0] + " " + move[prev[a][b]][1]);
+            end.setX(end.getX()-move[prev[a][b]][0]);
+            end.setY(end.getY()-move[prev[a][b]][1]);
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
-        Collections.reverse(ml);
+
+        Direction dir = end.directionTo(lastLoc);
         // System.out.println(dir);
-        return ml.size() == 0?null:ml;
+        return dir;
     }
-    
- //        return ml.size() == 0?null:ml;
-//    !gc.hasUnitAtLocation(new MapLocation(planet, a, b)
 
     /*
     Gets the direction opposite of an input direction.
@@ -125,80 +121,16 @@ public class Pathing {
     }
 
     /*
-    Criterion for (re)calculating path:
-     	1. If the unit was just made
-     	2. If the goal changed
-     	3. If unit is blocking the goal
-    If recalculated path is null given the update of the situation, then the unit cannot move (function returns)
-     	
-    First, checks if the unit movement cooldown is up
-    Next, checks if the unit is already at the location
-    		If it is, then returns (mission accomplished)
-    	
-    Criterion 1
-    Next, checks if the unit has had a pathway
-    	Creates one if not
-    If pathway does not exist, then returns;
-    	Criterion 2
-    If goal changed from previous (for units with previous pathways)
-    	Recalculate path
-    	If recalculation is null, then returns (can't move)
-    			
-    Criterion 3
-    Next, checks if the next location to move is blocked
-   	    If blocked and next location is final destination, doesn't recalculate
-    		returns (because can't move)
-    	If not, then recalculates path
-    		If path is null then return
-    Move unit
-    
-    True if move successful, false if not
-       */
-    
-    
-    public static boolean move(Unit TroopUnit, MapLocation end) {
-		if(!gc.isMoveReady(TroopUnit.id())) { //check if unit can move
-			return false;
-		}
-		if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
-			return false;
-		}
-		//Critertion 1
-		if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
-			Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone()));
-		}
-		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-			return false;
-		}
-		Pathway TroopPath = Player.unitpaths.get(TroopUnit.id());
-		MapLocation next = TroopPath.getNextLocation();
-		
-		//Criterion 2
-		if(!end.equals(TroopPath.goal)) {
-			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
-			if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-				return false;
-			}
-		}
-		
-		//Criterion 3
-		if(!gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) { 	//check if unit is in the way and unit is not in final location
-			//might need to override later
-			if(TroopPath.NextLocationIsEnd()) {
-				return false;
-			}
-			else {
-				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end), end.clone());
-				if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-					return false;
-				}
-			}
-		}
-		
-		//Move unit
-		gc.moveRobot(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next));
-		TroopPath.index++; 
-		return true;
+    Actually moves the robot, but checks before moving.
+     */
+    public static void move(Unit unit, MapLocation end) {
+        Direction direction = path(unit, unit.location().mapLocation(), end);
+        // System.out.println(direction);
+        if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
+            gc.moveRobot(unit.id(), direction);
+        } else {
+            // System.out.println("Cannot move " + direction + "! " + unit.location().mapLocation());
+        }
     }
 
     public static void move(Unit unit, Direction direction) {
@@ -209,7 +141,7 @@ public class Pathing {
         }
     }
 
-    public static void tryMove(Unit unit, Direction direction) {
+    public static boolean tryMove(Unit unit, Direction direction) {
 
         // Get idx of direction
         int idx = -1;
@@ -246,10 +178,11 @@ public class Pathing {
 
         // Don't move if no idx was found, otherwise move in the best direction
         if (fin == -1) {
-            System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
-            return;
+            System.out.println(unit.unitType() + " " + unit.location().mapLocation() + " is stuck!");
+            return false;
         }
         move(unit, Direction.values()[fin]);
+        return true;
     }
 
     /*

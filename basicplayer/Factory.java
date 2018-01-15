@@ -24,25 +24,25 @@ public class Factory {
     private static void build() {
 
         // Workers are vital, build them if we have nothing left
-        if (Count.number(UnitType.Worker) < 1) {
+        if (Info.number(UnitType.Worker) < 1) {
             if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
                 gc.produceRobot(factory.id(), UnitType.Worker);
-                Count.addUnit(UnitType.Worker);
+                Info.addUnit(UnitType.Worker);
             }
         }
 
         // Build healers if there are a lot of other troops
-        if (Count.totalUnits >= Count.number(UnitType.Healer)*6) {
+        if (Info.totalUnits >= Info.number(UnitType.Healer)*8) {
             if (gc.canProduceRobot(factory.id(), UnitType.Healer)) {
                 gc.produceRobot(factory.id(), UnitType.Healer);
-                Count.addUnit(UnitType.Healer);
+                Info.addUnit(UnitType.Healer);
             }
         }
 
         // See if the factory can build the ranger
         if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
             gc.produceRobot(factory.id(), UnitType.Ranger);
-            Count.addUnit(UnitType.Ranger);
+            Info.addUnit(UnitType.Ranger);
         }
     }
 
