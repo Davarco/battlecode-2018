@@ -9,11 +9,8 @@ public class Rocket {
     private static GameController gc;
     private static VecUnit friendlies;
 
-    public static HashMap<Integer, Planet> destPlanets;
-
     public static void init(GameController controller) {
         gc = controller;
-        destPlanets = new HashMap<>();
     }
 
     public static void run(Unit unit) {
@@ -26,9 +23,16 @@ public class Rocket {
 
         // Send them to Mars when full
         send();
+
+        // Start unloading troops on Mars
+        unload();
     }
 
     private static void load() {
+
+        // Only load when on earth
+        if (rocket.location().mapLocation().getPlanet().equals(Planet.Mars))
+            return;
 
         // Find units around to load
         friendlies = gc.senseNearbyUnitsByTeam(rocket.location().mapLocation(), rocket.visionRange(), Util.friendlyTeam());
@@ -44,21 +48,40 @@ public class Rocket {
 
     private static void send() {
 
-        // Send them over to Mars when full
+        // Only send when on earth
+        // TODO It might not be a bad idea to have the rocket blow up once it's reached Mars, as it's useless and takes up space
+        // TODO I'm keeping it as of now because it's a good HP tank
+        if (rocket.location().mapLocation().getPlanet().equals(Planet.Mars))
+            return;
+
+        // Send rocket over to opposite planet when we're loaded
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
-        Planet planet = destPlanets.get(rocket.id());
-        PlanetMap map = gc.startingMap(planet);
+        PlanetMap map = gc.startingMap(Planet.Mars);
         if (rocket.structureGarrison().size() >= 6) {
             for (int x = 0; x < map.getWidth(); x++) {
                 for (int y = 0; y < map.getHeight(); y++) {
-                    MapLocation temp = new MapLocation(planet, x, y);
+                    MapLocation temp = new MapLocation(Planet.Mars, x, y);
                     if (map.isPassableTerrainAt(temp) == 1) {
                         gc.launchRocket(rocket.id(), temp);
-                        destPlanets.replace(rocket.id(), Util.oppositePlanet(planet));
+                        System.out.println("Fucking blastoff to " + temp + "!");
                         return;
                     }
                 }
+            }
+        }
+    }
+
+    private static void unload() {
+
+        // Only unload on Mars
+        if (rocket.location().mapLocation().getPlanet().equals(Planet.Earth))
+            return;
+
+        // Check all possible directions
+        for (Direction dir: Direction.values()) {
+            if (gc.canUnload(rocket.id(), dir)) {
+                gc.unload(rocket.id(), dir);
             }
         }
     }

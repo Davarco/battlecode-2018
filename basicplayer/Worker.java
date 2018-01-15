@@ -110,13 +110,15 @@ public class Worker {
 
     private static void repair() {
 
-        // Repair a factory in range
-        for (int i = 0; i < factories.size(); i++) {
-            if (gc.canBuild(worker.id(), factories.get(i).id())) {
-                gc.build(worker.id(), factories.get(i).id());
-            }
-            if (gc.canRepair(worker.id(), factories.get(i).id())) {
-                gc.repair(worker.id(), factories.get(i).id());
+        // Repair a factory in range, but factories only exist on Earth
+        if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+            for (int i = 0; i < factories.size(); i++) {
+                if (gc.canBuild(worker.id(), factories.get(i).id())) {
+                    gc.build(worker.id(), factories.get(i).id());
+                }
+                if (gc.canRepair(worker.id(), factories.get(i).id())) {
+                    gc.repair(worker.id(), factories.get(i).id());
+                }
             }
         }
 
@@ -135,16 +137,6 @@ public class Worker {
         for (Direction dir: Direction.values()) {
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
-
-                // Add rocket to dest map
-                // TODO Don't forget to change this when workers see rockets on Mars
-                if (type.equals(UnitType.Rocket)) {
-                    MapLocation temp = worker.location().mapLocation().add(dir);
-                    System.out.println("prev " + worker.location().mapLocation() + "\t next " + temp);
-                    if (gc.canSenseLocation(temp)) {
-                        Rocket.destPlanets.putIfAbsent(gc.senseUnitAtLocation(temp).id(), Util.oppositePlanet(temp.getPlanet()));
-                    }
-                }
             }
         }
     }
