@@ -88,7 +88,7 @@ public class Pathing {
             end.setY(end.getY()-move[prev[a][b]][1]);
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
-        if (!end.equals(start)) {
+        if (end.distanceSquaredTo(lastLoc) > 2) {
             return null;
         }
 
@@ -127,8 +127,9 @@ public class Pathing {
     Actually moves the robot, but checks before moving.
      */
     public static void move(Unit unit, MapLocation end) {
-        Direction direction = path(unit, unit.location().mapLocation(), end);
+        Direction direction = path(unit, unit.location().mapLocation(), end.clone());
         if (direction == null) {
+            System.out.println("No possible BFS found from " + unit.location().mapLocation() + " to " + end);
             return;
         }
         // System.out.println(direction);

@@ -61,7 +61,6 @@ public class Worker {
         }
 
         // Move towards a low-HP rocket if possible
-        // Move towards a low-HP factory if necessary
         rockets = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Rocket);
         minDist = Long.MAX_VALUE;
         idx = -1;
@@ -122,13 +121,15 @@ public class Worker {
             }
         }
 
-        // Repair a rocket in range
-        for (int i = 0; i < rockets.size(); i++) {
-            if (gc.canBuild(worker.id(), rockets.get(i).id())) {
-                gc.build(worker.id(), rockets.get(i).id());
-            }
-            if (gc.canRepair(worker.id(), rockets.get(i).id())) {
-                gc.repair(worker.id(), rockets.get(i).id());
+        // Repair a rocket in range, only in Earth
+        if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+            for (int i = 0; i < rockets.size(); i++) {
+                if (gc.canBuild(worker.id(), rockets.get(i).id())) {
+                    gc.build(worker.id(), rockets.get(i).id());
+                }
+                if (gc.canRepair(worker.id(), rockets.get(i).id())) {
+                    gc.repair(worker.id(), rockets.get(i).id());
+                }
             }
         }
     }
