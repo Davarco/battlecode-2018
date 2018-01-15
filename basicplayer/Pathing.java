@@ -201,7 +201,7 @@ public class Pathing {
 			else {
 				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone());
 				if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-					return false;s
+					return false;
 				}
 			}
 		}
