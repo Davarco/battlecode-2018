@@ -5,6 +5,7 @@ public class Worker {
     private static Unit worker;
     private static GameController gc;
     private static VecUnit factories;
+    private static VecUnit rockets;
 
     private static boolean isAttacked;
 
@@ -16,10 +17,6 @@ public class Worker {
 
         // Receive worker from main runner
         worker = unit;
-
-        // Check if in garrison or space
-        if (worker.location().isInGarrison() || worker.location().isInSpace())
-            return;
 
         // Move unit (placeholder for now)
         move();
@@ -33,6 +30,10 @@ public class Worker {
 
     private static void move() {
 
+        /*
+        TODO Implement the entire worker changes function as a heuristic based on priority
+         */
+
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
             isAttacked = true;
@@ -42,19 +43,36 @@ public class Worker {
             isAttacked = false;
         }
 
-        // Move towards a low-HP factory if necessary
+        // Move towards a low-HP factory if possible
         factories = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Factory);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < factories.size(); i++) {
             long dist = factories.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
-            if (TeamUtil.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
         }
         if (idx != -1) {
             Pathing.move(worker, factories.get(idx).location().mapLocation());
+            // System.out.println("Moving towards friendly factory.");
+            return;
+        }
+
+        // Move towards a low-HP rocket if possible
+        rockets = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Rocket);
+        minDist = Long.MAX_VALUE;
+        idx = -1;
+        for (int i = 0; i < rockets.size(); i++) {
+            long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
+            if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if (idx != -1) {
+            Pathing.move(worker, rockets.get(idx).location().mapLocation());
             // System.out.println("Moving towards friendly factory.");
             return;
         }
@@ -69,17 +87,17 @@ public class Worker {
     private static void build() {
 
         // Check number of factories, ideally we should have at least 1
-        if (Count.number(UnitType.Factory) < 1) {
+        if (Info.number(UnitType.Factory) < 1) {
             create(UnitType.Factory);
         }
 
         // Only build rockets past turn 300, good number to have is around NUM_TURNS/200
-        if (gc.round() >= 200 && Count.number(UnitType.Rocket) < gc.round()/200) {
+        if (gc.round() >= 200 && Info.number(UnitType.Rocket) < gc.round()/200) {
             create(UnitType.Rocket);
         }
 
         // If we have enough units, have workers replicate themselves
-        if (Count.totalUnits >= Count.number(UnitType.Worker)*8) {
+        if (Info.totalUnits >= Info.number(UnitType.Worker)*8) {
             for (Direction dir: Direction.values()) {
                 if (gc.canReplicate(worker.id(), dir)) {
                     gc.replicate(worker.id(), dir);
@@ -91,13 +109,27 @@ public class Worker {
 
     private static void repair() {
 
-        // Repair a structure in range
-        for (int i = 0; i < factories.size(); i++) {
-            if (gc.canBuild(worker.id(), factories.get(i).id())) {
-                gc.build(worker.id(), factories.get(i).id());
+        // Repair a factory in range, but factories only exist on Earth
+        if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+            for (int i = 0; i < factories.size(); i++) {
+                if (gc.canBuild(worker.id(), factories.get(i).id())) {
+                    gc.build(worker.id(), factories.get(i).id());
+                }
+                if (gc.canRepair(worker.id(), factories.get(i).id())) {
+                    gc.repair(worker.id(), factories.get(i).id());
+                }
             }
-            if (gc.canRepair(worker.id(), factories.get(i).id())) {
-                gc.repair(worker.id(), factories.get(i).id());
+        }
+
+        // Repair a rocket in range, only in Earth
+        if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+            for (int i = 0; i < rockets.size(); i++) {
+                if (gc.canBuild(worker.id(), rockets.get(i).id())) {
+                    gc.build(worker.id(), rockets.get(i).id());
+                }
+                if (gc.canRepair(worker.id(), rockets.get(i).id())) {
+                    gc.repair(worker.id(), rockets.get(i).id());
+                }
             }
         }
     }

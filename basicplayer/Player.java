@@ -1,18 +1,14 @@
-import java.util.HashMap;
-
 import bc.*;
 
 public class Player {
 
     private static GameController gc;
     public static MapLocation focalPoint;
-    public static HashMap<Integer, Pathway> unitpaths;
 
     public static void main(String[] args) {
 
         // Start game by connecting to game controller
         gc = new GameController();
-        unitpaths = new HashMap<>();
 
         // Initialize the different types of troops
         Worker.init(gc);
@@ -24,7 +20,7 @@ public class Player {
         Rocket.init(gc);
 
         // Initialize utils
-        TeamUtil.init(gc);
+        Util.init(gc);
 
         // Initialize path searching
         Pathing.init(gc);
@@ -39,20 +35,25 @@ public class Player {
         while (!quit) {
 
             // Debug, print current round
-            // System.out.println("Current round: " + gc.round());
+            System.out.println("Current round: " + gc.round());
 
-            // Get units and get counts
+            // Get units and get info
             VecUnit units = gc.myUnits();
-            Count.reset();
+            Info.reset();
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
-                Count.addUnit(unit.unitType());
+                Info.addUnit(unit);
             }
-            Count.totalUnits = units.size();
+            Info.totalUnits = units.size();
 
             // Run corresponding code for each type of unit
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
+
+                // However, ignore any unit in garrison or space
+                if (unit.location().isInSpace() || unit.location().isInGarrison())
+                    continue;
+
                 switch (unit.unitType() ) {
                     case Worker:
                         Worker.run(unit);
@@ -78,7 +79,7 @@ public class Player {
                 }
             }
 
-            // Complete round, move on to next one
+            // Complete round, changes on to next one
             gc.nextTurn();
         }
     }

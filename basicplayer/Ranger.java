@@ -16,10 +16,6 @@ public class Ranger {
         // Receive ranger from main runner
         ranger = unit;
 
-        // Check if in garrison or space
-        if (ranger.location().isInGarrison() || ranger.location().isInSpace())
-            return;
-
         /*
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
@@ -35,7 +31,7 @@ public class Ranger {
     private static boolean attack() {
 
         // Get enemy units
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), TeamUtil.enemyTeam());
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
         if (enemies.size() == 0)
             return false;
 
@@ -57,13 +53,17 @@ public class Ranger {
 
     private static void move() {
 
+        /*
+        TODO Implement the entire worker changes function as a heuristic based on priority
+         */
+
         // Avoid enemy units, walk outside of their view range
         if (Pathing.escape(ranger)) {
             return;
         }
 
         // Get closest enemy
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), TeamUtil.enemyTeam());
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
@@ -95,13 +95,13 @@ public class Ranger {
             Pathing.move(ranger, Player.focalPoint);
         }
 
-        // Otherwise move towards enemies
+        // Otherwise changes towards enemies
         if (idx != -1) {
             Pathing.move(ranger, enemies.get(idx).location().mapLocation());
             return;
         }
 
-        // If none of the above work, move in a random direction (placeholder for now)
+        // If none of the above work, changes in a random direction (placeholder for now)
         int rand = (int)(Math.random()*8);
         Pathing.tryMove(ranger, Direction.values()[rand]);
     }

@@ -20,10 +20,6 @@ public class Healer {
         // Receive healer from main runner
         healer = unit;
 
-        // Check if in garrison or space
-        if (healer.location().isInGarrison() || healer.location().isInSpace())
-            return;
-
         /*
         Scenario 1: Heal first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then heal
@@ -39,15 +35,15 @@ public class Healer {
     private static boolean heal() {
 
         // Get friendly units
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), TeamUtil.friendlyTeam());
+        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), Util.friendlyTeam());
         if (friendlies.size() == 0)
             return false;
 
-        // Heal lowest HP target
+        // Heal lowest HP target by difference
         long minHp = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < friendlies.size(); i++) {
-            if (friendlies.get(i).health() < minHp) {
+            if (friendlies.get(i).maxHealth() - friendlies.get(i).health() < minHp) {
                 minHp = friendlies.get(i).health();
                 idx = i;
             }
@@ -70,13 +66,14 @@ public class Healer {
             isAttacked = false;
         }
 
-        // Otherwise move towards a low HP troop
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), TeamUtil.friendlyTeam());
+        // Otherwise changes towards a low HP troop
+        // TODO Implement this as a heuristic
+        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < friendlies.size(); i++) {
             long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(healer.location().mapLocation());
-            if (TeamUtil.friendlyUnit(friendlies.get(i)) && friendlies.get(i).health() < friendlies.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(friendlies.get(i)) && friendlies.get(i).health() < friendlies.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
