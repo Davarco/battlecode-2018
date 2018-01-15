@@ -82,11 +82,12 @@ public class Pathing {
         ArrayList<MapLocation> ml = new ArrayList<MapLocation>();
         while (!end.equals(start) && prev[end.getX()][end.getY()] != 9) {
             // Subtract direction, NOT add
-            lastLoc.setX(end.getX());
-            lastLoc.setY(end.getY());
+            int a=end.getX(), b=end.getY();
+            lastLoc.setX(a);
+            lastLoc.setY(b);
             System.out.println(end.getX()+" "+end.getY()+" "+prev[end.getX()][end.getY()]);
-            end.setX(end.getX()-move[prev[end.getX()][end.getY()]][0]);
-            end.setY(end.getY()-move[prev[end.getX()][end.getY()]][1]);
+            end.setX(a-move[prev[a][b]][0]);
+            end.setY(b-move[prev[a][b]][1]);
             ml.add(lastLoc.clone());
             // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
         }
