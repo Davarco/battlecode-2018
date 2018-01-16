@@ -15,6 +15,8 @@ public class Knight {
 
         // Receive knight from main runner
         knight = unit;
+        if (knight.location().isInGarrison() || knight.location().isInSpace()) return;
+
 
         // Move unit (placeholder for now)
         for (Direction direction: Direction.values()) {

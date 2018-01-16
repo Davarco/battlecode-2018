@@ -24,7 +24,7 @@ public class Player {
         Rocket.init(gc);
 
         // Initialize utils
-        TeamUtil.init(gc);
+        Util.init(gc);
 
         // Initialize path searching
         Pathing.init(gc);
@@ -43,12 +43,12 @@ public class Player {
 
             // Get units and get counts
             VecUnit units = gc.myUnits();
-            Count.reset();
+            Info.reset();
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
-                Count.addUnit(unit.unitType());
+                Info.addUnit(unit.unitType());
             }
-            Count.totalUnits = units.size();
+            Info.totalUnits = units.size();
 
             // Run corresponding code for each type of unit
             for (int i = 0; i < units.size(); i++) {

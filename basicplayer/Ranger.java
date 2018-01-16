@@ -16,6 +16,9 @@ public class Ranger {
         // Receive ranger from main runner
         ranger = unit;
 
+        if (ranger.location().isInGarrison() || ranger.location().isInSpace()) return;
+
+
         /*
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack

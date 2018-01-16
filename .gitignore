@@ -2,3 +2,10 @@
 .idea/
 __pycache__/
 viewer_latest/*
+*.bc18
+*.bc18map
+
+
+viewer_currentInstall\.json
+
+*.json

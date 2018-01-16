@@ -19,11 +19,13 @@ public class Healer {
 
         // Receive healer from main runner
         healer = unit;
+        if (healer.location().isInGarrison() || healer.location().isInSpace()) return;
 
         /*
         Scenario 1: Heal first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then heal
          */
+
         if (!heal()) {
             move();
             heal();

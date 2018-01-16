@@ -16,6 +16,9 @@ public class Mage {
         // Receive mage from main runner
         mage = unit;
 
+        if (mage.location().isInGarrison() || mage.location().isInSpace()) return;
+
+
         // Move unit (placeholder for now)
         for (Direction direction: Direction.values()) {
             if (gc.isMoveReady(mage.id()) && gc.canMove(mage.id(), direction)) {

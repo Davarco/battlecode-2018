@@ -28,8 +28,8 @@ public class Mars {
         // Add the location
         locations.get(index).add(new MapLocation(Planet.Mars, x, y));
         for (int i = 0; i < 8; i++) {
-            int x1 = x + Pathing.changes[i][0];
-            int y1 = y + Pathing.changes[i][1];
+            int x1 = x + Pathing.move[i][0];
+            int y1 = y + Pathing.move[i][1];
             if (map.isPassableTerrainAt(new MapLocation(Planet.Mars, x1, y1)) == 1 && !visited[x1][y1]) {
                 dfs(x1, y1);
             }

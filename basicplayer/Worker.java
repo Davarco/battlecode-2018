@@ -18,6 +18,8 @@ public class Worker {
         // Receive worker from main runner
         worker = unit;
 
+        if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
+
         // Move unit (placeholder for now)
         move();
 
@@ -73,15 +75,15 @@ public class Worker {
         }
         if (idx != -1) {
             Pathing.move(worker, rockets.get(idx).location().mapLocation());
-            // System.out.println("Moving towards friendly factory.");
+            // System.out.println("Moving towards friendly rocket.");
             return;
         }
 
-        // Move towards karbonite
-        // Placeholder, moves randomly atm
-        // Move unit (placeholder for now)
-        int rand = (int)(Math.random()*8);
-        Pathing.tryMove(worker, Direction.values()[rand]);
+        //Move towards best karbonite location
+        MapLocation loc = bestKarboniteLoc();
+        if (loc != worker.location().mapLocation()) { // bestKarboniteLoc returns the worker's position if nothing is found
+            Pathing.move(worker, loc);
+        }
     }
 
     private static void build() {
@@ -91,14 +93,14 @@ public class Worker {
             create(UnitType.Factory);
         }
 
-        // Only build rockets past turn 300, good number to have is around NUM_TURNS/200
-        if (gc.round() >= 200 && Info.number(UnitType.Rocket) < gc.round()/200) {
+        // Only build rockets past turn 200, good number to have is around NUM_TURNS/200
+        if (gc.round() >= 200 && Info.number(UnitType.Rocket) < gc.round() / 200) {
             create(UnitType.Rocket);
         }
 
         // If we have enough units, have workers replicate themselves
-        if (Info.totalUnits >= Info.number(UnitType.Worker)*8) {
-            for (Direction dir: Direction.values()) {
+        if (Info.totalUnits >= Info.number(UnitType.Worker) * 8) {
+            for (Direction dir : Direction.values()) {
                 if (gc.canReplicate(worker.id(), dir)) {
                     gc.replicate(worker.id(), dir);
                     break; // Don't replicate more than once
@@ -135,10 +137,32 @@ public class Worker {
     }
 
     private static void create(UnitType type) {
-        for (Direction dir: Direction.values()) {
+        for (Direction dir : Direction.values()) {
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
             }
+        }
+    }
+
+    private static MapLocation bestKarboniteLoc() {
+        VecMapLocation allInRange = gc.allLocationsWithin(worker.location().mapLocation(), worker.visionRange());
+        int bestHeuristicSoFar = Integer.MAX_VALUE;
+        int bestIdxSoFar = -1;
+        for (int i = 0; i < allInRange.size(); i++) {
+            MapLocation loc = allInRange.get(i);
+            if (gc.startingMap(Planet.Earth).onMap(loc) && gc.karboniteAt(loc) > 0 && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1)) {
+                int heuristic = (int) (Math.sqrt(50 - gc.karboniteAt(loc)) + Math.pow((int)(worker.location().mapLocation().distanceSquaredTo(loc)), 2));
+                if (heuristic < bestHeuristicSoFar) {
+                    bestHeuristicSoFar = heuristic;
+                    bestIdxSoFar = i;
+                }
+            }
+        }
+
+        if (bestIdxSoFar != -1) {
+            return allInRange.get(bestIdxSoFar);
+        } else {
+            return worker.location().mapLocation();
         }
     }
 }

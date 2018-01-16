@@ -7,7 +7,7 @@ import java.util.LinkedList;
 public class Pathing {
 
     // Movements correspond from N -> NE... -> W -> SW.
-    private static int move[][] = {
+    public static int move[][] = {
             {0, 1}, {1, 1}, {1, 0}, {1, -1},
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
     };
@@ -292,7 +292,7 @@ public class Pathing {
     public static boolean escape(Unit unit) {
 
         // Return false if no units are found
-        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), TeamUtil.enemyTeam());
+        VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), Util.enemyTeam());
         if (enemies.size() == 0)
             return false;
 
