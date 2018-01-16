@@ -1,12 +1,10 @@
-#!/bin/sh
-# This file should build and run your code.
-# It will run if you're in nodocker mode on Mac or Linux,
-# or if you're running in docker.
+#!/bin/bash
 
-# Compile our code.
-echo javac $(find . -name '*.java') -classpath ../battlecode/java
-javac $(find . -name '*.java') -classpath ../battlecode/java
+docker stop $(docker ps -q)
+docker container rm $(docker container ls -aq)
+docker volume rm $(docker volume ls -q)$
+docker volume prune
 
-# Run our code.
-echo java -classpath .:../battlecode/java Player
-java -classpath .:../battlecode/java Player
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+docker run -it --privileged -p 16147:16147 -p 6147:6147 -v $DIR:/player --rm battlecode/battlecode-2018
