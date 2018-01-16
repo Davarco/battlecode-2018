@@ -69,7 +69,7 @@ public class Healer {
     private static void move() {
 
         // Return if we cannot move
-        if (gc.isMoveReady(healer.id()))
+        if (!gc.isMoveReady(healer.id()))
             return;
 
         // See if unit needs to escape
@@ -100,6 +100,6 @@ public class Healer {
 
         // Move randomly (placeholder, this is never optimal)
         int rand = (int)(Math.random()*8);
-        Pathing.tryMove(healer, Direction.values()[rand]);
+        Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
     }
 }
