@@ -23,6 +23,8 @@ public class Player {
         Healer.init(gc);
         Factory.init(gc);
         Rocket.init(gc);
+        FocusPoints.init(gc);
+        FocusPoints.GeographicFocusPoints();
 
         // Initialize utils
         Util.init(gc);
