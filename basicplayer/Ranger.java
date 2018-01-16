@@ -33,6 +33,7 @@ public class Ranger {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
+        move();
     }
 
     private static boolean attack() {
@@ -117,7 +118,6 @@ public class Ranger {
         }
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        int rand = (int)(Math.random()*8);
-        Pathing.tryMove(ranger, Direction.values()[rand]);
+        Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 }
