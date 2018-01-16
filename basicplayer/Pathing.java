@@ -46,6 +46,7 @@ public class Pathing {
         W = (int)map.getWidth();
         H = (int)map.getHeight();
     }
+
     static Cell [][] grid = new Cell[5][5];
 
     static PriorityQueue<Cell> open;
@@ -151,7 +152,6 @@ public class Pathing {
         int si=start.getX(), sj=start.getY();
         int ei=end.getX(), ej=end.getY();
 
-        //System.out.println("dkhfjbskhfbdsih:"+ start);
         grid = new Cell[x][y];
         closed = new boolean[x][y];
         open = new PriorityQueue<>((Object o1, Object o2) -> {
@@ -177,22 +177,21 @@ public class Pathing {
         grid[si][sj].finalCost = 0;
         AStar(start,end, TroopUnit);
         ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
-        if(closed[endI][endJ]){
+        if (closed[endI][endJ]) {
             //Trace back the path
-            System.out.println("Path: ");
+            // System.out.println("Path: ");
             Cell current = grid[endI][endJ];
-            System.out.print(current);
+            // System.out.print(current);
             ans.add(new MapLocation(planet,current.i,current.j));
             while(current.parent!=null){
                 ans.add(new MapLocation(planet,current.parent.i,current.parent.j));
-                System.out.print(current.parent + " <- ");
+                // System.out.print(current.parent + " <- ");
                 current = current.parent;
-
             }
             Collections.reverse(ans);
             ans.remove(0);
             return ans;
-        }else return null;
+        } else return null;
     }
 
     private static Direction opposite(Direction direction) {
@@ -259,7 +258,7 @@ public class Pathing {
         if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
             return true;
         }
-        //Critertion 1
+        //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
             Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone()));
         }
@@ -362,7 +361,7 @@ public class Pathing {
 
         // Don't move if no idx was found, otherwise move in the best direction
         if (fin == -1) {
-            System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
+            // System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
             return;
         }
 

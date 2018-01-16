@@ -15,23 +15,31 @@ public class Ranger {
 
         // Receive ranger from main runner
         ranger = unit;
-
         if (ranger.location().isInGarrison() || ranger.location().isInSpace()) return;
-
 
         /*
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
         if (!attack()) {
+            long t1 = System.currentTimeMillis();
             move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
             attack();
         } else {
+            long t1 = System.currentTimeMillis();
             move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
         }
     }
 
     private static boolean attack() {
+
+        // Return true if attack isn't ready
+        if (!gc.isAttackReady(ranger.id()))
+            return true;
 
         // Get enemy units
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
@@ -47,7 +55,7 @@ public class Ranger {
                 idx = i;
             }
         }
-        if (gc.canAttack(ranger.id(), enemies.get(idx).id()) && gc.isAttackReady(ranger.id())) {
+        if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
 
@@ -59,6 +67,10 @@ public class Ranger {
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
          */
+
+        // Return if we cannot move
+        if (!gc.isMoveReady(ranger.id()))
+            return;
 
         // Avoid enemy units, walk outside of their view range
         if (Pathing.escape(ranger)) {

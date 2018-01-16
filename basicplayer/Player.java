@@ -7,6 +7,7 @@ public class Player {
     private static GameController gc;
     public static MapLocation focalPoint;
     public static HashMap<Integer, Pathway> unitpaths;
+    public static long time = 0;
 
     public static void main(String[] args) {
 
@@ -38,8 +39,10 @@ public class Player {
         boolean quit = false;
         while (!quit) {
 
+            long t1 = System.currentTimeMillis();
+
             // Debug, print current round
-            // System.out.println("Current round: " + gc.round());
+            System.out.println("Current round: " + gc.round());
 
             // Get units and get counts
             VecUnit units = gc.myUnits();
@@ -77,6 +80,11 @@ public class Player {
                         break;
                 }
             }
+
+            long t2 = System.currentTimeMillis();
+            System.out.println("time: " + (t2 - t1));
+            System.out.println("pathing: " + time);
+            Player.time = 0;
 
             // Complete round, move on to next one
             gc.nextTurn();

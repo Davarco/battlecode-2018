@@ -25,16 +25,25 @@ public class Healer {
         Scenario 1: Heal first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then heal
          */
-
         if (!heal()) {
+            long t1 = System.currentTimeMillis();
             move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
             heal();
         } else {
+            long t1 = System.currentTimeMillis();
             move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
         }
     }
 
     private static boolean heal() {
+
+        // Return true if we cannot heal
+        if (!gc.isHealReady(healer.id()))
+            return true;
 
         // Get friendly units
         friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), Util.friendlyTeam());
@@ -59,10 +68,14 @@ public class Healer {
 
     private static void move() {
 
+        // Return if we cannot move
+        if (gc.isMoveReady(healer.id()))
+            return;
+
         // See if unit needs to escape
         if (Pathing.escape(healer)) {
             isAttacked = true;
-            System.out.println("Healer " + healer.location().mapLocation() + " is being attacked!");
+            // System.out.println("Healer " + healer.location().mapLocation() + " is being attacked!");
             return;
         } else {
             isAttacked = false;
