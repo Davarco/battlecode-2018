@@ -32,4 +32,5 @@ public class Util {
         if (planet.equals(Planet.Earth)) return Planet.Mars;
         return Planet.Earth;
     }
+
 }

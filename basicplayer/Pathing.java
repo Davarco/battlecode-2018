@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
 public class Pathing {
 
     // Movements correspond from N -> NE... -> W -> SW.
-    private static int move[][] = {
+    public static int move[][] = {
             {0, 1}, {1, 1}, {1, 0}, {1, -1},
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
     };
