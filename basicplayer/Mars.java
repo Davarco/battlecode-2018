@@ -1,13 +1,14 @@
 import bc.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Mars {
 
     private static GameController gc;
     private static PlanetMap map;
-    private static List<List<MapLocation>> locations;
+    private static ArrayList<ArrayList<MapLocation>> locations;
     private static boolean visited[][];
     private static int W, H;
     private static int index;
@@ -17,45 +18,49 @@ public class Mars {
         map = gc.startingMap(Planet.Mars);
         W = (int)map.getWidth();
         H = (int)map.getHeight();
-        floodfill();
+        visited = new boolean[W][H];
+        for(int x1 = 0; x1<W; x1++) {
+        	 for(int y1 = 0; y1<H; y1++) {
+         		visited[x1][y1] = false;
+             }
+        }
+        locations = new ArrayList<ArrayList <MapLocation> >();
+        floodfill(); 
     }
 
-    private static void dfs(int x, int y) {
-
-        // Set visited to true
-        visited[x][y] = true;
-
-        // Add the location
-        locations.get(index).add(new MapLocation(Planet.Mars, x, y));
-        for (int i = 0; i < 8; i++) {
-            int x1 = x + Pathing.move[i][0];
-            int y1 = y + Pathing.move[i][1];
-            if (map.isPassableTerrainAt(new MapLocation(Planet.Mars, x1, y1)) == 1 && !visited[x1][y1]) {
-                dfs(x1, y1);
-            }
-        }
+    private static ArrayList<MapLocation> bfs(int x, int y) {
+    	 	LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+    	 	ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
+         visited[x][y] = true;
+         queue.add(new MapLocation(Planet.Mars, x, y));
+         ans.add(new MapLocation(Planet.Mars, x, y));
+         // Run until queue is empty
+         while (!queue.isEmpty()) {
+             MapLocation location = queue.poll();
+             for (int i = 0; i < 8; i++) {
+                 int a = location.getX() + Pathing.move[i][0];
+                 int b = location.getY() + Pathing.move[i][1];
+                 MapLocation temp = new MapLocation(Planet.Mars, a, b);
+                 if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
+                     visited[a][b] = true;
+                     queue.add(new MapLocation(Planet.Mars, a, b));
+                     ans.add(new MapLocation(Planet.Mars, a, b));
+                 }
+             }
+         }
+         return ans;
     }
 
     private static void floodfill() {
-
         // Setup the visited grid
-        visited = new boolean[W][H];
 
-        // Go through points, dfs
-        index = 0;
+        // Go through points, bfs
         for (int x = 0; x < W; x++) {
             for (int y = 0; y < H; y++) {
                 if (map.isPassableTerrainAt(new MapLocation(Planet.Mars, x, y)) == 1 && !visited[x][y]) {
-                    locations.add(new ArrayList<>());
-                    dfs(x, y);
-                    index += 1;
+                		locations.add(bfs(x, y));
                 }
             }
-        }
-
-        // Print out locations
-        for (int i = 0; i < locations.size(); i++) {
-            System.out.println(locations.get(i));
         }
     }
 }
