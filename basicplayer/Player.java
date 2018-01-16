@@ -15,6 +15,9 @@ public class Player {
         gc = new GameController();
         unitpaths = new HashMap<>();
 
+        
+        FocusPoints.init(gc);
+        FocusPoints.GeographicFocusPoints();
         // Initialize the different types of troops
         Worker.init(gc);
         Knight.init(gc);
@@ -23,8 +26,6 @@ public class Player {
         Healer.init(gc);
         Factory.init(gc);
         Rocket.init(gc);
-        FocusPoints.init(gc);
-        FocusPoints.GeographicFocusPoints();
 
         // Initialize utils
         Util.init(gc);
