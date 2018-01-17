@@ -11,7 +11,6 @@ public class Player {
     private static GameController gc;
     private static VecUnit units;
     public static HashMap<Integer, Pathway> unitpaths;
-    public static ArrayList<MapLocation> rocketTargets;
 
     public static MapLocation focalPoint;
     public static long time = 0;
@@ -21,7 +20,6 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
-        rocketTargets = new ArrayList<MapLocation>();
 
         // Initialize focus points
         FocusPoints.init(gc);

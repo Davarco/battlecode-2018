@@ -58,13 +58,12 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (rocket.structureGarrison().size() >= 6) {
+        if (gc.round()>=600){
             for (int x = 0; x < map.getWidth(); x++) {
                 for (int y = 0; y < map.getHeight(); y++) {
                     MapLocation temp = new MapLocation(Planet.Mars, x, y);
-                    if (map.isPassableTerrainAt(temp) == 1 && Player.rocketTargets.indexOf(temp) == -1) {
+                    if (map.isPassableTerrainAt(temp) == 1 && gc.canLaunchRocket(rocket.id(), temp)) {
                         gc.launchRocket(rocket.id(), temp);
-                        Player.rocketTargets.add(temp);
                         System.out.println("Fucking blastoff to " + temp + "!");
                         return;
                     }
