@@ -11,7 +11,6 @@ public class Worker {
     private static GameController gc;
     private static VecUnit factories;
     private static VecUnit rockets;
-
     private static boolean isAttacked;
 
     public static void init(GameController controller) {
@@ -23,7 +22,7 @@ public class Worker {
         // Receive worker from main runner
         worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
-
+        build();
         // General move function, handles priorities
         long t1 = System.currentTimeMillis();
         move();
@@ -31,18 +30,17 @@ public class Worker {
         Player.time += (t2 - t1);
 
         // Build things that we need to
-        build();
+        
 
         // Repair structures that we can
-        repairStructure(UnitType.Factory);
         repairStructure(UnitType.Rocket);
+        repairStructure(UnitType.Factory);
 
         // Harvest karbonite if we can
         harvestKarbonite();
     }
 
     private static void move() {
-        
         /*
         TODO Implement the entire worker move function as a heuristic based on priority 
          */
@@ -50,19 +48,27 @@ public class Worker {
         // Only move if we can move
         if (!gc.isMoveReady(worker.id()))
             return;
-
+        
+        if(gc.round()<80){
+        	if (moveTowardsFactory())
+        		return;
+        }
         // Escaping enemy units has the highest priority
-        if (escape())
-            return;
-
-        // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
-        if (moveTowardsRocket())
-            return;
-
-        // Repairing factories isn't as important, but is vital early game
-        if (moveTowardsFactory())
-            return;
-
+        if(worker.health()<=40){
+        	if (escape())
+        		return;
+        }
+        if(gc.round()<=550 && gc.round()>Config.ROCKET_CREATION_ROUND){
+	        // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
+	        if (moveTowardsRocket())
+	            return;
+	       
+        }
+        /// Repairing factories isn't as important, but is vital early game
+        if(gc.round()>=80){
+        	if (moveTowardsFactory())
+        		return;
+        }
         // Move towards karbonite after our buildings are taken care of
         if (moveTowardsKarbonite())
             return;
@@ -75,17 +81,18 @@ public class Worker {
     private static void build() {
 
         // Create factories
-        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM) {
-            create(UnitType.Factory);
+    	
+        if (Info.number(UnitType.Factory) < (((int)gc.startingMap(Planet.Earth).getWidth())*((int)gc.startingMap(Planet.Earth).getHeight())/450 +1) && Info.number(UnitType.Factory) < ((int)(gc.round()/20)+1)) {
+        	create(UnitType.Factory);
         }
 
         // Replicate if we don't have enough workers
-        if (Info.number(UnitType.Worker) < Config.WORKER_EQUILIBRIUM) {
+        if (Info.number(UnitType.Worker) < ((int)gc.startingMap(Planet.Earth).getWidth())*((int)gc.startingMap(Planet.Earth).getHeight())/150) {
             replicate();
         }
 
         // Build rockets
-        if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+        if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.round()<=640) {
             if (Info.number(UnitType.Rocket) < Config.ROCKET_EQUILIBRIUM) {
                 create(UnitType.Rocket);
             }
@@ -190,6 +197,7 @@ public class Worker {
     }
 
     private static boolean moveTowardsKarbonite() {
+    	System.out.print("ashbdfw");
         MapLocation loc = bestKarboniteLoc();
         if (loc != worker.location().mapLocation()) { // bestKarboniteLoc returns the worker's position if nothing is found
             Pathing.move(worker, loc);

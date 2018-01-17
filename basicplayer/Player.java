@@ -22,8 +22,8 @@ public class Player {
         unitpaths = new HashMap<>();
 
         // Initialize focus points
-        FocusPoints.init(gc);
-        FocusPoints.GeographicFocusPoints();
+        //FocusPoints.init(gc);
+        //FocusPoints.GeographicFocusPoints();
 
         // Initialize the different types of troops
         setUnits();
@@ -62,20 +62,20 @@ public class Player {
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
                 switch (unit.unitType() ) {
+                	case Ranger:
+                		Ranger.run(unit);
+                		break;
                     case Worker:
                         Worker.run(unit);
                         break;
                     case Knight:
                         Knight.run(unit);
                         break;
-                    case Ranger:
-                        Ranger.run(unit);
-                        break;
                     case Mage:
                         Mage.run(unit);
                         break;
                     case Healer:
-                        Healer.run(unit);
+                        //Healer.run(unit);
                         break;
                     case Factory:
                         Factory.run(unit);
@@ -104,8 +104,9 @@ public class Player {
         System.out.println("Initializing research tree!");
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Worker);  // 25
-        gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
+        gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Ranger);  // 25
     }
 
     private static void setUnits() {
