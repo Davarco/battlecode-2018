@@ -11,7 +11,10 @@ public class Player {
     private static GameController gc;
     public static MapLocation focalPoint;
     public static HashMap<Integer, Pathway> unitpaths;
-    public static Map<Integer, HashMap<MapLocation, Boolean>> workerDestinations;
+
+    public static boolean underConstruction = false;
+    public static HashMap<MapLocation, Boolean> constructionSite;
+    public static int constructionId = 0;
 
     public static long time = 0;
 
@@ -20,7 +23,8 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
-        workerDestinations = new HashMap<Integer, HashMap<MapLocation, Boolean>>(); // holy mother of generics
+        constructionSite = new HashMap<MapLocation, Boolean>();
+
 
         FocusPoints.init(gc);
         FocusPoints.GeographicFocusPoints();
@@ -93,6 +97,8 @@ public class Player {
             long t2 = System.currentTimeMillis();
             System.out.println("time: " + (t2 - t1));
             System.out.println("pathing: " + time);
+            System.out.println("construction status: " + Player.underConstruction);
+            System.out.println("karbonite: " + gc.karbonite());
             Player.time = 0;
 
             // Complete round, move on to next one
@@ -106,8 +112,8 @@ public class Player {
      */
     private static void initResearch() {
         System.out.println("Initializing research tree!");
-        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Worker);  // 25
+        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
     }

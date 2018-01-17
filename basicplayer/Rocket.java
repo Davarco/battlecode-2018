@@ -18,6 +18,10 @@ public class Rocket {
         // Receive rocket from main runner
         rocket = unit;
 
+        if (rocket.id() == Player.constructionId) { // This structure is marked as under construction, check to see if completed
+            manageConstruction();
+        }
+
         // Load units if possible
         load();
 
@@ -26,6 +30,14 @@ public class Rocket {
 
         // Start unloading troops on Mars
         unload();
+    }
+
+    private static void manageConstruction() {
+        if (!isStillBlueprint()) {
+            System.out.println("Construction done on rocket " + rocket.id());
+            Player.underConstruction = false;
+            Player.constructionId = 0;
+        }
     }
 
     private static void load() {
@@ -85,4 +97,6 @@ public class Rocket {
             }
         }
     }
+
+    private static boolean isStillBlueprint() { return rocket.health() < rocket.maxHealth(); }
 }
