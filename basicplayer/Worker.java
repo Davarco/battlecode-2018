@@ -67,10 +67,10 @@ public class Worker {
         // Escaping enemy units has the highest priority
         if (escape())
             return;
-//
-//        // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
-//        if (moveTowardsRocket())
-//            return;
+
+        // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
+        if (moveTowardsRocket())
+            return;
         
         // Repairing factories isn't as important, but is vital early game
         if (moveTowardsFactory())
