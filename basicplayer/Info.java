@@ -10,7 +10,7 @@ import java.util.List;
 public class Info {
 
     private static EnumMap<UnitType, Integer> unitCounts;
-    private static EnumMap<UnitType, List<MapLocation>> unitLocations;
+    public static EnumMap<UnitType, List<MapLocation>> unitLocations;
     public static long totalUnits;
 
     public static void reset() {
@@ -23,9 +23,11 @@ public class Info {
     }
 
     public static void addUnit(Unit unit) {
+        // System.out.println("fuck " + unitCounts.get(unit.unitType()) + " " + unitLocations.get(unit.unitType()).size());
         unitCounts.replace(unit.unitType(), unitCounts.get(unit.unitType()) + 1);
         if (!unit.location().isInGarrison() && !unit.location().isInSpace())
             unitLocations.get(unit.unitType()).add(unit.location().mapLocation());
+        // System.out.println("fuck code " + unitCounts.get(unit.unitType()) + " " + unitLocations.get(unit.unitType()).size());
     }
 
     public static void addUnit(UnitType unit) {

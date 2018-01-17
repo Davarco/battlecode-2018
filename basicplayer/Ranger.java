@@ -1,5 +1,8 @@
 import bc.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Ranger {
 
     private static Unit ranger;
@@ -33,7 +36,6 @@ public class Ranger {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
-        move();
     }
 
     private static boolean attack() {
@@ -70,13 +72,19 @@ public class Ranger {
          */
 
         // Return if we cannot move
-        if (!gc.isMoveReady(ranger.id()))
+        if (!gc.isMoveReady(ranger.id())) {
             return;
+        }
 
         // Avoid enemy units, walk outside of their view range
         if (Pathing.escape(ranger)) {
             return;
         }
+
+        // Move towards initial enemy worker locations
+        if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND)
+            if (moveTowardsInitPoint())
+                return;
 
         // Get closest enemy
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
@@ -118,6 +126,38 @@ public class Ranger {
         }
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+    }
+
+    private static boolean moveTowardsInitPoint() {
+
+        // Initial focal point should be the opposite of the closest worker
+        List<MapLocation> locations = new ArrayList<>();
+        int H=(int)gc.startingMap(Planet.Earth).getHeight();
+        int W=(int)gc.startingMap(Planet.Earth).getWidth();
+        for (MapLocation loc: Info.unitLocations.get(UnitType.Worker)) {
+            loc.setX(W-loc.getX());
+            loc.setY(H-loc.getY());
+            locations.add(loc);
+        }
+
+        // Get closest one
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < locations.size(); i++) {
+            long dist = ranger.location().mapLocation().distanceSquaredTo(locations.get(i));
+            if (dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+
+        if (idx != -1) {
+            System.out.println(locations.get(idx));
+            Pathing.move(ranger, locations.get(idx));
+            return true;
+        }
+
+        return false;
     }
 }

@@ -9,10 +9,10 @@ import bc.*;
 public class Player {
 
     private static GameController gc;
-    public static MapLocation focalPoint;
+    private static VecUnit units;
     public static HashMap<Integer, Pathway> unitpaths;
-    public static Map<Integer, HashMap<MapLocation, Boolean>> workerDestinations;
 
+    public static MapLocation focalPoint;
     public static long time = 0;
 
     public static void main(String[] args) {
@@ -20,11 +20,13 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
-        workerDestinations = new HashMap<Integer, HashMap<MapLocation, Boolean>>(); // holy mother of generics
 
+        // Initialize focus points
         FocusPoints.init(gc);
         FocusPoints.GeographicFocusPoints();
+
         // Initialize the different types of troops
+        setUnits();
         Worker.init(gc);
         Knight.init(gc);
         Ranger.init(gc);
@@ -51,16 +53,10 @@ public class Player {
             long t1 = System.currentTimeMillis();
 
             // Debug, print current round
-            System.out.println("Current round: " + gc.round());
+            // System.out.println("Current round: " + gc.round());
 
             // Get units and get counts
-            VecUnit units = gc.myUnits();
-            Info.reset();
-            for (int i = 0; i < units.size(); i++) {
-                Unit unit = units.get(i);
-                Info.addUnit(unit.unitType());
-            }
-            Info.totalUnits = units.size();
+            setUnits();
 
             // Run corresponding code for each type of unit
             for (int i = 0; i < units.size(); i++) {
@@ -91,8 +87,8 @@ public class Player {
             }
 
             long t2 = System.currentTimeMillis();
-            System.out.println("time: " + (t2 - t1));
-            System.out.println("pathing: " + time);
+            // System.out.println("time: " + (t2 - t1));
+            // System.out.println("pathing: " + time);
             Player.time = 0;
 
             // Complete round, move on to next one
@@ -110,5 +106,17 @@ public class Player {
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
+    }
+
+    private static void setUnits() {
+
+        // Get units and get counts
+        units = gc.myUnits();
+        Info.reset();
+        for (int i = 0; i < units.size(); i++) {
+            Unit unit = units.get(i);
+            Info.addUnit(unit);
+        }
+        Info.totalUnits = units.size();
     }
 }

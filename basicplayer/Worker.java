@@ -2,6 +2,7 @@ import bc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Worker {
@@ -23,34 +24,21 @@ public class Worker {
         worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
 
-        if (gc.round() < Config.ROUNDS_TO_DEVOTE_TO_FACTORIES) {
-            build();
-            move();
-            if (gc.karbonite() > Config.MIN_KARB) {
-                repairStructure(UnitType.Factory);
-                harvestKarbonite();
-            } else {
-                harvestKarbonite();
-                repairStructure(UnitType.Factory);
-            }
+        // General move function, handles priorities
+        long t1 = System.currentTimeMillis();
+        move();
+        long t2 = System.currentTimeMillis();
+        Player.time += (t2 - t1);
 
-        } else {
-            // General move function, handles priorities
-            long t1 = System.currentTimeMillis();
-            move();
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
+        // Build things that we need to
+        build();
 
-            // Build things that we need to
-            build();
+        // Repair structures that we can
+        repairStructure(UnitType.Factory);
+        repairStructure(UnitType.Rocket);
 
-            // Repair structures that we can
-            repairStructure(UnitType.Factory);
-            repairStructure(UnitType.Rocket);
-
-            // Harvest karbonite if we can
-            harvestKarbonite();
-        }
+        // Harvest karbonite if we can
+        harvestKarbonite();
     }
 
     private static void move() {
@@ -58,7 +46,6 @@ public class Worker {
         /*
         TODO Implement the entire worker move function as a heuristic based on priority 
          */
-
 
         // Only move if we can move
         if (!gc.isMoveReady(worker.id()))
@@ -71,11 +58,11 @@ public class Worker {
         // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
         if (moveTowardsRocket())
             return;
-        
+
         // Repairing factories isn't as important, but is vital early game
         if (moveTowardsFactory())
             return;
-        
+
         // Move towards karbonite after our buildings are taken care of
         if (moveTowardsKarbonite())
             return;
@@ -143,6 +130,24 @@ public class Worker {
 
     private static boolean moveTowardsFactory() {
 
+        // Move towards the closest factory
+        List<MapLocation> locations = Info.unitLocations.get(UnitType.Factory);
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < locations.size(); i++) {
+            long dist = worker.location().mapLocation().distanceSquaredTo(locations.get(i));
+            if (dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if (idx != -1) {
+            Pathing.move(worker, locations.get(idx));
+            return true;
+        }
+
+        return false;
+
 //        // Move towards a low-HP factory if possible
 //        factories = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Factory);
 //        long minDist = Long.MAX_VALUE;
@@ -161,27 +166,27 @@ public class Worker {
 //        }
 //
 //        return false;
-        long minDist = Long.MAX_VALUE;
-        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
-        HashMap<MapLocation, Boolean> bestListOfDest = new HashMap<MapLocation, Boolean>();
-        for (HashMap<MapLocation, Boolean> listOfDest : Player.workerDestinations.values()) {
-            for (MapLocation dest : listOfDest.keySet()) {
-                long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
-                if (dist < minDist && listOfDest.get(dest)) {
-                    minDist = dist;
-                    best = dest;
-                    bestListOfDest = listOfDest;
-                }
-            }
-        }
-        if (gc.startingMap(Planet.Earth).onMap(best)) {
-            // if nothing found, default location is off the map
-            Pathing.move(worker, best);
-            bestListOfDest.put(best, false);
-            return true;
-        }
-        return false;
 
+//        long minDist = Long.MAX_VALUE;
+//        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
+//        HashMap<MapLocation, Boolean> bestListOfDest = new HashMap<MapLocation, Boolean>();
+//        for (HashMap<MapLocation, Boolean> listOfDest : Player.workerDestinations.values()) {
+//            for (MapLocation dest : listOfDest.keySet()) {
+//                long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
+//                if (dist < minDist && listOfDest.get(dest)) {
+//                    minDist = dist;
+//                    best = dest;
+//                    bestListOfDest = listOfDest;
+//                }
+//            }
+//        }
+//        if (gc.startingMap(Planet.Earth).onMap(best)) {
+//            // if nothing found, default location is off the map
+//            Pathing.move(worker, best);
+//            bestListOfDest.put(best, false);
+//            return true;
+//        }
+//        return false;
     }
 
     private static boolean moveTowardsKarbonite() {

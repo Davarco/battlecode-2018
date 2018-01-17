@@ -23,6 +23,7 @@ public class Factory {
         unload();
     }
 
+    /*
     private static void manageWorkerAssignments() {
         if (factory.health() < 150 && !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still a blueprint
             Player.workerDestinations.put(factory.id(), Util.openSpacesAround(factory.location().mapLocation(), (int) Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
@@ -33,6 +34,7 @@ public class Factory {
         }
 
     }
+    */
 
     private static void build() {
 
@@ -41,6 +43,14 @@ public class Factory {
             if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
                 gc.produceRobot(factory.id(), UnitType.Worker);
                 Info.addUnit(UnitType.Worker);
+            }
+        }
+
+        // Rangers aren't as vital, but we should have a decent number of them
+        if (Info.number(UnitType.Ranger) < 2) {
+            if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+                gc.produceRobot(factory.id(), UnitType.Ranger);
+                Info.addUnit(UnitType.Ranger);
             }
         }
 
