@@ -67,7 +67,7 @@ public class Pathing {
     }
 
     static void checkAndUpdateCost(Cell current, Cell t, int cost, MapLocation temp, Unit unit, MapLocation start){
-        if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !closed[t.i][t.j] && (!temp.isWithinRange(unit.visionRange(), start) || !gc.hasUnitAtLocation(temp)) ) {
+        if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !closed[t.i][t.j] ) {
             int t_final_cost = t.heuristicCost+cost;
 
             boolean inOpen = open.contains(t);
