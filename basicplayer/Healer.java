@@ -80,7 +80,6 @@ public class Healer {
         } else {
             isAttacked = false;
         }
-
         // Otherwise changes towards a low HP troop
         // TODO Implement this as a heuristic
         friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());
@@ -94,12 +93,11 @@ public class Healer {
             }
         }
         if (idx != -1) {
-            Pathing.move(healer, friendlies.get(idx).location().mapLocation());
-            return;
+            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false) {
+                Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
+            }
         }
 
         // Move randomly (placeholder, this is never optimal)
-        int rand = (int)(Math.random()*8);
-        Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
     }
 }
