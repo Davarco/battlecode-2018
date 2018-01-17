@@ -80,6 +80,12 @@ public class Ranger {
         if (Pathing.escape(ranger)) {
             return;
         }
+        
+        if(gc.round()>=500){
+        	if(moveTowardsRocket()){
+        		return;
+        	}
+        }
 
         // Move towards initial enemy worker locations
         if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND)
@@ -155,6 +161,27 @@ public class Ranger {
         if (idx != -1) {
             System.out.println(locations.get(idx));
             Pathing.move(ranger, locations.get(idx));
+            return true;
+        }
+
+        return false;
+    }
+    private static boolean moveTowardsRocket() {
+
+        // Move towards a low-HP rocket if possible
+        VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < rockets.size(); i++) {
+            long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(ranger.location().mapLocation());
+            if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if (idx != -1) {
+            Pathing.move(ranger, rockets.get(idx).location().mapLocation());
+            // System.out.println("Moving towards friendly rocket.");
             return true;
         }
 

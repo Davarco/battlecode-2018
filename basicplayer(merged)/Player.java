@@ -11,13 +11,8 @@ public class Player {
     private static GameController gc;
     private static VecUnit units;
     public static HashMap<Integer, Pathway> unitpaths;
-    public static ArrayList<MapLocation> rocketTargets;
 
     public static MapLocation focalPoint;
-    public static boolean underConstruction = false;
-    public static HashMap<MapLocation, Boolean> constructionSite;
-    public static int constructionId = 0;
-
     public static long time = 0;
 
     public static void main(String[] args) {
@@ -25,11 +20,8 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
-        rocketTargets = new ArrayList<MapLocation>();
-        constructionSite = new HashMap<MapLocation, Boolean>();
 
         // Initialize focus points
-
         FocusPoints.init(gc);
         FocusPoints.GeographicFocusPoints();
 
@@ -95,10 +87,8 @@ public class Player {
             }
 
             long t2 = System.currentTimeMillis();
-            System.out.println("time: " + (t2 - t1));
-            System.out.println("pathing: " + time);
-            System.out.println("construction status: " + Player.underConstruction);
-            System.out.println("karbonite: " + gc.karbonite());
+            // System.out.println("time: " + (t2 - t1));
+            // System.out.println("pathing: " + time);
             Player.time = 0;
 
             // Complete round, move on to next one
@@ -112,8 +102,8 @@ public class Player {
      */
     private static void initResearch() {
         System.out.println("Initializing research tree!");
-        gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
     }

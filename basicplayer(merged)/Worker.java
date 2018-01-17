@@ -24,31 +24,21 @@ public class Worker {
         worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
 
-        if (Player.underConstruction) {
-            move();
-            repairStructure(UnitType.Factory);
-            repairStructure(UnitType.Rocket);
-        }
+        // General move function, handles priorities
+        long t1 = System.currentTimeMillis();
+        move();
+        long t2 = System.currentTimeMillis();
+        Player.time += (t2 - t1);
 
-         else {
-            // General move function, handles priorities
-            long t1 = System.currentTimeMillis();
-            move();
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
+        // Build things that we need to
+        build();
 
         // Repair structures that we can
         repairStructure(UnitType.Factory);
         repairStructure(UnitType.Rocket);
 
-//            // Repair structures that we can
-//            repairStructure(UnitType.Factory);
-//            repairStructure(UnitType.Rocket);
-
-            // Harvest karbonite if we can
-            harvestKarbonite();
-
-        }
+        // Harvest karbonite if we can
+        harvestKarbonite();
     }
 
     private static void move() {
@@ -61,27 +51,31 @@ public class Worker {
         if (!gc.isMoveReady(worker.id()))
             return;
 
-//        // Escaping enemy units has the highest priority
-//        if (escape())
-//            return;
+        // Escaping enemy units has the highest priority
+        if (escape())
+            return;
+        
+        if(gc.round()<500){
+        	if (moveTowardsRocket()){
+        		return;
+        	}
+    	}
 
-        if (Player.underConstruction) {
-            constructionTimeMove();
-        }
+        // As we won't have rockets till later, I'm assuming our factories should be mostly built by then
+        if (moveTowardsRocket())
+            return;
 
-        else {
-            if (moveTowardsKarbonite())
-                return;
-        }
+        // Repairing factories isn't as important, but is vital early game
+        if (moveTowardsFactory())
+            return;
 
-//        // If all of the above failed, we likely have to clear up some space
-//        if (moveOutOfWay())
-//            return;
-    }
-
-    private static void constructionTimeMove() {
-        if (moveTowardsFactory()) return;
-        if (moveTowardsRocket()) return;
+        // Move towards karbonite after our buildings are taken care of
+        if (moveTowardsKarbonite())
+            return;
+        
+        // If all of the above failed, we likely have to clear up some space
+        if (moveOutOfWay())
+            return;
     }
 
     private static void build() {
@@ -89,7 +83,6 @@ public class Worker {
         // Create factories
         if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM) {
             create(UnitType.Factory);
-
         }
 
         // Replicate if we don't have enough workers
@@ -98,7 +91,7 @@ public class Worker {
         }
 
         // Build rockets
-        if (gc.round() > Config.ROCKET_CREATION_ROUND && !Player.underConstruction) {
+        if (gc.round() > Config.ROCKET_CREATION_ROUND) {
             if (Info.number(UnitType.Rocket) < Config.ROCKET_EQUILIBRIUM) {
                 create(UnitType.Rocket);
             }
@@ -179,25 +172,6 @@ public class Worker {
 //        }
 //
 //        return false;
-        long minDist = Long.MAX_VALUE;
-        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
-        for (MapLocation dest : Player.constructionSite.keySet()) {
-            long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
-            if (dist < minDist && Player.constructionSite.get(dest)) {
-                minDist = dist;
-                best = dest;
-            }
-//            if (dist == 0) {
-//                Player.constructionSite.put(dest, false);
-//            }
-        }
-
-        if (gc.startingMap(Planet.Earth).onMap(best)) {
-            // if nothing found, default location is off the map
-            Pathing.move(worker, best);
-            return true;
-        }
-        return false;
 
 //        long minDist = Long.MAX_VALUE;
 //        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
@@ -306,19 +280,6 @@ public class Worker {
         for (Direction dir : Direction.values()) {
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
-                startConstruction(worker.location().mapLocation().add(dir), type);
-            }
-        }
-    }
-
-    private static void startConstruction(MapLocation loc, UnitType type) {
-        VecUnit blueprints = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), type);
-        for (int i = 0; i < blueprints.size(); i++) {
-            if (blueprints.get(i).location().mapLocation().equals(loc)) {
-                Player.constructionId = blueprints.get(i).id();
-                Player.underConstruction = true;
-                Player.constructionSite = Util.openSpacesAround(loc, 2);
-                System.out.println("Construction started on building " + blueprints.get(i).id());
             }
         }
     }

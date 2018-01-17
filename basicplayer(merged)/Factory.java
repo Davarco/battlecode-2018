@@ -16,25 +16,23 @@ public class Factory {
         // Receive factory from main runner
         factory = unit;
 
-        if (factory.id() == Player.constructionId) { // This structure is marked as under construction, check to see if completed
-            manageConstruction();
-        }
-        else {
-            // Build best unit possible
-            build();
-            // Unload any units in queue
-            unload();
-        }
+        // Build best unit possible
+        build();
 
-
+        // Unload any units in queue
+        unload();
     }
 
-    private static void manageConstruction() {
-        if (!isStillBlueprint()) {
-            System.out.println("Construction done on factory " + factory.id());
-            Player.underConstruction = false;
-            Player.constructionId = 0;
+    /*
+    private static void manageWorkerAssignments() {
+        if (factory.health() < 150 && !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still a blueprint
+            Player.workerDestinations.put(factory.id(), Util.openSpacesAround(factory.location().mapLocation(), (int) Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
+
+        if (factory.health() == factory.maxHealth()) {
+            Player.workerDestinations.remove(factory.id());
+            System.out.println("REMOVED DESTINATION FROM FACTORY< FREE TO GO!!!!!!!!!!");
         }
+
     }
     */
 
@@ -81,6 +79,4 @@ public class Factory {
             }
         }
     }
-
-    private static boolean isStillBlueprint() { return factory.health() < factory.maxHealth(); }
 }
