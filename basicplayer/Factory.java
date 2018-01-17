@@ -1,5 +1,7 @@
 import bc.*;
 
+import java.util.HashMap;
+
 public class Factory {
 
     private static Unit factory;
@@ -21,6 +23,17 @@ public class Factory {
         unload();
     }
 
+    private static void manageWorkerAssignments() {
+        if (factory.health() < 150 && !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still a blueprint
+            Player.workerDestinations.put(factory.id(), Util.openSpacesAround(factory.location().mapLocation(), (int) Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
+
+        if (factory.health() == factory.maxHealth()) {
+            Player.workerDestinations.remove(factory.id());
+            System.out.println("REMOVED DESTINATION FROM FACTORY< FREE TO GO!!!!!!!!!!");
+        }
+
+    }
+
     private static void build() {
 
         // Workers are vital, build them if we have nothing left
@@ -32,7 +45,8 @@ public class Factory {
         }
 
         // Build healers if there are a lot of other troops
-        if (Info.totalUnits >= Info.number(UnitType.Healer)*8) {
+//        if (Info.totalUnits >= Info.number(UnitType.Healer)*8) {
+        if (Info.number(UnitType.Healer) < Config.HEALERS) {
             if (gc.canProduceRobot(factory.id(), UnitType.Healer)) {
                 gc.produceRobot(factory.id(), UnitType.Healer);
                 Info.addUnit(UnitType.Healer);

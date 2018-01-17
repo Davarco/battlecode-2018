@@ -1,12 +1,18 @@
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import bc.*;
+
 
 public class Player {
 
     private static GameController gc;
     public static MapLocation focalPoint;
     public static HashMap<Integer, Pathway> unitpaths;
+    public static Map<Integer, HashMap<MapLocation, Boolean>> workerDestinations;
+
     public static long time = 0;
 
     public static void main(String[] args) {
@@ -14,8 +20,8 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
+        workerDestinations = new HashMap<Integer, HashMap<MapLocation, Boolean>>(); // holy mother of generics
 
-        
         FocusPoints.init(gc);
         FocusPoints.GeographicFocusPoints();
         // Initialize the different types of troops
@@ -100,9 +106,9 @@ public class Player {
      */
     private static void initResearch() {
         System.out.println("Initializing research tree!");
+        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Knight);  // 25
-        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
     }
 }
