@@ -62,8 +62,9 @@ public class Rocket {
             for (int x = 0; x < map.getWidth(); x++) {
                 for (int y = 0; y < map.getHeight(); y++) {
                     MapLocation temp = new MapLocation(Planet.Mars, x, y);
-                    if (map.isPassableTerrainAt(temp) == 1) {
+                    if (map.isPassableTerrainAt(temp) == 1 && Player.rocketTargets.indexOf(temp) == -1) {
                         gc.launchRocket(rocket.id(), temp);
+                        Player.rocketTargets.add(temp);
                         System.out.println("Fucking blastoff to " + temp + "!");
                         return;
                     }
