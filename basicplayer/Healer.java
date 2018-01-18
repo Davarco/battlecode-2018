@@ -2,6 +2,7 @@ import bc.Direction;
 import bc.GameController;
 import bc.Unit;
 import bc.VecUnit;
+import bc.MapLocation;
 
 public class Healer {
 
@@ -11,6 +12,9 @@ public class Healer {
 
     private static boolean isAttacked;
 
+    private static int healerId;
+    private static MapLocation healerLoc;
+
     public static void init(GameController controller) {
         gc = controller;
     }
@@ -19,7 +23,12 @@ public class Healer {
 
         // Receive healer from main runner
         healer = unit;
+
+
         if (healer.location().isInGarrison() || healer.location().isInSpace()) return;
+
+        healerId = healer.id();
+        healerLoc = healer.location().mapLocation();
 
         /*
         Scenario 1: Heal first and then run away to get out of enemy range
@@ -42,11 +51,11 @@ public class Healer {
     private static boolean heal() {
 
         // Return true if we cannot heal
-        if (!gc.isHealReady(healer.id()))
+        if (!gc.isHealReady(healerId))
             return true;
 
         // Get friendly units
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.attackRange(), Util.friendlyTeam());
+        friendlies = gc.senseNearbyUnitsByTeam(healerLoc, healer.attackRange(), Util.friendlyTeam());
         if (friendlies.size() == 0)
             return false;
 
@@ -59,8 +68,8 @@ public class Healer {
                 idx = i;
             }
         }
-        if (gc.canHeal(healer.id(), friendlies.get(idx).id()) && gc.isHealReady(healer.id())) {
-            gc.heal(healer.id(), friendlies.get(idx).id());
+        if (gc.canHeal(healerId, friendlies.get(idx).id()) && gc.isHealReady(healerId)) {
+            gc.heal(healerId, friendlies.get(idx).id());
         }
 
         return true;
@@ -69,13 +78,13 @@ public class Healer {
     private static void move() {
 
         // Return if we cannot move
-        if (!gc.isMoveReady(healer.id()))
+        if (!gc.isMoveReady(healerId))
             return;
 
         // See if unit needs to escape
         if (Pathing.escape(healer)) {
             isAttacked = true;
-            // System.out.println("Healer " + healer.location().mapLocation() + " is being attacked!");
+            // System.out.println("Healer " + healerLoc + " is being attacked!");
             return;
         } else {
             isAttacked = false;
@@ -88,18 +97,18 @@ public class Healer {
 
         // Otherwise changes towards a low HP troop
         // TODO Implement this as a heuristic
-        friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());
+        friendlies = gc.senseNearbyUnitsByTeam(healerLoc, healer.visionRange(), Util.friendlyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < friendlies.size(); i++) {
-            long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(healer.location().mapLocation());
+            long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(healerLoc);
             if (Util.friendlyUnit(friendlies.get(i)) && friendlies.get(i).health() < friendlies.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
         }
         if (idx != -1) {
-            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false) {
+            if(!Pathing.move(healer, friendlies.get(idx).location().mapLocation())) {
                 Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
             }
         }

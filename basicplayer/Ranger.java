@@ -9,6 +9,9 @@ public class Ranger {
     private static GameController gc;
     private static VecUnit enemies;
     private static Direction curr;
+    private static int rangerId;
+    private static MapLocation rangerLoc;
+    private static long rangerVisRange;
 
     public static void init(GameController controller) {
         gc = controller;
@@ -18,7 +21,13 @@ public class Ranger {
 
         // Receive ranger from main runner
         ranger = unit;
+
+
         if (ranger.location().isInGarrison() || ranger.location().isInSpace()) return;
+
+        rangerId = ranger.id();
+        rangerLoc = ranger.location().mapLocation();
+        rangerVisRange = ranger.visionRange();
 
         /*
         Scenario 1: Attack first and then run away to get out of enemy range
@@ -27,14 +36,14 @@ public class Ranger {
         if (!attack()) {
             long t1 = System.currentTimeMillis();
             move();
-            ranger = gc.unit(ranger.id());
+            ranger = gc.unit(rangerId);
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
             attack();
         } else {
             long t1 = System.currentTimeMillis();
             move();
-            ranger = gc.unit(ranger.id());
+            ranger = gc.unit(rangerId);
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
@@ -43,11 +52,12 @@ public class Ranger {
     private static boolean attack() {
 
         // Return true if attack isn't ready
-        if (!gc.isAttackReady(ranger.id()))
+        if (!gc.isAttackReady(rangerId))
             return true;
 
         // Get enemy units
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
+
+        enemies = gc.senseNearbyUnitsByTeam(rangerLoc, ranger.attackRange(), Util.enemyTeam());
         if (enemies.size() == 0)
             return false;
 
@@ -60,8 +70,8 @@ public class Ranger {
                 idx = i;
             }
         }
-        if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
-            gc.attack(ranger.id(), enemies.get(idx).id());
+        if (gc.canAttack(rangerId, enemies.get(idx).id())) {
+            gc.attack(rangerId, enemies.get(idx).id());
         }
 
         return true;
@@ -74,7 +84,7 @@ public class Ranger {
          */
 
         // Return if we cannot move
-        if (!gc.isMoveReady(ranger.id())) {
+        if (!gc.isMoveReady(rangerId)) {
             return;
         }
 
@@ -94,11 +104,11 @@ public class Ranger {
                 return;
 
         // Get closest enemy
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        enemies = gc.senseNearbyUnitsByTeam(rangerLoc, rangerVisRange, Util.enemyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
-            long dist = ranger.location().mapLocation().distanceSquaredTo(enemies.get(i).location().mapLocation());
+            long dist = rangerLoc.distanceSquaredTo(enemies.get(i).location().mapLocation());
             if (dist < minDist) {
                 minDist = dist;
                 idx = i;
@@ -107,7 +117,7 @@ public class Ranger {
 
         // Remove focal point if no units exist there
         if (Player.focalPoint != null) {
-            if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
+            if (Player.focalPoint.isWithinRange(rangerVisRange, rangerLoc) && gc.canSenseLocation(Player.focalPoint) &&
                     gc.hasUnitAtLocation(Player.focalPoint)) {
                 // System.out.println("Works");
                 Player.focalPoint = null;
@@ -152,7 +162,7 @@ public class Ranger {
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < locations.size(); i++) {
-            long dist = ranger.location().mapLocation().distanceSquaredTo(locations.get(i));
+            long dist = rangerLoc.distanceSquaredTo(locations.get(i));
             if (dist < minDist) {
                 minDist = dist;
                 idx = i;

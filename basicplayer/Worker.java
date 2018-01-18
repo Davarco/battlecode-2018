@@ -14,6 +14,9 @@ public class Worker {
 
     private static boolean isAttacked;
 
+    private static int workerId;
+    private static MapLocation workerLoc;
+
     public static void init(GameController controller) {
         gc = controller;
     }
@@ -22,7 +25,11 @@ public class Worker {
 
         // Receive worker from main runner
         worker = unit;
+
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
+
+        workerId = worker.id();
+        workerLoc = worker.location().mapLocation();
 
         if (Player.underConstruction) {
 
@@ -37,7 +44,6 @@ public class Worker {
             move();
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
-            System.out.println("****uc " + Player.underConstruction);
             build();
 
             // Repair structures that we can
@@ -61,7 +67,7 @@ public class Worker {
          */
 
         // Only move if we can move
-        if (!gc.isMoveReady(worker.id()))
+        if (!gc.isMoveReady(workerId))
             return;
 
         // Escaping enemy units has the highest priority
@@ -71,7 +77,7 @@ public class Worker {
         if (Player.underConstruction) {
             constructionTimeBuild();
             constructionTimeMove();
-            if (!(Player.constructionSite.values().contains(worker.id()))) {
+            if (!(Player.constructionSite.values().contains(workerId))) {
                 if (standOff()) return;
             }
         }
@@ -93,7 +99,7 @@ public class Worker {
         if (moveOutOfWay())
             return;
 
-        worker = gc.unit(worker.id());
+        updateWorker();
     }
 
     private static void constructionTimeMove() {
@@ -102,23 +108,30 @@ public class Worker {
     }
 
     private static void constructionTimeBuild() {
-        // Replicate if we don't have enough workers
-        if (Info.number(UnitType.Worker) < Config.WORKER_EQUILIBRIUM) {
-            replicate();
+        if (Info.number(UnitType.Factory) == 0) {
+            create(UnitType.Factory);
+
         }
     }
 
     private static void build() {
 
-        // Create factories
-        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM && Player.turnsSinceEndOfConstruction >= Config.ROUNDS_BETWEEN_FACTORIES && !Player.underConstruction) {
-            create(UnitType.Factory);
-
-        }
-
-        // Replicate if we don't have enough workers
-        if (Info.number(UnitType.Worker) < Config.WORKER_EQUILIBRIUM) {
+//        // Create factories
+//        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM && Player.turnsSinceEndOfConstruction >= Config.ROUNDS_BETWEEN_FACTORIES && !Player.underConstruction) {
+//            create(UnitType.Factory);
+//
+//        }
+//
+//        // Replicate if we don't have enough workers
+//        if (Info.number(UnitType.Worker) < Config.WORKER_EQUILIBRIUM) {
+//            replicate();
+//        }
+// Create factories
+        if (Info.number(UnitType.Worker) <  Info.number(UnitType.Factory)*2+3) {
             replicate();
+        }
+        else {
+            create(UnitType.Factory);
         }
 
         // Build rockets
@@ -134,7 +147,7 @@ public class Worker {
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
             isAttacked = true;
-            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
+            System.out.println("Worker " + workerLoc + " is being attacked!");
             return true;
         } else {
             isAttacked = false;
@@ -150,11 +163,11 @@ public class Worker {
     private static boolean moveTowardsRocket() {
 
         // Move towards a low-HP rocket if possible
-        rockets = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Rocket);
+        rockets = gc.senseNearbyUnitsByType(workerLoc, worker.visionRange(), UnitType.Rocket);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
-            long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
+            long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(workerLoc);
             if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
                 minDist = dist;
                 idx = i;
@@ -176,7 +189,7 @@ public class Worker {
 //        long minDist = Long.MAX_VALUE;
 //        int idx = -1;
 //        for (int i = 0; i < locations.size(); i++) {
-//            long dist = worker.location().mapLocation().distanceSquaredTo(locations.get(i));
+//            long dist = workerLoc.distanceSquaredTo(locations.get(i));
 //            if (dist < minDist) {
 //                minDist = dist;
 //                idx = i;
@@ -190,11 +203,11 @@ public class Worker {
 //        return false;
 
 //        // Move towards a low-HP factory if possible
-//        factories = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Factory);
+//        factories = gc.senseNearbyUnitsByType(workerLoc, worker.visionRange(), UnitType.Factory);
 //        long minDist = Long.MAX_VALUE;
 //        int idx = -1;
 //        for (int i = 0; i < factories.size(); i++) {
-//            long dist = factories.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
+//            long dist = factories.get(i).location().mapLocation().distanceSquaredTo(workerLoc);
 //            if (Util.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
 //                minDist = dist;
 //                idx = i;
@@ -208,9 +221,9 @@ public class Worker {
 //
 //        return false;
 
-        if (Player.constructionSite.values().contains(worker.id())) {
+        if (Player.constructionSite.values().contains(workerId)) {
             for (MapLocation m : Player.constructionSite.keySet()) {
-                if (Player.constructionSite.get(m) == worker.id()) {
+                if (Player.constructionSite.get(m) == workerId) {
                     Pathing.move(worker, m);
                     return true;
                 }
@@ -218,7 +231,7 @@ public class Worker {
         } else if (Player.constructionSite.values().contains(0)) {
             for (MapLocation m : Player.constructionSite.keySet()) {
                 if (Player.constructionSite.get(m) == 0) {
-                    Player.constructionSite.put(m, worker.id());
+                    Player.constructionSite.put(m, workerId);
                     Pathing.move(worker, m);// 0 means that slot is unassigned yet
                     return true;
                 }
@@ -230,7 +243,7 @@ public class Worker {
 //        long minDist = Long.MAX_VALUE;
 //        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
 //        for (MapLocation dest : Player.constructionSite.keySet()) {
-//            long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
+//            long dist =  dest.distanceSquaredTo(workerLoc);
 //            if (dist < minDist && Player.constructionSite.get(dest)) {
 //                minDist = dist;
 //                best = dest;
@@ -252,7 +265,7 @@ public class Worker {
 //        HashMap<MapLocation, Boolean> bestListOfDest = new HashMap<MapLocation, Boolean>();
 //        for (HashMap<MapLocation, Boolean> listOfDest : Player.workerDestinations.values()) {
 //            for (MapLocation dest : listOfDest.keySet()) {
-//                long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
+//                long dist =  dest.distanceSquaredTo(workerLoc);
 //                if (dist < minDist && listOfDest.get(dest)) {
 //                    minDist = dist;
 //                    best = dest;
@@ -271,7 +284,7 @@ public class Worker {
 
     private static boolean moveTowardsKarbonite() {
         MapLocation loc = bestKarboniteLoc();
-        if (loc != worker.location().mapLocation()) { // bestKarboniteLoc returns the worker's position if nothing is found
+        if (loc != workerLoc) { // bestKarboniteLoc returns the worker's position if nothing is found
             Pathing.move(worker, loc);
             return true;
         }
@@ -282,7 +295,7 @@ public class Worker {
     private static boolean moveOutOfWay() {
         int num_free_cells = 0;
         for (Direction d : Direction.values()) {
-            MapLocation loc = worker.location().mapLocation().add(d);
+            MapLocation loc = workerLoc.add(d);
             if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
                 num_free_cells++;
             }
@@ -297,16 +310,16 @@ public class Worker {
     }
 
     private static void repairStructure(UnitType StructureToRepair) {
-        VecUnit structures = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), StructureToRepair);
+        VecUnit structures = gc.senseNearbyUnitsByType(workerLoc, worker.visionRange(), StructureToRepair);
 
         // Repair a Structure in range, only in Earth
-        if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+        if (workerLoc.getPlanet().equals(Planet.Earth)) {
             for (int i = 0; i < structures.size(); i++) {
-                if (gc.canBuild(worker.id(), structures.get(i).id())) {
-                    gc.build(worker.id(), structures.get(i).id());
+                if (gc.canBuild(workerId, structures.get(i).id())) {
+                    gc.build(workerId, structures.get(i).id());
                 }
-                if (gc.canRepair(worker.id(), structures.get(i).id())) {
-                    gc.repair(worker.id(), structures.get(i).id());
+                if (gc.canRepair(workerId, structures.get(i).id())) {
+                    gc.repair(workerId, structures.get(i).id());
                 }
             }
         }
@@ -314,20 +327,20 @@ public class Worker {
 
     private static void harvestKarbonite() {
         for (Direction d : Direction.values()) {
-            if (gc.startingMap(Planet.Earth).onMap(worker.location().mapLocation().add(d)) && gc.canHarvest(worker.id(), d)) {
-                gc.harvest(worker.id(), d);
+            if (gc.startingMap(Planet.Earth).onMap(workerLoc.add(d)) && gc.canHarvest(workerId, d)) {
+                gc.harvest(workerId, d);
             }
         }
     }
 
     private static MapLocation bestKarboniteLoc() {
-        VecMapLocation allInRange = gc.allLocationsWithin(worker.location().mapLocation(), worker.visionRange());
+        VecMapLocation allInRange = gc.allLocationsWithin(workerLoc, worker.visionRange());
         int bestHeuristicSoFar = Integer.MAX_VALUE;
         int bestIdxSoFar = -1;
         for (int i = 0; i < allInRange.size(); i++) {
             MapLocation loc = allInRange.get(i);
             if (gc.startingMap(Planet.Earth).onMap(loc) && gc.karboniteAt(loc) > 0 && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1)) {
-                int heuristic = (int) (Math.sqrt(50 - gc.karboniteAt(loc)) + Math.pow((int) (worker.location().mapLocation().distanceSquaredTo(loc)), 2));
+                int heuristic = (int) (Math.sqrt(50 - gc.karboniteAt(loc)) + Math.pow((int) (workerLoc.distanceSquaredTo(loc)), 2));
                 if (heuristic < bestHeuristicSoFar) {
                     bestHeuristicSoFar = heuristic;
                     bestIdxSoFar = i;
@@ -338,25 +351,25 @@ public class Worker {
         if (bestIdxSoFar != -1) {
             return allInRange.get(bestIdxSoFar);
         } else {
-            return worker.location().mapLocation();
+            return workerLoc;
         }
     }
 
     private static void replicate() {
         for (Direction dir : Direction.values()) {
-            if (gc.canReplicate(worker.id(), dir)) {
-                gc.replicate(worker.id(), dir);
+            if (gc.canReplicate(workerId, dir)) {
+                gc.replicate(workerId, dir);
             }
         }
     }
 
     private static void create(UnitType type) {
         for (Direction dir : Direction.values()) {
-            if (gc.canBlueprint(worker.id(), type, dir)) {
-                MapLocation loc = gc.unit(worker.id()).location().mapLocation(); // Necessary to update the location of the bot
-                gc.blueprint(worker.id(), type, dir);
-                System.out.println("------PLACED BP ON " + loc.add(dir).toString());
-                startConstruction(loc.add(dir));
+            if (gc.canBlueprint(workerId, type, dir)) {
+                updateWorker(); // Needed to avoid bugz
+                gc.blueprint(workerId, type, dir);
+                System.out.println("------PLACED BP ON " + workerLoc.add(dir).toString());
+                startConstruction(workerLoc.add(dir));
             }
         }
     }
@@ -367,5 +380,11 @@ public class Worker {
         Player.constructionSite = Util.openSpacesAround(loc, 8);
         System.out.println("Construction started on building @ " + Player.constructionLoc);
         return true;
+    }
+
+    private static void updateWorker() {
+        worker = gc.unit(workerId);
+        workerLoc = worker.location().mapLocation();
+        workerId = worker.id();
     }
 }
