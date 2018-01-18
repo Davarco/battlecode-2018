@@ -18,7 +18,7 @@ public class Rocket {
         // Receive rocket from main runner
         rocket = unit;
 
-        if (rocket.id() == Player.constructionId) { // This structure is marked as under construction, check to see if completed
+        if (rocket.location().mapLocation().equals(Player.constructionLoc)) { // This structure is marked as under construction, check to see if completed
             manageConstruction();
         }
 
@@ -36,7 +36,7 @@ public class Rocket {
         if (!isStillBlueprint()) {
             System.out.println("Construction done on rocket " + rocket.id());
             Player.underConstruction = false;
-            Player.constructionId = 0;
+            Player.constructionLoc = new MapLocation(Planet.Earth, -1, -1);
         }
     }
 

@@ -25,6 +25,7 @@ public class Worker {
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
 
         if (Player.underConstruction) {
+
             move();
             repairStructure(UnitType.Factory);
             repairStructure(UnitType.Rocket);
@@ -36,7 +37,7 @@ public class Worker {
             move();
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
-
+            System.out.println("****uc " + Player.underConstruction);
             build();
 
             // Repair structures that we can
@@ -68,6 +69,7 @@ public class Worker {
             return;
 
         if (Player.underConstruction) {
+            constructionTimeBuild();
             constructionTimeMove();
             if (!(Player.constructionSite.values().contains(worker.id()))) {
                 if (standOff()) return;
@@ -90,6 +92,8 @@ public class Worker {
         // If all of the above failed, we likely have to clear up some space
         if (moveOutOfWay())
             return;
+
+        worker = gc.unit(worker.id());
     }
 
     private static void constructionTimeMove() {
@@ -97,10 +101,17 @@ public class Worker {
         if (moveTowardsRocket()) return;
     }
 
+    private static void constructionTimeBuild() {
+        // Replicate if we don't have enough workers
+        if (Info.number(UnitType.Worker) < Config.WORKER_EQUILIBRIUM) {
+            replicate();
+        }
+    }
+
     private static void build() {
 
         // Create factories
-        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM && Player.turnsSinceEndOfConstruction > Config.ROUNDS_BETWEEN_FACTORIES) {
+        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM && Player.turnsSinceEndOfConstruction >= Config.ROUNDS_BETWEEN_FACTORIES && !Player.underConstruction) {
             create(UnitType.Factory);
 
         }
@@ -342,21 +353,19 @@ public class Worker {
     private static void create(UnitType type) {
         for (Direction dir : Direction.values()) {
             if (gc.canBlueprint(worker.id(), type, dir)) {
+                MapLocation loc = gc.unit(worker.id()).location().mapLocation(); // Necessary to update the location of the bot
                 gc.blueprint(worker.id(), type, dir);
-                startConstruction(worker.location().mapLocation().add(dir), type);
+                System.out.println("------PLACED BP ON " + loc.add(dir).toString());
+                startConstruction(loc.add(dir));
             }
         }
     }
 
-    private static void startConstruction(MapLocation loc, UnitType type) {
-        VecUnit blueprints = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), type);
-        for (int i = 0; i < blueprints.size(); i++) {
-            if (blueprints.get(i).location().mapLocation().equals(loc)) {
-                Player.constructionId = blueprints.get(i).id();
-                Player.underConstruction = true;
-                Player.constructionSite = Util.openSpacesAround(loc, 2);
-                System.out.println("Construction started on building " + blueprints.get(i).id());
-            }
-        }
+    private static boolean startConstruction(MapLocation loc) {
+        Player.constructionLoc = loc;
+        Player.underConstruction = true;
+        Player.constructionSite = Util.openSpacesAround(loc, 8);
+        System.out.println("Construction started on building @ " + Player.constructionLoc);
+        return true;
     }
 }

@@ -16,7 +16,7 @@ public class Player {
     public static MapLocation focalPoint;
     public static boolean underConstruction = false;
     public static HashMap<MapLocation, Integer> constructionSite;
-    public static int constructionId = 0;
+    public static MapLocation constructionLoc;
     public static int turnsSinceEndOfConstruction = Config.ROUNDS_BETWEEN_FACTORIES;
 
     public static long time = 0;
@@ -28,6 +28,7 @@ public class Player {
         unitpaths = new HashMap<>();
         rocketTargets = new ArrayList<MapLocation>();
         constructionSite = new HashMap<MapLocation, Integer>();
+        constructionLoc = new MapLocation(Planet.Earth, -1, -1);
 
         // Initialize focus points
 

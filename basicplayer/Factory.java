@@ -16,7 +16,9 @@ public class Factory {
         // Receive factory from main runner
         factory = unit;
 
-        if (factory.id() == Player.constructionId) { // This structure is marked as under construction, check to see if completed
+        System.out.println("c: " +factory.location().mapLocation());
+        System.out.println("a " + Player.constructionLoc);
+        if (factory.location().mapLocation().equals(Player.constructionLoc)) { // This structure is marked as under construction, check to see if completed
             manageConstruction();
         }
 
@@ -34,7 +36,7 @@ public class Factory {
         if (!isStillBlueprint()) {
             System.out.println("Construction done on factory " + factory.id());
             Player.underConstruction = false;
-            Player.constructionId = 0;
+            Player.constructionLoc = new MapLocation(Planet.Earth, -1, -1);
             Player.turnsSinceEndOfConstruction = 0;
             Player.constructionSite = new HashMap<MapLocation, Integer>();
         }

@@ -27,12 +27,14 @@ public class Ranger {
         if (!attack()) {
             long t1 = System.currentTimeMillis();
             move();
+            ranger = gc.unit(ranger.id());
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
             attack();
         } else {
             long t1 = System.currentTimeMillis();
             move();
+            ranger = gc.unit(ranger.id());
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
