@@ -39,25 +39,14 @@ public class Factory {
     private static void build() {
 
         // Workers are vital, build them if we have nothing left
-    	if(Info.number(UnitType.Factory)<Info.number(UnitType.Worker)/6 && Info.number(UnitType.Factory)<Config.FACTORY_EQUILIBRIUM && gc.round()<=60)return;
+    	if (Info.number(UnitType.Factory) < Info.number(UnitType.Worker)/6 && Info.number(UnitType.Factory)<Config.FACTORY_EQUILIBRIUM && gc.round() <= 60) return;
     	
-        if ((Info.number(UnitType.Worker) < Info.number(UnitType.Ranger)/3 || Info.number(UnitType.Worker) < 3) && Info.number(UnitType.Ranger)>=2) {
+        if ((Info.number(UnitType.Worker) < Info.number(UnitType.Ranger)/3 || Info.number(UnitType.Worker) < 3) && Info.number(UnitType.Ranger) >= 2) {
             if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
                 gc.produceRobot(factory.id(), UnitType.Worker);
                 Info.addUnit(UnitType.Worker);
             }
         }
-
-        // Rangers aren't as vital, but we should have a decent number of them
-
-        // Build healers if there are a lot of other troops
-//        if (Info.totalUnits >= Info.number(UnitType.Healer)*8) {
-        /*if (Info.number(UnitType.Healer) < Config.HEALERS) {
-            if (gc.canProduceRobot(factory.id(), UnitType.Healer)) {
-                gc.produceRobot(factory.id(), UnitType.Healer);
-                Info.addUnit(UnitType.Healer);
-            }
-        }*/
 
         // See if the factory can build the ranger
         if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {

@@ -1,6 +1,7 @@
 import bc.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Ranger {
@@ -8,11 +9,13 @@ public class Ranger {
     private static Unit ranger;
     private static GameController gc;
     private static VecUnit enemies;
-    private static Direction current;
-    private static int counter;
+    private static HashMap<Integer, Direction> directionMap;
+    private static HashMap<Integer, Integer> counterMap;
 
     public static void init(GameController controller) {
         gc = controller;
+        directionMap = new HashMap<>();
+        counterMap = new HashMap<>();
     }
 
     public static void run(Unit unit) {
@@ -37,10 +40,6 @@ public class Ranger {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
-    }
-
-    private static void MoveAway() {
-
     }
 
     private static boolean attack() {
@@ -87,9 +86,11 @@ public class Ranger {
         }
 
         // Move towards initial enemy worker locations
+        /*
         if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND && Info.number(UnitType.Ranger) >= 8 && ranger.location().isOnPlanet(Planet.Earth))
             if (moveTowardsInitPoint())
                 return;
+        */
 
         // Get closest enemy
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
@@ -152,7 +153,8 @@ public class Ranger {
         List<MapLocation> locations = new ArrayList<>();
         int H = (int) gc.startingMap(Planet.Earth).getHeight();
         int W = (int) gc.startingMap(Planet.Earth).getWidth();
-        for (MapLocation loc : Info.unitLocations.get(UnitType.Worker)) {
+        for (Unit unit: Info.unitByTypes.get(UnitType.Worker)) {
+            MapLocation loc = unit.location().mapLocation().clone();
             loc.setX(W - loc.getX());
             loc.setY(H - loc.getY());
             locations.add(loc);
@@ -180,8 +182,9 @@ public class Ranger {
     private static boolean bounce() {
 
         // Reset if counter is 8
-        if (counter >= 8) {
-            counter = 0;
+        counterMap.putIfAbsent(ranger.id(), 0);
+        if (counterMap.get(ranger.id()) >= 8) {
+            counterMap.put(ranger.id(), 0);
 
             // Find possible movement directions
             List<Direction> dirList = new ArrayList<>();
@@ -197,19 +200,20 @@ public class Ranger {
                 int idx = (int) (Math.random() * dirList.size());
 
                 // Set the current direction
-                current = dirList.get(idx);
+                directionMap.put(ranger.id(), dirList.get(idx));
             }
         }
 
         // Try to move in the current direction
-        if (current != null) {
-            if (Pathing.tryMove(ranger, current))
-                counter += 1;
+        Direction dir = directionMap.get(ranger.id());
+        if (dir != null) {
+            if (Pathing.tryMove(ranger, dir))
+                counterMap.put(ranger.id(), counterMap.get(ranger.id())+1);
             else
-                counter = 0;
+                counterMap.put(ranger.id(), 0);
         } else {
             // Reset the direction
-            counter = 8;
+            counterMap.put(ranger.id(), 8);
         }
 
         return false;

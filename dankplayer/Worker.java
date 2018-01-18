@@ -3,18 +3,19 @@ import bc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class Worker {
 
     private static Unit worker;
     private static GameController gc;
-    private static VecUnit factories;
     private static VecUnit rockets;
-    private static boolean isAttacked;
+    private static HashMap<Integer, Direction> directionMap;
+    private static HashMap<Integer, Integer> counterMap;
 
     public static void init(GameController controller) {
         gc = controller;
+        directionMap = new HashMap<>();
+        counterMap = new HashMap<>();
     }
 
     public static void run(Unit unit) {
@@ -50,7 +51,7 @@ public class Worker {
             return;
 
         // Similar to below, rockets are vital late game
-        if (gc.round() <= 550 && gc.round() > Config.ROCKET_CREATION_ROUND){
+        if (gc.round() <= 550 && gc.round() > Config.ROCKET_CREATION_ROUND) {
             if (moveTowardsRocket())
                 return;
         }
@@ -71,10 +72,9 @@ public class Worker {
         // Move towards karbonite after our buildings are taken care of
         if (moveTowardsKarbonite())
             return;
-        
-        // If all of the above failed, we likely have to clear up some space
-        if (moveOutOfWay())
-            return;
+
+        // Otherwise bounce and give more space to the factories
+        bounce();
     }
 
     private static void build() {
@@ -101,11 +101,8 @@ public class Worker {
 
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
-            isAttacked = true;
             System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
             return true;
-        } else {
-            isAttacked = false;
         }
 
         return false;
@@ -136,62 +133,22 @@ public class Worker {
     private static boolean moveTowardsFactory() {
 
         // Move towards the closest factory
-        List<MapLocation> locations = Info.unitLocations.get(UnitType.Factory);
+        List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
-        for (int i = 0; i < locations.size(); i++) {
-            long dist = worker.location().mapLocation().distanceSquaredTo(locations.get(i));
-            if (dist < minDist) {
+        for (int i = 0; i < units.size(); i++) {
+            long dist = worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist < minDist && units.get(i).health() < units.get(i).maxHealth()) {
                 minDist = dist;
                 idx = i;
             }
         }
         if (idx != -1) {
-            Pathing.move(worker, locations.get(idx));
+            Pathing.move(worker, units.get(idx).location().mapLocation());
             return true;
         }
 
         return false;
-
-//        // Move towards a low-HP factory if possible
-//        factories = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Factory);
-//        long minDist = Long.MAX_VALUE;
-//        int idx = -1;
-//        for (int i = 0; i < factories.size(); i++) {
-//            long dist = factories.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
-//            if (Util.friendlyUnit(factories.get(i)) && factories.get(i).health() < factories.get(i).maxHealth() && dist < minDist) {
-//                minDist = dist;
-//                idx = i;
-//            }
-//        }
-//        if (idx != -1) {
-//            Pathing.move(worker, factories.get(idx).location().mapLocation());
-//            // System.out.println("Moving towards friendly factory.");
-//            return true;
-//        }
-//
-//        return false;
-
-//        long minDist = Long.MAX_VALUE;
-//        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
-//        HashMap<MapLocation, Boolean> bestListOfDest = new HashMap<MapLocation, Boolean>();
-//        for (HashMap<MapLocation, Boolean> listOfDest : Player.workerDestinations.values()) {
-//            for (MapLocation dest : listOfDest.keySet()) {
-//                long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
-//                if (dist < minDist && listOfDest.get(dest)) {
-//                    minDist = dist;
-//                    best = dest;
-//                    bestListOfDest = listOfDest;
-//                }
-//            }
-//        }
-//        if (gc.startingMap(Planet.Earth).onMap(best)) {
-//            // if nothing found, default location is off the map
-//            Pathing.move(worker, best);
-//            bestListOfDest.put(best, false);
-//            return true;
-//        }
-//        return false;
     }
 
     private static boolean moveTowardsKarbonite() {
@@ -204,20 +161,43 @@ public class Worker {
         return false;
     }
 
-    private static boolean moveOutOfWay() {
-        int num_free_cells = 0;
-        for (Direction d : Direction.values()) {
-            MapLocation loc = worker.location().mapLocation().add(d);
-            if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
-                num_free_cells++;
+    private static boolean bounce() {
+
+        // Reset if counter is 8
+        counterMap.putIfAbsent(worker.id(), 0);
+        if (counterMap.get(worker.id()) >= 8) {
+            counterMap.put(worker.id(), 0);
+
+            // Find possible movement directions
+            List<Direction> dirList = new ArrayList<>();
+            for (Direction d : Direction.values()) {
+                MapLocation loc = worker.location().mapLocation().add(d);
+                if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
+                    dirList.add(d);
+                }
+            }
+
+            // Get one of the possible directions if they exist
+            if (dirList.size() != 0) {
+                int idx = (int) (Math.random() * dirList.size());
+
+                // Set the current direction
+                directionMap.put(worker.id(), dirList.get(idx));
             }
         }
-        if (num_free_cells < Config.FREE_CELL_CONSTANT) {
-            int random = (int) (Math.random() * 8);
-            Pathing.tryMove(worker, Direction.values()[random]);
-            return true;
+
+        // Try to move in the current direction
+        Direction dir = directionMap.get(worker.id());
+        if (dir != null) {
+            if (Pathing.tryMove(worker, dir))
+                counterMap.put(worker.id(), counterMap.get(worker.id())+1);
+            else
+                counterMap.put(worker.id(), 0);
+        } else {
+            // Reset the direction
+            counterMap.put(worker.id(), 8);
         }
-        
+
         return false;
     }
 
