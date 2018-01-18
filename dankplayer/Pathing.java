@@ -222,7 +222,8 @@ public class Pathing {
     Criterion for (re)calculating path:
      	1. If the unit was just made
      	2. If the goal changed
-     	3. If unit is blocking the goal
+     	3. If the 
+     	4. If unit is blocking the goal
     If recalculated path is null given the update of the situation, then the unit cannot move (function returns)
 
     First, checks if the unit movement cooldown is up
@@ -260,7 +261,7 @@ public class Pathing {
         }
         //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
-            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone()));
+            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
         }
         if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
             return false;
@@ -269,20 +270,29 @@ public class Pathing {
 
         //Criterion 2
         if(!end.equals(TroopPath.goal)) {
-            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone());
+            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
             if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
             }
         }
-        MapLocation next = TroopPath.getNextLocation();
+        
         //Criterion 3
+        if(TroopUnit.location().mapLocation()!=Player.unitpaths.get(TroopUnit.id()).start) {
+        		Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+            if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+                return false;
+            }
+        }
+        
+        MapLocation next = TroopPath.getNextLocation();
+        //Criterion 4
         if(!gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) { 	//check if unit is in the way and unit is not in final location
             //might need to override later
             if(TroopPath.NextLocationIsEnd()) {
                 return false;
             }
             else {
-                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone());
+                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
                 if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                     return false;
                 }
@@ -321,15 +331,16 @@ public class Pathing {
     }
 
     public static void move(Unit unit, Direction direction) {
-        move(unit, DirectionToMapLocation(unit, direction));
+        if(gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)){
+    			gc.moveRobot(unit.id(), direction);
+        }
     }
 
-    public static boolean tryMove(Unit unit, Direction direction) {
+    public static void tryMove(Unit unit, Direction direction) {
 
         // Get idx of direction
         int idx = -1;
-        int length = Direction.values().length;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < Direction.values().length; i++) {
             if (Direction.values()[i].equals(direction)) {
                 idx = i;
                 break;
@@ -349,12 +360,12 @@ public class Pathing {
                 break;
             }
             if (left == 0) {
-                left = length-1;
+                left = 7;
             } else {
                 left -= 1;
             }
-            if (right == 8) {
-                right = length-1;
+            if (right == 7) {
+                right = 0;
             } else {
                 right += 1;
             }
@@ -363,11 +374,10 @@ public class Pathing {
         // Don't move if no idx was found, otherwise move in the best direction
         if (fin == -1) {
             // System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
-            return false;
+            return;
         }
 
         move(unit, Direction.values()[fin]);
-        return true;
     }
 
     /*
