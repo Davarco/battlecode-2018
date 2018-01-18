@@ -259,9 +259,11 @@ public class Pathing {
         if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
             return true;
         }
+        boolean hasRecalculated = false;
         //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
             Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
+            hasRecalculated = true;
         }
         if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
             return false;
@@ -271,6 +273,7 @@ public class Pathing {
         //Criterion 2
         if(!end.equals(TroopPath.goal)) {
             Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+            hasRecalculated = true;
             if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
             }
@@ -278,8 +281,10 @@ public class Pathing {
         
         //Criterion 3
         if(TroopUnit.location().mapLocation()!=Player.unitpaths.get(TroopUnit.id()).start) {
-        		Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
-            if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+        		if(!hasRecalculated) {
+        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+        		}
+        		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
             }
         }
