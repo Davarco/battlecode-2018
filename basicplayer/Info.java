@@ -37,4 +37,5 @@ public class Info {
     public static int number(UnitType type) {
         return unitCounts.get(type);
     }
+
 }

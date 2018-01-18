@@ -80,6 +80,12 @@ public class Healer {
         } else {
             isAttacked = false;
         }
+
+        if (Pathing.ditchFactory(healer)) {
+            return;
+        }
+
+
         // Otherwise changes towards a low HP troop
         // TODO Implement this as a heuristic
         friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());

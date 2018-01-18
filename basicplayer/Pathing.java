@@ -89,7 +89,7 @@ public class Pathing {
             if(current==null) break;
             closed[current.i][current.j]=true;
 
-            if(current.equals(grid[endI][endJ])){
+            if(endI < grid.length && endJ < grid[0].length && current.equals(grid[endI][endJ])){
                 return;
             }
 
@@ -399,6 +399,35 @@ public class Pathing {
 
         // Get opposite direction
         Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));
+        tryMove(unit, opposite);
+        return true;
+    }
+
+    public static boolean ditchFactory (Unit unit) {
+        VecUnit factories = gc.senseNearbyUnitsByType(unit.location().mapLocation(), unit.visionRange(), UnitType.Factory);
+
+        if (factories.size() == 0) {
+//            System.out.println("Why is unit " + unit.id() + "not returning fucking anything??");
+            return false;
+        }
+        long maxDist = -Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < factories.size(); i++) {
+            long dist = (int)Math.pow(Config.FACTORY_STANDOFF_RADIUS, 2) - factories.get(i).location().mapLocation().distanceSquaredTo(unit.location().mapLocation());
+            if (dist > maxDist) {
+                maxDist = dist;
+                idx = i;
+            }
+        }
+
+        if (maxDist <= 0) {
+//            System.out.println(" No action on " + maxDist);
+            return false;
+
+        }
+//        System.out.println(" Moving away from factory! Distance is " + maxDist);
+
+        Direction opposite = opposite(unit.location().mapLocation().directionTo(factories.get(idx).location().mapLocation()));
         tryMove(unit, opposite);
         return true;
     }

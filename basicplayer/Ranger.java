@@ -78,6 +78,11 @@ public class Ranger {
 
         // Avoid enemy units, walk outside of their view range
         if (Pathing.escape(ranger)) {
+            System.out.println("escaping!");
+            return;
+        }
+
+        if (Pathing.ditchFactory(ranger)) {
             return;
         }
 
@@ -153,7 +158,7 @@ public class Ranger {
         }
 
         if (idx != -1) {
-            System.out.println(locations.get(idx));
+//            System.out.println(locations.get(idx));
             Pathing.move(ranger, locations.get(idx));
             return true;
         }

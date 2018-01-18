@@ -19,6 +19,7 @@ public class Factory {
         if (factory.id() == Player.constructionId) { // This structure is marked as under construction, check to see if completed
             manageConstruction();
         }
+
         else {
             // Build best unit possible
             build();
@@ -34,9 +35,11 @@ public class Factory {
             System.out.println("Construction done on factory " + factory.id());
             Player.underConstruction = false;
             Player.constructionId = 0;
+            Player.turnsSinceEndOfConstruction = 0;
+            Player.constructionSite = new HashMap<MapLocation, Integer>();
         }
     }
-    */
+
 
     private static void build() {
 

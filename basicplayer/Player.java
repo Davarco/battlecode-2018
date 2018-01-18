@@ -15,8 +15,9 @@ public class Player {
 
     public static MapLocation focalPoint;
     public static boolean underConstruction = false;
-    public static HashMap<MapLocation, Boolean> constructionSite;
+    public static HashMap<MapLocation, Integer> constructionSite;
     public static int constructionId = 0;
+    public static int turnsSinceEndOfConstruction = Config.ROUNDS_BETWEEN_FACTORIES;
 
     public static long time = 0;
 
@@ -26,7 +27,7 @@ public class Player {
         gc = new GameController();
         unitpaths = new HashMap<>();
         rocketTargets = new ArrayList<MapLocation>();
-        constructionSite = new HashMap<MapLocation, Boolean>();
+        constructionSite = new HashMap<MapLocation, Integer>();
 
         // Initialize focus points
 
@@ -93,6 +94,8 @@ public class Player {
                         break;
                 }
             }
+
+            turnsSinceEndOfConstruction++;
 
             long t2 = System.currentTimeMillis();
             System.out.println("time: " + (t2 - t1));

@@ -36,12 +36,12 @@ public class Util {
         return Planet.Earth;
     }
 
-    public static HashMap<MapLocation, Boolean> openSpacesAround(MapLocation m, int maxSpacesAround) {
-        HashMap<MapLocation, Boolean> locs = new HashMap<MapLocation, Boolean>();
+    public static HashMap<MapLocation, Integer> openSpacesAround(MapLocation m, int maxSpacesAround) {
+        HashMap<MapLocation, Integer> locs = new HashMap<MapLocation, Integer>();
         for (Direction d : Direction.values()) {
             MapLocation loc = m.add(d);
             if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
-                locs.put(loc, true);
+                locs.put(loc, 0);
             }
         }
         return locs;

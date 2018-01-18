@@ -37,9 +37,11 @@ public class Worker {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
 
-        // Repair structures that we can
-        repairStructure(UnitType.Factory);
-        repairStructure(UnitType.Rocket);
+            build();
+
+            // Repair structures that we can
+            repairStructure(UnitType.Factory);
+            repairStructure(UnitType.Rocket);
 
 //            // Repair structures that we can
 //            repairStructure(UnitType.Factory);
@@ -61,22 +63,33 @@ public class Worker {
         if (!gc.isMoveReady(worker.id()))
             return;
 
-//        // Escaping enemy units has the highest priority
-//        if (escape())
-//            return;
+        // Escaping enemy units has the highest priority
+        if (escape())
+            return;
 
         if (Player.underConstruction) {
             constructionTimeMove();
+            if (!(Player.constructionSite.values().contains(worker.id()))) {
+                if (standOff()) return;
+            }
         }
 
         else {
+            if (standOff()) {
+                System.out.println("Standing off!");
+                return;
+            }
+
             if (moveTowardsKarbonite())
                 return;
+            repairStructure(UnitType.Factory);
+            repairStructure(UnitType.Rocket);
+
         }
 
-//        // If all of the above failed, we likely have to clear up some space
-//        if (moveOutOfWay())
-//            return;
+        // If all of the above failed, we likely have to clear up some space
+        if (moveOutOfWay())
+            return;
     }
 
     private static void constructionTimeMove() {
@@ -87,7 +100,7 @@ public class Worker {
     private static void build() {
 
         // Create factories
-        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM) {
+        if (Info.number(UnitType.Factory) < Config.FACTORY_EQUILIBRIUM && Player.turnsSinceEndOfConstruction > Config.ROUNDS_BETWEEN_FACTORIES) {
             create(UnitType.Factory);
 
         }
@@ -119,6 +132,10 @@ public class Worker {
         return false;
     }
 
+    private static boolean standOff() {
+        return Pathing.ditchFactory(worker);
+    }
+
     private static boolean moveTowardsRocket() {
 
         // Move towards a low-HP rocket if possible
@@ -143,23 +160,23 @@ public class Worker {
 
     private static boolean moveTowardsFactory() {
 
-        // Move towards the closest factory
-        List<MapLocation> locations = Info.unitLocations.get(UnitType.Factory);
-        long minDist = Long.MAX_VALUE;
-        int idx = -1;
-        for (int i = 0; i < locations.size(); i++) {
-            long dist = worker.location().mapLocation().distanceSquaredTo(locations.get(i));
-            if (dist < minDist) {
-                minDist = dist;
-                idx = i;
-            }
-        }
-        if (idx != -1) {
-            Pathing.move(worker, locations.get(idx));
-            return true;
-        }
-
-        return false;
+//        // Move towards the closest factory
+//        List<MapLocation> locations = Info.unitLocations.get(UnitType.Factory);
+//        long minDist = Long.MAX_VALUE;
+//        int idx = -1;
+//        for (int i = 0; i < locations.size(); i++) {
+//            long dist = worker.location().mapLocation().distanceSquaredTo(locations.get(i));
+//            if (dist < minDist) {
+//                minDist = dist;
+//                idx = i;
+//            }
+//        }
+//        if (idx != -1) {
+//            Pathing.move(worker, locations.get(idx));
+//            return true;
+//        }
+//
+//        return false;
 
 //        // Move towards a low-HP factory if possible
 //        factories = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), UnitType.Factory);
@@ -179,25 +196,45 @@ public class Worker {
 //        }
 //
 //        return false;
-        long minDist = Long.MAX_VALUE;
-        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
-        for (MapLocation dest : Player.constructionSite.keySet()) {
-            long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
-            if (dist < minDist && Player.constructionSite.get(dest)) {
-                minDist = dist;
-                best = dest;
-            }
-//            if (dist == 0) {
-//                Player.constructionSite.put(dest, false);
-//            }
-        }
 
-        if (gc.startingMap(Planet.Earth).onMap(best)) {
-            // if nothing found, default location is off the map
-            Pathing.move(worker, best);
-            return true;
+        if (Player.constructionSite.values().contains(worker.id())) {
+            for (MapLocation m : Player.constructionSite.keySet()) {
+                if (Player.constructionSite.get(m) == worker.id()) {
+                    Pathing.move(worker, m);
+                    return true;
+                }
+            }
+        } else if (Player.constructionSite.values().contains(0)) {
+            for (MapLocation m : Player.constructionSite.keySet()) {
+                if (Player.constructionSite.get(m) == 0) {
+                    Player.constructionSite.put(m, worker.id());
+                    Pathing.move(worker, m);// 0 means that slot is unassigned yet
+                    return true;
+                }
+            }
         }
         return false;
+    }
+
+//        long minDist = Long.MAX_VALUE;
+//        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
+//        for (MapLocation dest : Player.constructionSite.keySet()) {
+//            long dist =  dest.distanceSquaredTo(worker.location().mapLocation());
+//            if (dist < minDist && Player.constructionSite.get(dest)) {
+//                minDist = dist;
+//                best = dest;
+//            }
+////            if (dist == 0) {
+////                Player.constructionSite.put(dest, false);
+////            }
+//        }
+//
+//        if (gc.startingMap(Planet.Earth).onMap(best)) {
+//            // if nothing found, default location is off the map
+//            Pathing.move(worker, best);
+//            return true;
+//        }
+//        return false;
 
 //        long minDist = Long.MAX_VALUE;
 //        MapLocation best = new MapLocation(Planet.Earth, -1, -1);
@@ -219,7 +256,7 @@ public class Worker {
 //            return true;
 //        }
 //        return false;
-    }
+
 
     private static boolean moveTowardsKarbonite() {
         MapLocation loc = bestKarboniteLoc();
