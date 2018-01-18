@@ -17,6 +17,12 @@ public class Pathing {
     private static int H, W;
     public static final int DIAGONAL_COST = 10;
     public static final int V_H_COST = 10;
+    static Cell [][] grid;
+    static PriorityQueue<Cell> open;
+    static boolean closed[][];
+    static int startI, startJ;
+    static int endI, endJ;
+
 
     static class Cell{
         int heuristicCost = 0; //Heuristic cost
@@ -46,15 +52,6 @@ public class Pathing {
         W = (int)map.getWidth();
         H = (int)map.getHeight();
     }
-
-    static Cell [][] grid = new Cell[5][5];
-
-    static PriorityQueue<Cell> open;
-
-    static boolean closed[][];
-    static int startI, startJ;
-    static int endI, endJ;
-
 
     public static void setStartCell(int i, int j){
         startI = i;
@@ -88,8 +85,7 @@ public class Pathing {
             current = open.poll();
             if(current==null) break;
             closed[current.i][current.j]=true;
-
-            if(endI < grid.length && endJ < grid[0].length && current.equals(grid[endI][endJ])){
+            if(current.equals(grid[endI][endJ])){
                 return;
             }
 
@@ -175,7 +171,7 @@ public class Pathing {
             }
         }
         grid[si][sj].finalCost = 0;
-        AStar(start,end, TroopUnit);
+        AStar(start, end, TroopUnit);
         ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
         if (closed[endI][endJ]) {
             //Trace back the path
@@ -257,6 +253,9 @@ public class Pathing {
         }
         if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
             return true;
+        }
+        if(!map.onMap(end)) {
+        		return false;
         }
         //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
@@ -399,35 +398,6 @@ public class Pathing {
 
         // Get opposite direction
         Direction opposite = opposite(ourLoc.directionTo(enemies.get(idx).location().mapLocation()));
-        tryMove(unit, opposite);
-        return true;
-    }
-
-    public static boolean ditchFactory (Unit unit) {
-        VecUnit factories = gc.senseNearbyUnitsByType(unit.location().mapLocation(), unit.visionRange(), UnitType.Factory);
-
-        if (factories.size() == 0) {
-//            System.out.println("Why is unit " + unit.id() + "not returning fucking anything??");
-            return false;
-        }
-        long maxDist = -Long.MAX_VALUE;
-        int idx = -1;
-        for (int i = 0; i < factories.size(); i++) {
-            long dist = (int)Math.pow(Config.FACTORY_STANDOFF_RADIUS, 2) - factories.get(i).location().mapLocation().distanceSquaredTo(unit.location().mapLocation());
-            if (dist > maxDist) {
-                maxDist = dist;
-                idx = i;
-            }
-        }
-
-        if (maxDist <= 0) {
-//            System.out.println(" No action on " + maxDist);
-            return false;
-
-        }
-//        System.out.println(" Moving away from factory! Distance is " + maxDist);
-
-        Direction opposite = opposite(unit.location().mapLocation().directionTo(factories.get(idx).location().mapLocation()));
         tryMove(unit, opposite);
         return true;
     }
