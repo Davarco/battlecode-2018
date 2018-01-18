@@ -195,7 +195,6 @@ public class Worker {
     }
 
     private static boolean moveTowardsKarbonite() {
-    	System.out.print("ashbdfw");
         MapLocation loc = bestKarboniteLoc();
         if (loc != worker.location().mapLocation()) { // bestKarboniteLoc returns the worker's position if nothing is found
             Pathing.move(worker, loc);

@@ -324,7 +324,7 @@ public class Pathing {
         move(unit, DirectionToMapLocation(unit, direction));
     }
 
-    public static void tryMove(Unit unit, Direction direction) {
+    public static boolean tryMove(Unit unit, Direction direction) {
 
         // Get idx of direction
         int idx = -1;
@@ -363,10 +363,11 @@ public class Pathing {
         // Don't move if no idx was found, otherwise move in the best direction
         if (fin == -1) {
             // System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
-            return;
+            return false;
         }
 
         move(unit, Direction.values()[fin]);
+        return true;
     }
 
     /*

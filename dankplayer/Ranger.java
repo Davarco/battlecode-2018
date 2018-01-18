@@ -106,7 +106,7 @@ public class Ranger {
         // Remove focal point if no units exist there
         if (Player.focalPoint != null) {
             if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
-                    gc.hasUnitAtLocation(Player.focalPoint)) {
+                    !gc.hasUnitAtLocation(Player.focalPoint)) {
                 // System.out.println("Works");
                 Player.focalPoint = null;
             }
@@ -203,8 +203,10 @@ public class Ranger {
 
         // Try to move in the current direction
         if (current != null) {
-            Pathing.tryMove(ranger, current);
-            counter += 1;
+            if (Pathing.tryMove(ranger, current))
+                counter += 1;
+            else
+                counter = 0;
         } else {
             // Reset the direction
             counter = 8;
