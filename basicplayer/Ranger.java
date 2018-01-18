@@ -15,29 +15,31 @@ public class Ranger {
     }
 
     public static void run(Unit unit) {
-
         // Receive ranger from main runner
         ranger = unit;
-        if (ranger.location().isInGarrison() || ranger.location().isInSpace()) return;
+        if (ranger.location().isInGarrison()) return;
 
         /*
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
+        
         if (!attack()) {
-            long t1 = System.currentTimeMillis();
-            move();
-            ranger = gc.unit(ranger.id());
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
-            attack();
-        } else {
-            long t1 = System.currentTimeMillis();
-            move();
-            ranger = gc.unit(ranger.id());
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
-        }
+	            long t1 = System.currentTimeMillis();
+	            move();
+	            long t2 = System.currentTimeMillis();
+	            Player.time += (t2 - t1);
+	            attack();
+	        } 
+        else {
+	           	long t1 = System.currentTimeMillis();
+	            move();
+	            long t2 = System.currentTimeMillis();
+	            Player.time += (t2 - t1);
+	        }
+    }
+    private static void MoveAway(){
+    	
     }
 
     private static boolean attack() {
@@ -68,7 +70,7 @@ public class Ranger {
     }
 
     private static void move() {
-
+    	
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
          */
@@ -77,24 +79,23 @@ public class Ranger {
         if (!gc.isMoveReady(ranger.id())) {
             return;
         }
-
+        
+        
+        
         // Avoid enemy units, walk outside of their view range
         if (Pathing.escape(ranger)) {
-            System.out.println("escaping!");
             return;
         }
-
-        if (Pathing.ditchFactory(ranger)) {
-            return;
-        }
+        
+        
 
         // Move towards initial enemy worker locations
-        if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND)
+        if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND && Info.number(UnitType.Ranger)>=8 && ranger.location().isOnPlanet(Planet.Earth))
             if (moveTowardsInitPoint())
                 return;
-
-        // Get closest enemy
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+         
+        // Get closest y
+       enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
@@ -125,6 +126,17 @@ public class Ranger {
         if (Player.focalPoint != null) {
             Pathing.move(ranger, Player.focalPoint);
         }
+        
+        if(gc.round()>=530 && ranger.location().isOnPlanet(Planet.Earth) && gc.round()<=640){
+        	if(moveTowardsRocket()){
+        		return;
+        	}
+        }
+        if(gc.round()<=530 && ranger.location().isOnPlanet(Planet.Earth)){
+        	if(moveAwayFactory()){
+        		return;
+        	}
+        }
 
         // Otherwise changes towards enemies
         if (idx != -1) {
@@ -133,7 +145,7 @@ public class Ranger {
         }
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        Pathing.move(ranger,  Direction.values()[(int)(Math.random() * 8)]);
     }
 
     private static boolean moveTowardsInitPoint() {
@@ -160,9 +172,62 @@ public class Ranger {
         }
 
         if (idx != -1) {
-//            System.out.println(locations.get(idx));
             Pathing.move(ranger, locations.get(idx));
             return true;
+        }
+
+        return false;
+    }
+    private static boolean moveAwayFactory() {
+        int num_free_cells = 0;
+        for (Direction d : Direction.values()) {
+            MapLocation loc = ranger.location().mapLocation().add(d);
+            if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
+                num_free_cells++;
+            }
+        }
+        if (num_free_cells < Config.FREE_CELL_CONSTANT) {
+            int random = (int) (Math.random() * 8);
+            Pathing.tryMove(ranger, Direction.values()[random]);
+            return true;
+        }
+        
+        return false;
+    }
+    private static boolean moveTowardsRocket() {
+
+        // Move towards a low-HP rocket if possible
+        VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < rockets.size(); i++) {
+            long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(ranger.location().mapLocation());
+            if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if (idx != -1) {
+        	PlanetMap map = gc.startingMap(Planet.Earth);
+        	MapLocation tmp = rockets.get(idx).location().mapLocation();
+        	tmp = new MapLocation(Planet.Earth,tmp.getX()+1,tmp.getY());
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX()-1,tmp.getY());
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX()+1,tmp.getY()+1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX()-1,tmp.getY()-1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX()+1,tmp.getY()-1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX()-1,tmp.getY()+1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX(),tmp.getY()-1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            tmp = new MapLocation(Planet.Earth,tmp.getX(),tmp.getY()+1);
+            if(map.onMap(tmp) && Pathing.move(ranger, tmp))return true;
+            
+            return false;
         }
 
         return false;
