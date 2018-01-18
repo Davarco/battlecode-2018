@@ -336,11 +336,12 @@ public class Pathing {
         }
     }
 
-    public static void tryMove(Unit unit, Direction direction) {
+    public static boolean tryMove(Unit unit, Direction direction) {
 
         // Get idx of direction
         int idx = -1;
-        for (int i = 0; i < Direction.values().length; i++) {
+        int length = Direction.values().length;
+        for (int i = 0; i < length; i++) {
             if (Direction.values()[i].equals(direction)) {
                 idx = i;
                 break;
@@ -360,11 +361,11 @@ public class Pathing {
                 break;
             }
             if (left == 0) {
-                left = 7;
+                left = length-1;
             } else {
                 left -= 1;
             }
-            if (right == 7) {
+            if (right == length-1) {
                 right = 0;
             } else {
                 right += 1;
@@ -374,10 +375,11 @@ public class Pathing {
         // Don't move if no idx was found, otherwise move in the best direction
         if (fin == -1) {
             // System.out.println("Error: " + unit.location().mapLocation() + " is stuck!");
-            return;
+            return false;
         }
 
         move(unit, Direction.values()[fin]);
+        return true;
     }
 
     /*
