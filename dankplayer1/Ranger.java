@@ -147,38 +147,6 @@ public class Ranger {
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
-    private static boolean moveTowardsInitPoint() {
-
-        // Initial focal point should be the opposite of the closest worker
-        List<MapLocation> locations = new ArrayList<>();
-        int H = (int) gc.startingMap(Planet.Earth).getHeight();
-        int W = (int) gc.startingMap(Planet.Earth).getWidth();
-        for (Unit unit: Info.unitByTypes.get(UnitType.Worker)) {
-            MapLocation loc = unit.location().mapLocation().clone();
-            loc.setX(W - loc.getX());
-            loc.setY(H - loc.getY());
-            locations.add(loc);
-        }
-
-        // Get closest one
-        long minDist = Long.MAX_VALUE;
-        int idx = -1;
-        for (int i = 0; i < locations.size(); i++) {
-            long dist = ranger.location().mapLocation().distanceSquaredTo(locations.get(i));
-            if (dist < minDist) {
-                minDist = dist;
-                idx = i;
-            }
-        }
-
-        if (idx != -1) {
-            Pathing.move(ranger, locations.get(idx));
-            return true;
-        }
-
-        return false;
-    }
-
     private static boolean bounce() {
 
         // Reset if counter is 8

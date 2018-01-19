@@ -194,7 +194,7 @@ public class Pathing {
         } else return null;
     }
 
-    private static Direction opposite(Direction direction) {
+    public static Direction opposite(Direction direction) {
         switch (direction) {
             case North:
                 return Direction.South;

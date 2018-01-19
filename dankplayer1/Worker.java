@@ -13,11 +13,13 @@ public class Worker {
     private static HashMap<Integer, Integer> counterMap;
     private static int W,H;
     private static final int min_karbonite=100;
+    private static ArrayList<Integer> suicideSquad;
 
     public static void init(GameController controller) {
         gc = controller;
         directionMap = new HashMap<>();
         counterMap = new HashMap<>();
+        suicideSquad = new ArrayList<>();
     }
 
     public static void run(Unit unit) {
@@ -48,6 +50,8 @@ public class Worker {
         }
     }
 
+
+
     private static void move() {
         /*
         TODO Implement the entire worker move function as a heuristic based on priority 
@@ -64,7 +68,9 @@ public class Worker {
         }*/
 
         // Moving towards factories has higher priority than escape early game
-        if (gc.round() < 30) {
+        if (gc.round() < 20) {
+            if (ditchFactory())
+                return;
         	if (moveTowardsFactory())
         		return;
             if (escape())
@@ -72,6 +78,8 @@ public class Worker {
             
         } else {
             if (escape())
+                return;
+            if (ditchFactory())
                 return;
             if (moveTowardsFactory())
                 return;
@@ -81,8 +89,6 @@ public class Worker {
         if (moveTowardsKarbonite())
             return;
 
-        // Otherwise bounce and give more space to the factories
-        bounce();
     }
 
     private static void build() {
@@ -90,11 +96,12 @@ public class Worker {
         // Create factories
     	int FactoryNumber=Info.number(UnitType.Factory);
         if (gc.karbonite()-100>20*FactoryNumber) {
-        	;
         	VecUnit things = gc.senseNearbyUnitsByType(worker.location().mapLocation(), 31, UnitType.Factory);
         	if(things.size()==0)
         		create(UnitType.Factory);
         }
+
+
         /*
         // Build rockets
         if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.round() <= 640) {
@@ -175,52 +182,31 @@ public class Worker {
         return false;
     }
 
+    private static boolean ditchFactory() {
+        List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+        if (units.size() == 0) return false;
+        long maxDist = -Long.MAX_VALUE;
+        int idx = 0;
+        for (int i = 0; i < units.size(); i++) {
+            long dist = Config.FACTORY_STANDOFF_RADIUS - worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist > maxDist && units.get(i).health() == units.get(i).maxHealth()) {
+                maxDist = dist;
+                idx = i;
+            }
+        }
+        if (maxDist <= 0)  return false;
+
+        Direction opposite = Pathing.opposite(worker.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(worker, opposite);
+        return true;
+    }
+
     private static boolean moveTowardsKarbonite() {
         MapLocation loc = bestKarboniteLoc();
         if (loc != worker.location().mapLocation()) { // bestKarboniteLoc returns the worker's position if nothing is found
             return Pathing.move(worker, loc);
         }
         
-        return false;
-    }
-
-    private static boolean bounce() {
-
-        // Reset if counter is 8
-        counterMap.putIfAbsent(worker.id(), 0);
-        if (counterMap.get(worker.id()) >= 8) {
-            counterMap.put(worker.id(), 0);
-
-            // Find possible movement directions
-            List<Direction> dirList = new ArrayList<>();
-            for (Direction d : Direction.values()) {
-                MapLocation loc = worker.location().mapLocation().add(d);
-                if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
-                    dirList.add(d);
-                }
-            }
-
-            // Get one of the possible directions if they exist
-            if (dirList.size() != 0) {
-                int idx = (int) (Math.random() * dirList.size());
-
-                // Set the current direction
-                directionMap.put(worker.id(), dirList.get(idx));
-            }
-        }
-
-        // Try to move in the current direction
-        Direction dir = directionMap.get(worker.id());
-        if (dir != null) {
-            if (Pathing.tryMove(worker, dir))
-                counterMap.put(worker.id(), counterMap.get(worker.id())+1);
-            else
-                counterMap.put(worker.id(), 0);
-        } else {
-            // Reset the direction
-            counterMap.put(worker.id(), 8);
-        }
-
         return false;
     }
 
