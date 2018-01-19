@@ -11,7 +11,7 @@ public class Player {
     private static GameController gc;
     private static VecUnit units;
     public static HashMap<Integer, Pathway> unitpaths;
-
+    public static boolean initialKarbReached = false;
     public static MapLocation focalPoint;
     public static long time = 0;
 
@@ -51,7 +51,7 @@ public class Player {
         while (!quit) {
         	System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
-
+            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
             // Debug, print current round
             // System.out.println("Current round: " + gc.round());
 
@@ -102,11 +102,13 @@ public class Player {
      */
     private static void initResearch() {
         System.out.println("Initializing research tree!");
-        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Worker);  // 25
+        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Worker);  // 25
+        gc.queueResearch(UnitType.Worker);  // 25
     }
 
     private static void setUnits() {
