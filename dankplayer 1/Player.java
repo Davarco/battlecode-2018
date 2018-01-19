@@ -14,12 +14,19 @@ public class Player {
     public static boolean initialKarbReached = false;
     public static MapLocation focalPoint;
     public static long time = 0;
+    public static String mapsize = "";
 
     public static void main(String[] args) {
 
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
+        if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getHeight()<55){
+        	mapsize = "smallmap";
+        }
+        else{
+        	mapsize = "largemap";
+        }
 
         // Initialize focus points
         //FocusPoints.init(gc);

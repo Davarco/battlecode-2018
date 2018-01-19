@@ -40,7 +40,7 @@ public class Worker {
         harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-	    if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3){
+	    if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3 && Player.mapsize.equals("largemap")){
 	        replicate();
 	    }
         
