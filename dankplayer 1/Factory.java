@@ -48,7 +48,7 @@ public class Factory {
 
         // See if the factory can build the ranger
         if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-        	if(gc.round()<=200){
+        	if(gc.round()<= 175){
         		 if(Info.number(UnitType.Ranger)<1.5*Info.number(UnitType.Worker)){
         			 gc.produceRobot(factory.id(), UnitType.Ranger);
         	            Info.addUnit(UnitType.Ranger);
