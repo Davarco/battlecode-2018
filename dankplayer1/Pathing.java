@@ -1,198 +1,312 @@
 import bc.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Pathing {
 
-    // Movements correspond from N -> NE... -> W -> SW.
     public static int move[][] = {
             {0, 1}, {1, 1}, {1, 0}, {1, -1},
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
     };
-    private static GameController gc;
-    private static PlanetMap map;
-    private static int H, W;
-    public static final int DIAGONAL_COST = 10;
-    public static final int V_H_COST = 10;
 
-    static class Cell{
-        int heuristicCost = 0; //Heuristic cost
-        int finalCost = 0; //G+H
-        int i, j;
-        Cell parent;
+    private static class Cell {
+        public double g = 0;
+        public double h = 0;
+        public int x;
+        public int y;
+        public Cell parent;
+        public boolean open = false;
+        public boolean closed = false;
 
-        Cell(int i, int j){
-            this.i = i;
-            this.j = j;
+        public Cell(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+        public Cell() {
+            this.x = 0;
+            this.y = 0;
         }
 
         @Override
-        public String toString(){
-            return "["+this.i+", "+this.j+"]";
+        public boolean equals(Object other) {
+            if (other == this) return true;
+            if (!(other instanceof Cell)) return false;
+            Cell other_cell = (Cell) other;
+            return(this.x == other_cell.x && this.x == other_cell.y);
+        }
+
+        public MapLocation getMapLocation(Planet p) {
+            return new MapLocation(p, this.x, this.y);
+        }
+
+        @Override
+        public String toString() {
+            return ("Cell at ("+x+","+y+"), g is "+g+ ", h is " + h);
         }
     }
 
-    public static void init(GameController controller) {
+    private static PlanetMap pm;
+    private static GameController gc;
+    private static int height;
+    private static int width;
+    private static Cell[][] mapNodes;
+    private static boolean[][] terrain;
 
-        // Get game controller
-        gc = controller;
 
-        // Get map constraints
-        System.out.println("Initializing pathing directions!");
-        map = gc.startingMap(Planet.Earth);
-        W = (int)map.getWidth();
-        H = (int)map.getHeight();
+    public static void init(GameController _gc) {
+        gc = _gc;
+        pm = gc.startingMap(Planet.Earth);
+        height = (int) pm.getHeight();
+        width = (int) pm.getWidth();
+        terrain = new boolean[width][height];
+        initTerrain(); // Copies the terrain map from PlanetMap to avoid making hella API calls
     }
 
-    static Cell [][] grid = new Cell[5][5];
-
-    static PriorityQueue<Cell> open;
-
-    static boolean closed[][];
-    static int startI, startJ;
-    static int endI, endJ;
-
-
-    public static void setStartCell(int i, int j){
-        startI = i;
-        startJ = j;
-    }
-
-    public static void setEndCell(int i, int j){
-        endI = i;
-        endJ = j;
-    }
-
-    static void checkAndUpdateCost(Cell current, Cell t, int cost, MapLocation temp, Unit unit, MapLocation start){
-        if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !closed[t.i][t.j] ) {
-            int t_final_cost = t.heuristicCost+cost;
-
-            boolean inOpen = open.contains(t);
-            if(!inOpen || t_final_cost<t.finalCost){
-                t.finalCost = t_final_cost;
-                t.parent = current;
-                if(!inOpen)open.add(t);
+    private static void initTerrain() {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                MapLocation loc = new MapLocation(Planet.Earth, i, j);
+                terrain[i][j] = pm.isPassableTerrainAt(loc) == 1;
             }
         }
     }
-    public static void AStar(MapLocation start, MapLocation end,Unit unit){
-        //add the start location to open list.
-        open.add(grid[startI][startJ]);
+
+    private static List<Cell> getNeighbors(Cell cell) {
+        if (cell.parent == null) {
+            return getGridNeighbors(cell,true);
+        } else {
+            List<Cell> neighbors = new ArrayList<>();
+            int x = cell.x;
+            int y = cell.y;
+            int dx = (x - cell.parent.x)/Math.max(Math.abs(x - cell.parent.x), 1);
+            int dy = (y - cell.parent.y)/Math.max(Math.abs(y - cell.parent.y), 1);
+//            System.out.println("dx: " + dx);
+//            System.out.println("dy: " + dy);
+
+            // Implements diagonal move
+            if (dx != 0 && dy != 0) {
+                boolean moveX = false, moveY = false;
+                if(occupiable(x, y+dy)) {
+                    neighbors.add(mapNodes[x][y+dy]);
+                    moveY = true;
+                }
+                if(occupiable(x+dx, y)) {
+                    neighbors.add(mapNodes[x+dx][y]);
+                    moveX = true;
+                }
+                if(moveX || moveY)
+                    if (inBounds(x+dx, y+dy))
+                        neighbors.add(mapNodes[x+dx][y+dy]);
+
+                if (!occupiable(x-dx, y) && moveY)
+                    neighbors.add(mapNodes[x-dx][y+dy]);
+
+                if (!occupiable(x, y-dy) && moveX)
+                    neighbors.add(mapNodes[x+dx][y-dy]);
+            } else {
+                // Moving along y-axis...
+                if (dx == 0) {
+                    if (occupiable(x, y+dy)) {
+                        neighbors.add(mapNodes[x][y+dy]);
+                        if (!occupiable(x+1, y) && inBounds(x+1, y+dy))
+                            neighbors.add(mapNodes[x+1][y+dy]);
+
+                        if (!occupiable(x-1, y) && inBounds(x-1, y+dy))
+                            neighbors.add(mapNodes[x-1][y+dy]);
+                    }
+                    // Moving along x-axis...
+                } else {
+                    if (occupiable(x+dx, y)) {
+                        neighbors.add(mapNodes[x+dx][y]);
+                        if (!occupiable(x, y+1) && inBounds(x+dx, y+1))
+                            neighbors.add(mapNodes[x+dx][y+1]);
+
+                        if(!occupiable(x, y-1) && inBounds(x+dx, y-1)) {
+                            neighbors.add(mapNodes[x+dx][y-1]);
+                        }
+                    }
+                }
+            }
+            return neighbors;
+        }
+
+    }
+
+    private static Cell jump(Cell node, Cell parent, Cell target) {
+
+        if (node == null) return null;
+
+        int x = node.x;
+        int y = node.y;
+        int dx = x - parent.x;
+        int dy = y - parent.y;
+
+//        System.out.println("nodex " + x);
+//        System.out.println("nodey " + y);
+//        System.out.println("dx: " + dx);
+//        System.out.println("dy: " + dy);
+
+        if (!occupiable(x, y)) return null;
+
+        if (node.equals(target)) return node;
+
+        if (dx !=0 && dy != 0) {
+            if ((occupiable(x-dx, y+dy) && !occupiable(x-dx, y)) || (occupiable(x+dx, y-dy) && !occupiable(x, y-dy))) {
+//                System.out.println("returning pt 1");
+                return node;
+            }
+
+        } else {
+            if (dx != 0) {
+                if ((occupiable(x+dx, y+1) && !occupiable(x, y+1)) || (occupiable(x+dx, y-1) && !occupiable(x, y-1))) {
+//                    System.out.println("returning pt 2");
+                    return node;
+                }
+            } else {
+                if ((occupiable(x + 1, y + dy) && !occupiable(x + 1, y)) || (occupiable(x - 1, y + dy) && !occupiable(x - 1, y))) {
+//                    System.out.println("returning pt 3");
+                    return node;
+                }
+            }
+        }
+
+        if (dx != 0 && dy != 0) {
+            if (inBounds(x+dx, y)) {
+//                System.out.println("1 About to jump into a recursion into cell " + mapNodes[x+dx][y]);
+                if (jump(mapNodes[x + dx][y], node, target) != null) {
+//                    System.out.println("returning pt 4");
+                    return node;
+                }
+            }
+            if (inBounds(x, y+dy)) {
+//                System.out.println("2 About to jump into a recursion into cell " + mapNodes[x][y+dy]);
+                if (jump(mapNodes[x][y + dy], node, target) != null) {
+//                    System.out.println("returning pt 5");
+                    return node;
+                }
+            }
+        }
+
+        if (occupiable(x+dx, y) || occupiable(x, y+dy)) {
+            if (inBounds(x+dx, y+dy)) {
+//                System.out.println("3 About to jump into a diagonal into cell " + mapNodes[x+dx][y+dy]);
+                return jump(mapNodes[x+dx][y+dy], node, target);
+            }
+
+        }
+
+        //should never get here
+        return null;
+    }
+
+    public static ArrayList<MapLocation> path(MapLocation start, MapLocation end) {
+
+        PriorityQueue<Cell> open = new PriorityQueue<>((Object o1, Object o2) -> {
+            Cell c1 = (Cell) o1;
+            Cell c2 = (Cell) o2;
+            return Double.compare(c1.g+c1.h, c2.g+c2.h);
+        });
+
+        mapNodes = new Cell[width][height];
+        for(int x = 0; x < mapNodes.length; x++) {
+            for(int y = 0; y < mapNodes[0].length; y++) {
+                mapNodes[x][y] = new Cell();
+                mapNodes[x][y].x = x;
+                mapNodes[x][y].y = y;
+            }
+        }
+
+        Cell startNode = mapNodes[start.getX()][start.getY()];
+
+        Cell endNode = mapNodes[end.getX()][end.getY()];
+
+//        System.out.println(startNode);
+//        System.out.println(endNode);
+
+        open.add(startNode);
 
         Cell current;
-        Planet planet = start.getPlanet();
-        while(true){
+
+        while(open.size() != 0) {
             current = open.poll();
-            if(current==null) break;
-            closed[current.i][current.j]=true;
-
-            if(current.equals(grid[endI][endJ])){
-                return;
-            }
-
-            Cell t;
-            MapLocation temp;
-            if(current.i-1>=0){
-                temp = new MapLocation(planet, current.i-1, current.j);
-                t = grid[current.i-1][current.j];
-                checkAndUpdateCost(current, t, current.finalCost+V_H_COST,temp,unit,start);
-
-                if(current.j-1>=0){
-                    temp = new MapLocation(planet, current.i-1, current.j-1);
-                    t = grid[current.i-1][current.j-1];
-                    checkAndUpdateCost(current, t, current.finalCost+DIAGONAL_COST,temp,unit,start);
-                }
-
-                if(current.j+1<grid[0].length){
-                    temp = new MapLocation(planet, current.i-1, current.j+1);
-                    t = grid[current.i-1][current.j+1];
-                    checkAndUpdateCost(current, t, current.finalCost+DIAGONAL_COST,temp,unit,start);
-                }
-            }
-
-            if(current.j-1>=0){
-                temp = new MapLocation(planet, current.i, current.j-1);
-                t = grid[current.i][current.j-1];
-                checkAndUpdateCost(current, t, current.finalCost+V_H_COST,temp,unit,start);
-            }
-
-            if(current.j+1<grid[0].length){
-                temp = new MapLocation(planet, current.i, current.j+1);
-                t = grid[current.i][current.j+1];
-                checkAndUpdateCost(current, t, current.finalCost+V_H_COST,temp,unit,start);
-            }
-
-            if(current.i+1<grid.length){
-                temp = new MapLocation(planet, current.i+1, current.j);
-                t = grid[current.i+1][current.j];
-                checkAndUpdateCost(current, t, current.finalCost+V_H_COST,temp,unit,start);
-
-                if(current.j-1>=0){
-                    temp = new MapLocation(planet, current.i+1, current.j-1);
-                    t = grid[current.i+1][current.j-1];
-                    checkAndUpdateCost(current, t, current.finalCost+DIAGONAL_COST,temp,unit,start);
-                }
-
-                if(current.j+1<grid[0].length){
-                    temp = new MapLocation(planet, current.i+1, current.j+1);
-                    t = grid[current.i+1][current.j+1];
-                    checkAndUpdateCost(current, t, current.finalCost+DIAGONAL_COST,temp,unit,start);
+            current.closed = true;
+            if (current.equals(endNode))
+                break;
+            List<Cell> neighbors = getNeighbors(current);
+//            System.out.println(neighbors);
+            for (int i = neighbors.size() - 1; i >= 0; i--) {
+                Cell next = neighbors.get(i);
+                Cell jumpNode = jump(next, current, endNode);
+                if (jumpNode != null) {
+                    if (!jumpNode.closed) {
+                        double addG = euclidean(current, next);
+                        double g = current.g + addG;
+                        if (!jumpNode.open || g < jumpNode.g) {
+                            jumpNode.g = g;
+                            jumpNode.h = manhattan(current, next);
+                            jumpNode.parent = current;
+                            if (!jumpNode.open) {
+                                open.add(jumpNode);
+                                jumpNode.open = true;
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-    public static ArrayList<MapLocation> path(Unit TroopUnit, MapLocation start, MapLocation end){
-        int x = W;
-        int y = H;
-        //Reset
-        Planet planet = start.getPlanet();
-        int si=start.getX(), sj=start.getY();
-        int ei=end.getX(), ej=end.getY();
-
-        grid = new Cell[x][y];
-        closed = new boolean[x][y];
-        open = new PriorityQueue<>((Object o1, Object o2) -> {
-            Cell c1 = (Cell)o1;
-            Cell c2 = (Cell)o2;
-
-            return c1.finalCost<c2.finalCost?-1:
-                    c1.finalCost>c2.finalCost?1:0;
-        });
-        //Set start position
-        setStartCell(si, sj);  //Setting to 0,0 by default. Will be useful for the UI part
-
-        //Set End Location
-        setEndCell(ei, ej);
-
-        //generate heuristics
-        for(int i=0;i<x;++i){
-            for(int j=0;j<y;++j){
-                grid[i][j] = new Cell(i, j);
-                grid[i][j].heuristicCost = Math.abs(i-endI)+Math.abs(j-endJ);
-            }
-        }
-        grid[si][sj].finalCost = 0;
-        AStar(start,end, TroopUnit);
-        ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
-        if (closed[endI][endJ]) {
-            //Trace back the path
-            // System.out.println("Path: ");
-            Cell current = grid[endI][endJ];
-            // System.out.print(current);
-            ans.add(new MapLocation(planet,current.i,current.j));
-            while(current.parent!=null){
-                ans.add(new MapLocation(planet,current.parent.i,current.parent.j));
-                // System.out.print(current.parent + " <- ");
+        if(endNode.closed) {
+            ArrayList<MapLocation> path = new ArrayList<MapLocation>();
+            current = endNode;
+            path.add(current.getMapLocation(Planet.Earth));
+            while(current.parent != null) {
+                path.add(current.parent.getMapLocation(Planet.Earth));
                 current = current.parent;
             }
-            Collections.reverse(ans);
-            ans.remove(0);
-            return ans;
-        } else return null;
+            Collections.reverse(path);
+            path.remove(0);
+            return path;
+        } else {
+            return null;
+        }
     }
+
+    private static boolean occupiable(int x, int y) {
+        return (inBounds(x, y) && terrain[x][y]);
+    }
+    private static boolean inBounds(int x, int y) {
+        return (0 <= x && width > x && 0 <= y && height > y);
+    }
+
+    private static List<Cell> getGridNeighbors (Cell cell, boolean forcePassable) {
+        List<Cell> neighbors = new ArrayList<>();
+        MapLocation cellLoc = cell.getMapLocation(Planet.Earth);
+        for (Direction d : Direction.values()) {
+            if (d != Direction.Center) {
+                MapLocation moveLoc = cellLoc.add(d);
+                if (forcePassable) {
+                    if (occupiable(moveLoc.getX(), moveLoc.getY())) {
+                        neighbors.add(mapNodes[moveLoc.getX()][moveLoc.getY()]);
+                    }
+                } else {
+                    if (inBounds(moveLoc.getX(), moveLoc.getY())) {
+                        neighbors.add(mapNodes[moveLoc.getX()][moveLoc.getY()]);
+                    }
+                }
+            }
+        }
+        return neighbors;
+    }
+
+    private static double euclidean(Cell start, Cell end) {
+        // Euclidean distance
+        return Math.sqrt(Math.pow(start.x-end.x, 2) + Math.pow(start.y-end.y, 2));
+    }
+
+    private static int manhattan(Cell start, Cell end) {
+        //Manhattan distance
+        return Math.abs(start.x-end.x) + Math.abs(start.y-end.y);
+    }
+
 
     public static Direction opposite(Direction direction) {
         switch (direction) {
@@ -256,13 +370,14 @@ public class Pathing {
         if(!gc.isMoveReady(TroopUnit.id())) { //check if unit can move
             return false;
         }
+        
         if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
             return true;
         }
         boolean hasRecalculated = false;
         //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
-            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
+            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
             hasRecalculated = true;
         }
         if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
@@ -272,7 +387,7 @@ public class Pathing {
 
         //Criterion 2
         if(!end.equals(TroopPath.goal)) {
-            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
             hasRecalculated = true;
             if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
@@ -282,7 +397,7 @@ public class Pathing {
         //Criterion 3
         if(TroopUnit.location().mapLocation()!=Player.unitpaths.get(TroopUnit.id()).start) {
         		if(!hasRecalculated) {
-        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
         		}
         		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
@@ -297,7 +412,7 @@ public class Pathing {
                 return false;
             }
             else {
-                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
                 if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                     return false;
                 }

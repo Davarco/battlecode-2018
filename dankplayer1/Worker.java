@@ -25,7 +25,7 @@ public class Worker {
         // Receive worker from main runner
         worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
-        if(gc.round()<=15){
+        if(gc.round()<=15 && !Player.mapsize.equals("smallmap")){
         	harvestEarly();
         	replicate();
         	return;
@@ -40,7 +40,7 @@ public class Worker {
         harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-	    if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3 && Player.mapsize.equals("largemap")){
+	    if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3){
 	        replicate();
 	    }
         
@@ -48,17 +48,15 @@ public class Worker {
         build();
 
         // General move function, handles priorities
-        long t1 = System.currentTimeMillis();
+        
         move();
-        long t2 = System.currentTimeMillis();
-        Player.time += (t2 - t1);
+       
 
         // Repair structures that we can
         repairStructure(UnitType.Rocket);
         repairStructure(UnitType.Factory);
 
         // Harvest karbonite if we can
-        
     }
 
     public static void runMars(Unit unit) {
