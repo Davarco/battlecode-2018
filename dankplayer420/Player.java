@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import bc.*;
 
@@ -11,8 +13,10 @@ public class Player {
     public static HashMap<Integer, Pathway> unitpaths;
     public static boolean initialKarbReached = false;
     public static MapLocation focalPoint;
-    public static long time = 0;
+    public static long Rangertime = 0;
+    public static long Workertime = 0;
     public static String mapsize = "";
+    public static int time=1000;
 
     public static void main(String[] args) {
 
@@ -36,7 +40,6 @@ public class Player {
         Knight.init(gc);
         Ranger.init(gc);
         Mage.init(gc);
-        Healer.init(gc);
         Factory.init(gc);
         Rocket.init(gc);
 
@@ -48,84 +51,67 @@ public class Player {
 
         // Initialize the research tree
         initResearch();
-//
-//        MapLocation start = new MapLocation(Planet.Earth, 0, (int)gc.startingMap(Planet.Earth).getHeight()-1);
-//        MapLocation end = new MapLocation(Planet.Earth, (int)gc.startingMap(Planet.Earth).getWidth()-1,0);
-//        double t1 = System.currentTimeMillis();
-//        ArrayList<MapLocation> res = Pathing.path(start, end);
-//        double t2 = System.currentTimeMillis();
-//        System.out.println("JPS took " + (t2-t1) + " ms :" + res);
 
         /*
         Main runner for player, do not change.
          */
         boolean quit = false;
         while (!quit) {
-        	System.out.println(gc.round() +" "+ gc.karbonite());
+        	
             long t1 = System.currentTimeMillis();
-//            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
+            if (gc.round()==15)System.out.println("Karbonite Rounds Over");
             // Debug, print current round
             // System.out.println("Current round: " + gc.round());
 
             // Get units and get counts
-
             setUnits();
-
+            long ta,tb;
             // Run corresponding code for each type of unit
-
-
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
-                boolean onMars = unit.location().isOnPlanet(Planet.Mars) && !unit.location().isInGarrison();
-                boolean onEarth = unit.location().isOnPlanet(Planet.Earth) && !unit.location().isInGarrison();
                 switch (unit.unitType() ) {
-                    case Ranger:
-                        if (onEarth)
-                            Ranger.runEarth(unit);
-                        if (onMars)
-                            Ranger.runMars(unit);
-                        break;
+                	case Ranger:
+                		ta = System.currentTimeMillis();
+                		Ranger.run(unit);
+                		tb = System.currentTimeMillis();
+                		Rangertime+=(tb-ta);
+                		break;
                     case Worker:
-                        if (onEarth)
-                            Worker.runEarth(unit);
-                        if (onMars)
-                            Worker.runMars(unit);
+                    	ta = System.currentTimeMillis();
+                        Worker.run(unit);
+                        tb = System.currentTimeMillis();
+                        Workertime+=(tb-ta);
                         break;
                     case Knight:
-                        if (onEarth)
-                            Knight.runEarth(unit);
-                        if (onMars)
-                            Knight.runMars(unit);
+                        //Knight.run(unit);
                         break;
                     case Mage:
-                        if (onEarth)
-                            Mage.runEarth(unit);
-                        if (onMars)
-                            Mage.runMars(unit);
+                        //Mage.run(unit);
                         break;
                     case Healer:
-                        if (onEarth)
-                            Healer.runEarth(unit);
-                        if (onMars)
-                            Healer.runMars(unit);
+                        //Healer.run(unit);
                         break;
                     case Factory:
-                        Factory.run(unit); // Only can run on Earth
+                        Factory.run(unit);
                         break;
                     case Rocket:
-                        if (onEarth)
-                            Rocket.runEarth(unit);
-                        if (onMars)
-                            Rocket.runMars(unit);
+                        Rocket.run(unit);
                         break;
                 }
             }
-
             long t2 = System.currentTimeMillis();
-             System.out.println("time: " + (t2 - t1));
-             System.out.println("pathing: " + time);
-            Player.time = 0;
-
+            time-=(t2 - t1);
+            if(gc.planet()==Planet.Earth){
+            	//System.out.println("Time: " + time);
+            	System.out.println("Karbonite: " + gc.karbonite());
+            	//System.out.println("Used: " + (t2 - t1));
+            	//System.out.println("Ranger Count: "+ Info.number(UnitType.Ranger));
+            	//System.out.println("Worker Count: "+ Info.number(UnitType.Worker));
+            }
+            // System.out.println("pathing: " + time);
+            time+=50;
+            Rangertime = 0;
+            Workertime = 0;
             // Complete round, move on to next one
             gc.nextTurn();
         }

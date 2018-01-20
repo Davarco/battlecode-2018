@@ -18,33 +18,22 @@ public class Ranger {
         counterMap = new HashMap<>();
     }
 
-    public static void runEarth(Unit unit) {
+    public static void run(Unit unit) {
 
         // Receive ranger from main runner
         ranger = unit;
         if (ranger.location().isInGarrison()) return;
 
         /*
-        Scenario 1: Attack first and then runEarth away to get out of enemy range
+        Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
         if (!attack()) {
-            long t1 = System.currentTimeMillis();
             move();
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
             attack();
         } else {
-            long t1 = System.currentTimeMillis();
             move();
-            long t2 = System.currentTimeMillis();
-            Player.time += (t2 - t1);
         }
-    }
-
-    public static void runMars(Unit unit) {
-        ranger = unit;
-        System.out.println("Ranger #" + ranger.id() + " is on Mars!");
     }
 
     private static boolean attack() {
@@ -86,9 +75,9 @@ public class Ranger {
         }
 
         // Avoid enemy units, walk outside of their view range
-            if (Pathing.escape(ranger)) {
-                return;
-            }
+        if (Pathing.escape(ranger)) {
+            return;
+        }
 
         // Move towards initial enemy worker locations
         /*
@@ -152,37 +141,6 @@ public class Ranger {
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
-    private static boolean moveTowardsInitPoint() {
-
-        // Initial focal point should be the opposite of the closest worker
-        List<MapLocation> locations = new ArrayList<>();
-        int H = (int) gc.startingMap(Planet.Earth).getHeight();
-        int W = (int) gc.startingMap(Planet.Earth).getWidth();
-        for (Unit unit: Info.unitByTypes.get(UnitType.Worker)) {
-            MapLocation loc = unit.location().mapLocation().clone();
-            loc.setX(W - loc.getX());
-            loc.setY(H - loc.getY());
-            locations.add(loc);
-        }
-
-        // Get closest one
-        long minDist = Long.MAX_VALUE;
-        int idx = -1;
-        for (int i = 0; i < locations.size(); i++) {
-            long dist = ranger.location().mapLocation().distanceSquaredTo(locations.get(i));
-            if (dist < minDist) {
-                minDist = dist;
-                idx = i;
-            }
-        }
-
-        if (idx != -1) {
-            Pathing.move(ranger, locations.get(idx));
-            return true;
-        }
-
-        return false;
-    }
 
     private static boolean bounce() {
 
@@ -240,21 +198,23 @@ public class Ranger {
         if (idx != -1) {
             PlanetMap map = gc.startingMap(Planet.Earth);
             MapLocation tmp = rockets.get(idx).location().mapLocation();
-            tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY());
+            int initx = tmp.getX();
+            int inity = tmp.getY();
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY());
+            tmp = new MapLocation(Planet.Earth, initx - 1,inity);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY() + 1);
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY() - 1);
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY() - 1);
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY() + 1);
+            tmp = new MapLocation(Planet.Earth,initx - 1, inity + 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX(), tmp.getY() - 1);
+            tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
-            tmp = new MapLocation(Planet.Earth, tmp.getX(), tmp.getY() + 1);
+            tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
 
             return false;
@@ -262,6 +222,4 @@ public class Ranger {
 
         return false;
     }
-
-
 }

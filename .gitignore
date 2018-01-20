@@ -9,3 +9,5 @@ viewer_latest/*
 viewer_currentInstall\.json
 
 *.json
+
+out/
