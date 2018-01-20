@@ -12,6 +12,7 @@ public class Player {
     public static boolean initialKarbReached = false;
     public static MapLocation focalPoint;
     public static long time = 0;
+    public static long timeRemaining = 10000;
     public static String mapsize = "";
 
     public static void main(String[] args) {
@@ -61,7 +62,7 @@ public class Player {
          */
         boolean quit = false;
         while (!quit) {
-        	System.out.println(gc.round() +" "+ gc.karbonite());
+//        	System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
 //            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
             // Debug, print current round
@@ -122,9 +123,12 @@ public class Player {
             }
 
             long t2 = System.currentTimeMillis();
-             System.out.println("time: " + (t2 - t1));
-             System.out.println("pathing: " + time);
+            System.out.println("time: " + (t2 - t1));
+            System.out.println("pathing: " + time);
+            Player.timeRemaining -= (t2-t1);
+            Player.timeRemaining += 50;
             Player.time = 0;
+            System.out.println("Time remaining: " + timeRemaining);
 
             // Complete round, move on to next one
             gc.nextTurn();

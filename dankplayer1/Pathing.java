@@ -279,18 +279,18 @@ public class Pathing {
 
     private static List<Cell> getGridNeighbors (Cell cell, boolean forcePassable) {
         List<Cell> neighbors = new ArrayList<>();
-        MapLocation cellLoc = cell.getMapLocation(Planet.Earth);
-        for (Direction d : Direction.values()) {
-            if (d != Direction.Center) {
-                MapLocation moveLoc = cellLoc.add(d);
-                if (forcePassable) {
-                    if (occupiable(moveLoc.getX(), moveLoc.getY())) {
-                        neighbors.add(mapNodes[moveLoc.getX()][moveLoc.getY()]);
-                    }
-                } else {
-                    if (inBounds(moveLoc.getX(), moveLoc.getY())) {
-                        neighbors.add(mapNodes[moveLoc.getX()][moveLoc.getY()]);
-                    }
+        int x = cell.x; int y = cell.y;
+        for (int[] movePair : move) {
+            int modX = movePair[0] + x;
+            int modY = movePair[1] + y;
+
+            if (forcePassable) {
+                if (occupiable(modX, modY)) {
+                    neighbors.add(mapNodes[modX][modY]);
+                }
+            } else {
+                if (inBounds(modX, modY)) {
+                    neighbors.add(mapNodes[modX][modY]);
                 }
             }
         }
