@@ -123,7 +123,8 @@ public class Player {
             }
 
             long t2 = System.currentTimeMillis();
-            System.out.println((t2-t1));
+            System.out.println();
+            System.out.println("Turn time: " + (t2-t1));
             Player.time = 0;
 
             // Complete round, move on to next one

@@ -144,7 +144,7 @@ public class Worker {
 
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
-            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
+//            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
             return true;
         }
 

@@ -370,59 +370,41 @@ public class Pathing {
         if(!gc.isMoveReady(TroopUnit.id())) { //check if unit can move
             return false;
         }
-        
-        if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
-            return true;
-        }
-        boolean hasRecalculated = false;
+
         //Criterion 1
-        if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
+        if(!Player.unitpaths.containsKey(TroopUnit.id())) {
+            System.out.print("N");//check if no previous path array
+            System.out.flush();
             Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
-            hasRecalculated = true;
         }
         if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
             return false;
         }
+
         Pathway TroopPath = Player.unitpaths.get(TroopUnit.id());
 
         //Criterion 2
         if(!end.equals(TroopPath.goal)) {
+            System.out.print("C");
+            System.out.flush();
             Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
-            hasRecalculated = true;
             if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
             }
         }
-        
-        //Criterion 3
-        if(TroopUnit.location().mapLocation()!=Player.unitpaths.get(TroopUnit.id()).start) {
-        		if(!hasRecalculated) {
-        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
-        		}
-        		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-                return false;
-            }
-        }
-        
+
         MapLocation next = TroopPath.getNextLocation();
-        //Criterion 4
-        if(!gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) { 	//check if unit is in the way and unit is not in final location
-            //might need to override later
-            if(TroopPath.NextLocationIsEnd()) {
-                return false;
-            }
-            else {
-                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
-                if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
-                    return false;
-                }
-            }
-        }
+        if (next == null) return true;
+        Direction nextDir = TroopUnit.location().mapLocation().directionTo(next);
 
         //Move unit
-        if(gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))){
-            gc.moveRobot(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next));
-            TroopPath.index++;
+        if(gc.canMove(TroopUnit.id(), nextDir)){
+            if (TroopUnit.location().mapLocation().add(nextDir).equals(next)) {
+                System.out.print(TroopPath.index);
+                System.out.flush();
+                TroopPath.index++; // Necessary because JPS returns a sparse array of points, not every move has to advance the path one index ahead
+            }
+            gc.moveRobot(TroopUnit.id(), nextDir);
             return true;
         }
         return false;
