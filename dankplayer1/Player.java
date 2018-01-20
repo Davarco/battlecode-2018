@@ -1,7 +1,4 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import bc.*;
 
@@ -58,37 +55,60 @@ public class Player {
         while (!quit) {
         	System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
-            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
+//            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
             // Debug, print current round
             // System.out.println("Current round: " + gc.round());
 
             // Get units and get counts
+
             setUnits();
 
             // Run corresponding code for each type of unit
+
+
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
+                boolean onMars = unit.location().isOnPlanet(Planet.Mars) && !unit.location().isInGarrison();
+                boolean onEarth = unit.location().isOnPlanet(Planet.Earth) && !unit.location().isInGarrison();
                 switch (unit.unitType() ) {
-                	case Ranger:
-                		Ranger.run(unit);
-                		break;
+                    case Ranger:
+                        if (onEarth)
+                            Ranger.runEarth(unit);
+                        if (onMars)
+                            Ranger.runMars(unit);
+                        break;
                     case Worker:
-                        Worker.run(unit);
+                        if (onEarth)
+                            Worker.runEarth(unit);
+                        if (onMars)
+                            Worker.runMars(unit);
                         break;
                     case Knight:
-                        Knight.run(unit);
+                        if (onEarth)
+                            Knight.runEarth(unit);
+                        if (onMars)
+                            Knight.runMars(unit);
                         break;
                     case Mage:
-                        Mage.run(unit);
+                        if (onEarth)
+                            Mage.runEarth(unit);
+                        if (onMars)
+                            Mage.runMars(unit);
                         break;
                     case Healer:
-                        //Healer.run(unit);
+                        if (onEarth)
+                            Healer.runEarth(unit);
+                        if (onMars)
+                            Healer.runMars(unit);
                         break;
                     case Factory:
-                        Factory.run(unit);
+                        Factory.run(unit); // Only can run on Earth
                         break;
                     case Rocket:
-                        Rocket.run(unit);
+                        if (onEarth)
+                            Rocket.runEarth(unit);
+                        if (onMars)
+                            Rocket.runMars(unit);
                         break;
                 }
             }

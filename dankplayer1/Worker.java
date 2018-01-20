@@ -20,7 +20,7 @@ public class Worker {
         counterMap = new HashMap<>();
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
     	
         // Receive worker from main runner
         worker = unit;
@@ -33,7 +33,7 @@ public class Worker {
         if(gc.karbonite()>=100){
         	Player.initialKarbReached=true;
         }
-        if(Player.initialKarbReached==false){
+        if(!Player.initialKarbReached){
         	harvestEarly();
         	return;
         }
@@ -59,6 +59,11 @@ public class Worker {
 
         // Harvest karbonite if we can
         
+    }
+
+    public static void runMars(Unit unit) {
+        worker = unit;
+        System.out.println("Worker #" + worker.id() + " is on Mars!");
     }
 
     private static void move() {

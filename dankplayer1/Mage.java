@@ -11,7 +11,7 @@ public class Mage {
         gc = controller;
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive mage from main runner
         mage = unit;
@@ -23,5 +23,9 @@ public class Mage {
                 gc.moveRobot(mage.id(), direction);
             }
         }
+    }
+    public static void runMars(Unit unit) {
+        mage = unit;
+
     }
 }

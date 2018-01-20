@@ -15,14 +15,13 @@ public class Healer {
         gc = controller;
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive healer from main runner
         healer = unit;
-        if (healer.location().isInGarrison() || healer.location().isInSpace()) return;
 
         /*
-        Scenario 1: Heal first and then run away to get out of enemy range
+        Scenario 1: Heal first and then runEarth away to get out of enemy range
         Scenario 2: Move first to get into range and then heal
          */
         if (!heal()) {
@@ -37,6 +36,13 @@ public class Healer {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
+    }
+
+
+    public static void runMars(Unit unit) {
+        healer = unit;
+
+        System.out.println("Healer #" + healer.id() + " is on Mars!");
     }
 
     private static boolean heal() {

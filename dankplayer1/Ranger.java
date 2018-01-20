@@ -18,14 +18,14 @@ public class Ranger {
         counterMap = new HashMap<>();
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive ranger from main runner
         ranger = unit;
         if (ranger.location().isInGarrison()) return;
 
         /*
-        Scenario 1: Attack first and then run away to get out of enemy range
+        Scenario 1: Attack first and then runEarth away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
         if (!attack()) {
@@ -40,6 +40,11 @@ public class Ranger {
             long t2 = System.currentTimeMillis();
             Player.time += (t2 - t1);
         }
+    }
+
+    public static void runMars(Unit unit) {
+        ranger = unit;
+        System.out.println("Ranger #" + ranger.id() + " is on Mars!");
     }
 
     private static boolean attack() {
@@ -257,4 +262,6 @@ public class Ranger {
 
         return false;
     }
+
+
 }

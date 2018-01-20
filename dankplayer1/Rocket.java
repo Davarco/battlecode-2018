@@ -14,7 +14,7 @@ public class Rocket {
         gc = controller;
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive rocket from main runner
         rocket = unit;
@@ -25,6 +25,11 @@ public class Rocket {
         // Send them to Mars when full
         send();
 
+
+    }
+
+    public static void runMars(Unit unit) {
+        rocket = unit;
         // Start unloading troops on Mars
         unload();
     }
