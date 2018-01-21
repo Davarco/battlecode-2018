@@ -51,7 +51,7 @@ public class Factory {
         if(Player.mapsize.equals("largemap")){
 	        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
 	        	if(gc.round()<= 200){
-	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker)){
+	        		 if(Info.number(UnitType.Ranger)<1.5*Info.number(UnitType.Worker)){
 	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
 	        	         Info.addUnit(UnitType.Ranger);
 	        		 }
