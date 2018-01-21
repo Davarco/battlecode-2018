@@ -134,7 +134,7 @@ public class Worker {
 	        }
     	}
     	else{
-    		if (gc.karbonite()>20*(FactoryNumber/2)) {
+    		if (gc.karbonite()>20*(FactoryNumber)) {
 	        	VecUnit things = gc.senseNearbyUnitsByType(worker.location().mapLocation(), 31, UnitType.Factory);
 	        	if(things.size()==0)
 	        		create(UnitType.Factory);
