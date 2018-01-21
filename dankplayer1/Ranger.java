@@ -86,9 +86,11 @@ public class Ranger {
         }
 
         // Avoid enemy units, walk outside of their view range
-        if (Pathing.escape(ranger)) {
-            return;
-        }
+        if(gc.round()<=400){
+            if (Pathing.escape(ranger)) {
+                return;
+            }
+   		}
 
         // Move towards initial enemy worker locations
         /*

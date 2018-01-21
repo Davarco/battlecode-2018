@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import bc.*;
@@ -12,13 +13,14 @@ public class Player {
     public static MapLocation focalPoint;
     public static long time = 0;
     public static String mapsize = "";
+    public static int roundcount=0;
 
     public static void main(String[] args) {
 
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
-        if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getHeight()<55){
+        if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
         	mapsize = "smallmap";
         }
         else{
@@ -47,13 +49,20 @@ public class Player {
 
         // Initialize the research tree
         initResearch();
+//
+//        MapLocation start = new MapLocation(Planet.Earth, 0, (int)gc.startingMap(Planet.Earth).getHeight()-1);
+//        MapLocation end = new MapLocation(Planet.Earth, (int)gc.startingMap(Planet.Earth).getWidth()-1,0);
+//        double t1 = System.currentTimeMillis();
+//        ArrayList<MapLocation> res = Pathing.path(start, end);
+//        double t2 = System.currentTimeMillis();
+//        System.out.println("JPS took " + (t2-t1) + " ms :" + res);
 
         /*
         Main runner for player, do not change.
          */
         boolean quit = false;
         while (!quit) {
-        	System.out.println(gc.round() +" "+ gc.karbonite());
+        	//System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
 //            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
             // Debug, print current round
@@ -114,11 +123,18 @@ public class Player {
             }
 
             long t2 = System.currentTimeMillis();
-            // System.out.println("time: " + (t2 - t1));
-            // System.out.println("pathing: " + time);
+            System.out.println();
+            System.out.println("Turn time: " + (t2-t1));
             Player.time = 0;
 
             // Complete round, move on to next one
+            
+            roundcount++;
+            if(roundcount==9){
+            	System.gc();
+            	System.runFinalization();
+            	roundcount = 0;
+            }
             gc.nextTurn();
         }
     }
