@@ -72,6 +72,7 @@ public class Player {
             // Get units and get counts
 
             setUnits();
+            Pathing.reset();
 
             // Run corresponding code for each type of unit
 
@@ -143,10 +144,10 @@ public class Player {
             	System.runFinalization();
             	roundcount = 0;
             }
-            System.out.println("Ranger #"+Info.number(UnitType.Ranger));
-            System.out.println("Ranger Time: "+rangertime);
-            System.out.println("Worker #"+Info.number(UnitType.Worker));
-            System.out.println("Worker Time: "+workertime);
+            // System.out.println("Ranger #"+Info.number(UnitType.Ranger));
+            // System.out.println("Ranger Time: "+rangertime);
+            // System.out.println("Worker #"+Info.number(UnitType.Worker));
+            // System.out.println("Worker Time: "+workertime);
             System.out.println("Total time "+ (t2-t1));
             
             gc.nextTurn();
