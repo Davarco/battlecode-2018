@@ -77,9 +77,10 @@ public class Ranger {
         }
 
         // Avoid enemy units, walk outside of their view range
-        if (Pathing.escape(ranger)) {
-            return;
-        }
+        
+	    if (Pathing.escape(ranger)) {
+	          return;
+	    }
 
         // Move towards initial enemy worker locations
         /*
@@ -118,15 +119,15 @@ public class Ranger {
 
         // Move towards focal point
         if (Player.focalPoint != null) {
-            Pathing.move(ranger, Player.focalPoint);
+        		Pathing.move(ranger, Player.focalPoint);	
         }
 
         // Move towards rockets mid-game, and escape factories early on
-        if (gc.round() >= 530 && ranger.location().isOnPlanet(Planet.Earth) && gc.round() <= 640) {
+        /*if (gc.round() >= 530 && ranger.location().isOnPlanet(Planet.Earth) && gc.round() <= 640) {
             if (moveTowardsRocket()) {
                 return;
             }
-        }
+        }*/
 
         // Unit will bounce in order to escape factories
         bounce();

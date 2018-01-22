@@ -10,7 +10,7 @@ public class Pathing {
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
     };
     public static int H, W;
-    public static HashMap<MapLocation, List<MapLocation>> stored;
+    public static HashMap<maplocation, List<MapLocation>> stored;
     private static GameController gc;
     private static PlanetMap map;
     private static MapLocation start, dest;
@@ -219,22 +219,27 @@ public class Pathing {
     }
 
     public static boolean move(Unit unit, MapLocation end) {
-
+    	if(unit.unitType().equals(UnitType.Ranger) && Player.rangercount>=0){
+    		return false;
+    	}
+    	if(unit.unitType().equals(UnitType.Worker) &&Player.workercount>=0){
+    		return false;
+    	}
         // Check if we already have it
         long t1 = System.currentTimeMillis();
         MapLocation start = unit.location().mapLocation();
-        if (stored.containsKey(end)) {
-
+        maplocation endloc = new maplocation(end);
+        if (stored.containsKey(endloc)) {
             // Look for a location that's close to the beginning
-            for (MapLocation location: stored.get(end)) {
+            for (MapLocation location: stored.get(endloc)) {
                 if (location.distanceSquaredTo(start) <= 50) {
-
+                	//System.out.println("auchvsukgvhca");
                     // Try to bug path to that unit, make sure it can
                     Direction dir = start.directionTo(location);
-                    stored.putIfAbsent(location, new ArrayList<>());
-                    stored.get(location).add(start);
+                    stored.putIfAbsent(new maplocation(location), new ArrayList<>());
+                    stored.get(new maplocation(location)).add(start);
                     long t2 = System.currentTimeMillis();
-                    System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
+                    //System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
                     return tryMove(unit, dir);
                 }
             }
@@ -242,8 +247,8 @@ public class Pathing {
 
         // Run AStar if necessary
         Direction dir = astar(unit, end);
-        stored.putIfAbsent(end, new ArrayList<>());
-        stored.get(end).add(start);
+        stored.putIfAbsent(endloc, new ArrayList<>());
+        stored.get(endloc).add(start);
         long t2 = System.currentTimeMillis();
         System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
 

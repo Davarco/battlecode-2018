@@ -37,11 +37,13 @@ public class Worker {
         	return;
         	
         }
+        //long t1 = System.currentTimeMillis();
         if(gc.round()<=15){
         	harvestEarly();
         	replicate();
         	return;
         }
+        
         if(gc.karbonite()>=100 ){
         	Player.initialKarbReached=true;
         }
@@ -62,7 +64,7 @@ public class Worker {
         // General move function, handles priorities
         
         move();
-
+        
         // Repair structures that we can
         repairStructure(UnitType.Rocket);
         repairStructure(UnitType.Factory);
@@ -74,6 +76,7 @@ public class Worker {
     }
 
     private static void move() {
+    	
         /*
         TODO Implement the entire worker move function as a heuristic based on priority 
          */
@@ -89,27 +92,38 @@ public class Worker {
         }*/
 
         // Moving towards factories has higher priority than escape early game
+        
         if (gc.round() < 19) {
         	if (moveTowardsFactory())
         		return;
             if (escape())
                 return;
             
-        } else {
-            if (escape())
+        } 
+        else {
+            if (escape()){
                 return;
-            if (moveTowardsFactory())
+            }
+            if (moveTowardsFactory() ){
                 return;
+            }
         }
-
+        
+        
+        
         // Move towards karbonite after our buildings are taken care of
-        if (moveTowardsKarbonite())
+        if (moveTowardsKarbonite()){	
             return;
+        }
+       
         
         // Otherwise bounce and give more space to the factories
-        if(ditchFactory()) return;
-        if(bounce())return;
-        //moveRandom();
+       if(ditchFactory())
+    	   return;
+       if(bounce()){
+    	   return;
+       }
+        
 
     }
     private static void harvestEarly(){
@@ -120,6 +134,12 @@ public class Worker {
         		break;
         	}	
         }
+    }
+    private static void moveRandom(){
+    	int a  = (int)(Math.random()*Direction.values().length);
+    	if(gc.canMove(worker.id(),Direction.values()[a])){
+    		gc.moveRobot(worker.id(),Direction.values()[a]);
+    	}
     }
 
     private static void build() {
@@ -318,7 +338,8 @@ public class Worker {
     }
 
     private static MapLocation bestKarboniteLoc() {
-        VecMapLocation allInRange = gc.allLocationsWithin(worker.location().mapLocation(), worker.visionRange());
+    	/*long ta = System.currentTimeMillis();
+        VecMapLocation allInRange = gc.allLocationsWithin(worker.location().mapLocation(), 3);
         int bestHeuristicSoFar = Integer.MAX_VALUE;
         int bestIdxSoFar = -1;
         for (int i = 0; i < allInRange.size(); i++) {
@@ -331,12 +352,15 @@ public class Worker {
                 }
             }
         }
+        long tb = System.currentTimeMillis();
+        Player.workertime+=tb-ta;
 
         if (bestIdxSoFar != -1) {
             return allInRange.get(bestIdxSoFar);
         } else {
             return null;
-        }
+        }*/
+    	return null;
     }
     private static void replicate(){
     	int num = (int) (Math.random() * Direction.values().length);

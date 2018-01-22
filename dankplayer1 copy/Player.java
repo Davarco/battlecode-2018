@@ -14,7 +14,9 @@ public class Player {
     public static long time = 0;
     public static String mapsize = "";
     public static int roundcount=0;
-    public static long workertime=0,rangertime=0;
+    public static long workertime=0,rangertime=0, factorytime = 0;
+    public static int rangercount=0, workercount = 0;
+    
 
     public static void main(String[] args) {
 
@@ -83,6 +85,7 @@ public class Player {
                 boolean onEarth = unit.location().isOnPlanet(Planet.Earth) && !unit.location().isInGarrison();
                 switch (unit.unitType() ) {
                     case Ranger:
+                    	rangercount++;
                     	ta=System.currentTimeMillis();
                         if (onEarth)
                             Ranger.runEarth(unit);
@@ -92,13 +95,14 @@ public class Player {
                         rangertime+=(tb-ta);
                         break;
                     case Worker:
+                    	workercount++;
                     	ta=System.currentTimeMillis();
                         if (onEarth)
                             Worker.runEarth(unit);
                         if (onMars)
                             Worker.runMars(unit);
                         tb=System.currentTimeMillis();
-                        workertime+=tb-ta;
+                        //workertime+=tb-ta;
                         break;
                     case Knight:
                         if (onEarth)
@@ -119,7 +123,10 @@ public class Player {
                             Healer.runMars(unit);
                         break;
                     case Factory:
+                    	ta=System.currentTimeMillis();
                         Factory.run(unit); // Only can run on Earth
+                        tb=System.currentTimeMillis();
+                        factorytime+=tb-ta;
                         break;
                     case Rocket:
                         if (onEarth)
@@ -133,6 +140,14 @@ public class Player {
             long t2 = System.currentTimeMillis();
             
             Player.time = 0;
+            System.out.println("Ranger #"+Info.number(UnitType.Ranger));
+            System.out.println("Ranger Time: "+rangertime);
+            System.out.println("Worker #"+Info.number(UnitType.Worker));
+            System.out.println("Worker Time: "+workertime);
+            System.out.println("Factory #"+Info.number(UnitType.Factory));
+            System.out.println("Factory Time: "+factorytime);
+            System.out.println("Total time "+ (t2-t1));
+            ;
             
             rangertime = 0;
             workertime = 0;
@@ -144,12 +159,8 @@ public class Player {
             	System.runFinalization();
             	roundcount = 0;
             }
-            // System.out.println("Ranger #"+Info.number(UnitType.Ranger));
-            // System.out.println("Ranger Time: "+rangertime);
-            // System.out.println("Worker #"+Info.number(UnitType.Worker));
-            // System.out.println("Worker Time: "+workertime);
-            System.out.println("Total time "+ (t2-t1));
-            
+            rangercount = 0;
+            workercount = 0;
             gc.nextTurn();
         }
     }
