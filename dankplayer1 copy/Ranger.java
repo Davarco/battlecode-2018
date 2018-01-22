@@ -9,6 +9,7 @@ public class Ranger {
     private static Unit ranger;
     private static GameController gc;
     private static VecUnit enemies;
+    private static VecUnit friendly;
     private static HashMap<Integer, Direction> directionMap;
     private static HashMap<Integer, Integer> counterMap;
 
@@ -77,10 +78,13 @@ public class Ranger {
         }
 
         // Avoid enemy units, walk outside of their view range
-        
-	    if (Pathing.escape(ranger)) {
-	          return;
-	    }
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        if(enemies.size()>=friendly.size()){
+        	if (Pathing.escape(ranger)) {
+        		return;
+        	}
+        }
 
         // Move towards initial enemy worker locations
         /*
@@ -99,7 +103,7 @@ public class Ranger {
         }
 
         // Get closest enemy
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
