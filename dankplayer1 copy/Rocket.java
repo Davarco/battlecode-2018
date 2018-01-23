@@ -66,7 +66,7 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (gc.round()>=Config.ROCKET_CREATION_ROUND){
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size()>=4){
         	int x=starti,y=startj;
         	
             for (; x < map.getWidth(); x+=2) {

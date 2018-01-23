@@ -19,6 +19,14 @@ public class Ranger {
         counterMap = new HashMap<>();
     }
     public static void runMars(Unit unit){
+    	ranger = unit;
+        if (ranger.location().isInGarrison()) return;
+    	if (!attack()) {
+            move();
+            attack();
+        } else {
+            move();
+        }
     	return;
     }
     public static void runEarth(Unit unit) {
@@ -132,7 +140,7 @@ public class Ranger {
         bounce();
         
      // Move towards rockets mid-game, and escape factories early on
-        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND) {
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND && ranger.location().mapLocation().getPlanet()==Planet.Mars) {
             if (moveTowardsRocket()) {
                 return;
             }
@@ -155,7 +163,7 @@ public class Ranger {
             List<Direction> dirList = new ArrayList<>();
             for (Direction d : Direction.values()) {
                 MapLocation loc = ranger.location().mapLocation().add(d);
-                if (gc.startingMap(Planet.Earth).onMap(loc) && (gc.startingMap(Planet.Earth).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
+                if (gc.startingMap(ranger.location().mapLocation().getPlanet()).onMap(loc) && (gc.startingMap(ranger.location().mapLocation().getPlanet()).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
                     dirList.add(d);
                 }
             }
