@@ -74,6 +74,7 @@ public class Player {
         Mage.init(gc);
         Healer.init(gc);
         Factory.init(gc);
+        Mars.init(gc);
         Rocket.init(gc);
 
         // Initialize utils
