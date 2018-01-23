@@ -111,6 +111,10 @@ public class Worker {
         if (gc.round() < 150) {
         	if (moveTowardsFactory())
         		return;
+        	if (moveTowardsKarbonite()){	
+            	System.out.print("daislhcbaislhvbqs");
+                return;
+            }
             if (escape())
                 return;
             
@@ -128,14 +132,12 @@ public class Worker {
             		return;
             	}
             }
+            if (moveTowardsKarbonite()){	
+            	System.out.print("daislhcbaislhvbqs");
+                return;
+            }
         }
         
-        
-        
-        // Move towards karbonite after our buildings are taken care of
-        if (moveTowardsKarbonite()){	
-            return;
-        }
        
         
         // Otherwise bounce and give more space to the factories
