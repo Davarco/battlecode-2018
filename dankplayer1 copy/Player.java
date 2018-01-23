@@ -17,7 +17,9 @@ public class Player {
     public static long workertime=0,rangertime=0, factorytime = 0;
     public static int rangercount=0, workercount = 0;
     public static int[][] karboniteMap;
+    public static int[][] karboniteMapMars;
     public static MapLocation[][] mapLocations;
+    public static MapLocation[][] mapLocationsMars;
     public static int earthWidth;
     public static int earthHeight;
     public static int marsWidth;
@@ -30,14 +32,25 @@ public class Player {
          gc = new GameController();
          unitpaths = new HashMap<>();
         PlanetMap pm = gc.startingMap(Planet.Earth);
+        PlanetMap pm1 = gc.startingMap(Planet.Mars);
         earthHeight = (int)pm.getHeight();
         earthWidth = (int)pm.getWidth();
+        marsHeight = (int)pm1.getHeight();
+        marsWidth = (int)pm1.getWidth();
         karboniteMap = new int[earthWidth][earthHeight];
         mapLocations = new MapLocation[earthWidth][earthHeight];
+        karboniteMapMars = new int[marsWidth][marsHeight];
+        mapLocationsMars = new MapLocation[marsWidth][marsHeight];
         for (int i = 0; i < earthWidth; i++) {
             for (int j = 0; j < earthHeight; j++) {
                 karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
                 mapLocations[i][j] = new MapLocation(Planet.Earth, i, j);
+            }
+        }
+        for (int i = 0; i < marsWidth; i++) {
+            for (int j = 0; j < marsHeight; j++) {
+                karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
+                mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
             }
         }
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){

@@ -76,6 +76,7 @@ public class Worker {
         updateWorkerStats();
         
         // Repair structures that we can
+        if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         repairStructure(UnitType.Rocket);
         repairStructure(UnitType.Factory);
 
@@ -324,9 +325,13 @@ public class Worker {
     }
 
     private static boolean moveTowardsKarbonite() {
-        MapLocation loc = bestKarboniteLoc();
-        if (loc != null) { // bestKarboniteLoc returns the worker's position if nothing is found
-            return Pathing.move(worker, loc);
+    	MapLocation bestKarb;
+    	if(gc.planet()==Planet.Earth)bestKarb = bestKarboniteLoc();
+    	else{
+    		bestKarb = bestKarboniteLocMars();
+    	}
+        if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
+            return Pathing.move(worker, bestKarb);
         }
         
         return false;
@@ -447,7 +452,35 @@ public class Worker {
         } else {
             return null;
         }
-}
+    }
+    private static MapLocation bestKarboniteLocMars() {
+    	int x = workerLoc.getX();
+    	int y = workerLoc.getY();
+    	int bestHeuristicSoFar = Integer.MAX_VALUE;
+    	int bestISoFar = -1;
+    	int bestJSoFar = -1;
+        for (int i = x - 4; i < x + 4; i++) {
+            for (int j = y - 4; j < y + 4; j++) {
+                if (i >= 0 && i < Player.marsWidth && j >= 0 && j < Player.marsHeight && Player.karboniteMapMars[i][j] != 0) {
+                    int trueKarb = (int) gc.karboniteAt(Player.mapLocationsMars[i][j]);
+                    if (trueKarb != Player.karboniteMapMars[i][j]) {
+                        Player.karboniteMapMars[i][j] = trueKarb;
+                    }
+                    int heuristic = (int) Math.pow((Math.pow((x-i), 2) + Math.pow((y-j), 2)), 2);
+                    if (heuristic < bestHeuristicSoFar) {
+                        bestHeuristicSoFar = heuristic;
+                        bestISoFar = i;
+                        bestJSoFar = j;
+                    }
+                }
+            }
+        }
+        if (bestISoFar != -1) {
+            return Player.mapLocationsMars[bestISoFar][bestJSoFar];
+        } else {
+            return null;
+        }
+    }
     private static void replicate(){
     	int num = (int) (Math.random() * Direction.values().length);
     	for (int i = num; i < Direction.values().length+num; i++) {
