@@ -93,6 +93,11 @@ public class Ranger {
         		return;
         	}
         }
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND) {
+            if (moveTowardsRocket()) {
+                return;
+            }
+        }
 
         // Move towards initial enemy worker locations
         /*
@@ -140,11 +145,7 @@ public class Ranger {
         bounce();
         
      // Move towards rockets mid-game, and escape factories early on
-        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND && ranger.location().mapLocation().getPlanet()==Planet.Mars) {
-            if (moveTowardsRocket()) {
-                return;
-            }
-        }
+        
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
@@ -277,11 +278,12 @@ public class Ranger {
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(ranger.location().mapLocation());
-            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist) {
+            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && rockets.get(i).structureIsBuilt()==1) {
                 minDist = dist;
                 idx = i;
             }
         }
+        if(minDist>16)return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -328,7 +330,6 @@ public class Ranger {
             	return true;
             }
             // System.out.println("Moving towards friendly rocket.");
-            return true;
         }
 
         return false;

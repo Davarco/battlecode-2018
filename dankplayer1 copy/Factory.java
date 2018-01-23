@@ -43,23 +43,20 @@ public class Factory {
     	if (Info.number(UnitType.Worker) < Info.number(UnitType.Factory)) {
             if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
                 gc.produceRobot(factory.id(), UnitType.Worker);
-                Info.addUnit(UnitType.Worker);
             }
         }
 
         // See if the factory can build the ranger
         if(Player.mapsize.equals("largemap")){
 	        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-	        	if(gc.round()<=100){
-	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker) && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/8)){
+	        	if(gc.round()<=400){
+	        		 if(Info.number(UnitType.Ranger)<Info.number(UnitType.Worker)){
 	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
-	        	         Info.addUnit(UnitType.Ranger);
 	        		 }   
 	        	}
 	        	else{
-	        		if(Info.number(UnitType.Ranger)<4*Info.number(UnitType.Worker) && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/8)){
+	        		if(Info.number(UnitType.Ranger)<4*Info.number(UnitType.Worker)){
 	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
-	        	         Info.addUnit(UnitType.Ranger);
 	        		 } 
 	        	}
 	        }
@@ -68,7 +65,6 @@ public class Factory {
         else{
         	if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
 	        	gc.produceRobot(factory.id(), UnitType.Ranger);
-		          Info.addUnit(UnitType.Ranger);     
 	        }
         }
     }

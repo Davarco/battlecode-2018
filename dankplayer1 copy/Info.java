@@ -23,14 +23,15 @@ public class Info {
 
     public static void addUnit(Unit unit) {
         // System.out.println("fuck " + unitCounts.get(unit.unitType()) + " " + unitByTypes.get(unit.unitType()).size());
-        unitCounts.replace(unit.unitType(), unitCounts.get(unit.unitType()) + 1);
         if (!unit.location().isInGarrison() && !unit.location().isInSpace())
             unitByTypes.get(unit.unitType()).add(unit);
         // System.out.println("fuck code " + unitCounts.get(unit.unitType()) + " " + unitByTypes.get(unit.unitType()).size());
     }
 
     public static void addUnit(UnitType unit) {
-        unitCounts.replace(unit, unitCounts.get(unit) + 1);
+    	int tmp = unitCounts.get(unit) + 1;
+    	unitCounts.remove(unit);
+    	unitCounts.put(unit, tmp);
     }
 
     public static int number(UnitType type) {
