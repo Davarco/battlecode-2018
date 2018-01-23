@@ -11,7 +11,7 @@ public class Knight {
         gc = controller;
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive knight from main runner
         knight = unit;
@@ -23,5 +23,10 @@ public class Knight {
                 gc.moveRobot(knight.id(), direction);
             }
         }
+    }
+
+    public static void runMars(Unit unit) {
+        knight = unit;
+        System.out.println("Knight #" + knight.id() + " is on Mars!");
     }
 }

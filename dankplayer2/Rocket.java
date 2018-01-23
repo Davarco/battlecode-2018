@@ -14,7 +14,7 @@ public class Rocket {
         gc = controller;
     }
 
-    public static void run(Unit unit) {
+    public static void runEarth(Unit unit) {
 
         // Receive rocket from main runner
         rocket = unit;
@@ -25,13 +25,18 @@ public class Rocket {
         // Send them to Mars when full
         send();
 
+
+    }
+
+    public static void runMars(Unit unit) {
+        rocket = unit;
         // Start unloading troops on Mars
         unload();
     }
 
     private static void load() {
     	
-    	if (gc.round()>=550){
+    	if (gc.round()>=Config.ROCKET_CREATION_ROUND){
         // Only load when on earth
 	        if (rocket.location().mapLocation().getPlanet().equals(Planet.Mars))
 	            return;
@@ -42,7 +47,14 @@ public class Rocket {
 	        // Load them all into the rocket
 	        for (int i = 0; i < friendlies.size(); i++) {
 	            if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
-	                gc.load(rocket.id(), friendlies.get(i).id());
+	            	if(Player.launchCounter<1){
+	            		gc.load(rocket.id(), friendlies.get(i).id());
+	            	}
+	            	else{
+	            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+	            			gc.load(rocket.id(), friendlies.get(i).id());
+	            		}
+	            	}
 	                System.out.println("Loading unit!");
 	            }
 	        }
@@ -61,31 +73,19 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (gc.round()>=650){
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size()>=4){
         	int x=starti,y=startj;
         	
             for (; x < map.getWidth(); x+=3) {
                 for (; y < map.getHeight(); y+=3) {
-                    MapLocation temp = new MapLocation(Planet.Mars, x+1, y);
-                    MapLocation temp1 = new MapLocation(Planet.Mars, x-1, y);
-                    MapLocation temp2 = new MapLocation(Planet.Mars, x, y+1);
-                    MapLocation temp3 = new MapLocation(Planet.Mars, x, y-1);
-                    MapLocation temp4 = new MapLocation(Planet.Mars, x+1, y+1);
-                    MapLocation temp5 = new MapLocation(Planet.Mars, x-1, y+1);
-                    MapLocation temp6 = new MapLocation(Planet.Mars, x+1, y-1);
-                    MapLocation temp7 = new MapLocation(Planet.Mars, x-1, y-1);
                     MapLocation temp8 = new MapLocation(Planet.Mars, x, y);
-                    if(map.onMap(temp)&&map.onMap(temp1)&&map.onMap(temp2)&&map.onMap(temp3)&&map.onMap(temp4)&&map.onMap(temp5)
-                    		&&map.onMap(temp6)&&map.onMap(temp7)&&map.onMap(temp8)){
-	                    if (map.isPassableTerrainAt(temp) == 1 && map.isPassableTerrainAt(temp1) == 1 &&
-	                    		map.isPassableTerrainAt(temp2) == 1 && map.isPassableTerrainAt(temp3) == 1 &&
-	                    				map.isPassableTerrainAt(temp4) == 1 && map.isPassableTerrainAt(temp5) == 1 &&
-	                    						map.isPassableTerrainAt(temp6) == 1 && map.isPassableTerrainAt(temp7) == 1 && map.isPassableTerrainAt(temp8) == 1 &&
-	                    						gc.canLaunchRocket(rocket.id(), temp)) {
+                    if(map.onMap(temp8)){
+	                    if (map.isPassableTerrainAt(temp8) == 1 && rocket.structureIsBuilt()==1) {
 		                        gc.launchRocket(rocket.id(), temp8);
 		                        starti = x;
-		                        startj = y+3;
-		                        System.out.println("Fucking blastoff to " + temp + "!");
+		                        startj = y+1;
+		                        System.out.println("Fucking blastoff to " + temp8 + "!");
+		                        Player.launchCounter++;
 		                        return;
 	                    }
                     }

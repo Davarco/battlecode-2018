@@ -15,7 +15,9 @@ public class Pathway {
 	}
 	
 	public MapLocation getNextLocation() {
-		return unitpathway.get(index);
+		if (index < unitpathway.size())
+		    return unitpathway.get(index);
+		else return null;
 	}
 	
 	public void setNewPathway(ArrayList<MapLocation> p, MapLocation k, MapLocation s) {
