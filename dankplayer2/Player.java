@@ -76,6 +76,7 @@ public class Player {
         Factory.init(gc);
         Mars.init(gc);
         Rocket.init(gc);
+        
 
         // Initialize utils
         Util.init(gc);

@@ -171,7 +171,7 @@ public class Worker {
     	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
-    	if (gc.round() > Config.ROCKET_CREATION_ROUND  && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)-15)/5)) {
+    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
     		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
     		if(things.size()>0 && rthings.size()==0){
 	            create(UnitType.Rocket);
@@ -533,7 +533,7 @@ public class Worker {
     	for (int i = num; i < Direction.values().length+num; i++) {
     		int tmp = i % Direction.values().length;
          	Direction dir = Direction.values()[tmp];
-         	if(gc.karbonite()>200 || Info.number(UnitType.Worker)<10)return;
+         	if(Info.number(UnitType.Worker)<10)return;
             if (gc.canReplicate(worker.id(), dir)) {
                 gc.replicate(worker.id(), dir);
             }
