@@ -1,4 +1,5 @@
 import bc.*;
+import java.util.*;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -9,9 +10,15 @@ public class Rocket {
     private static GameController gc;
     private static VecUnit friendlies;
     private static int starti=1, startj=1;
+    private static int index1 = 0;
+    private static ArrayList<Integer> index2;
 
     public static void init(GameController controller) {
         gc = controller;
+        	index2 = new ArrayList<Integer>();
+        for(int x = 0; x<Mars.locations.size(); x++) {
+        		index2.add(0);
+        }
     }
 
     public static void runEarth(Unit unit) {
@@ -74,23 +81,9 @@ public class Rocket {
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
         if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4 || (Player.launchCounter < 1 && rocket.structureGarrison().size()>=2))){
-        	int x=starti,y=startj;
-        	
-            for (; x < map.getWidth(); x+=2) {
-                for (; y < map.getHeight(); y+=2) {
-                    MapLocation temp8 = new MapLocation(Planet.Mars, x, y);
-                    if(map.onMap(temp8)){
-	                    if (map.isPassableTerrainAt(temp8) == 1 && rocket.structureIsBuilt()==1) {
-		                        gc.launchRocket(rocket.id(), temp8);
-		                        starti = x;
-		                        startj = y+1;
-		                        System.out.println("Fucking blastoff to " + temp8 + "!");
-		                        Player.launchCounter++;
-		                        return;
-	                    }
-                    }
-                }
-            }
+            gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
+            index1 = (index1+1)%(Mars.locations.size());
+            index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
         }
     }
 
