@@ -22,10 +22,10 @@ public class Ranger {
     	ranger = unit;
         if (ranger.location().isInGarrison()) return;
     	if (!attack()) {
-            move();
+            moveMars();
             attack();
         } else {
-            move();
+            moveMars();
         }
     	return;
     }
@@ -150,7 +150,82 @@ public class Ranger {
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
+ private static void moveMars() {
+    	
+        /*
+        TODO Implement the entire worker changes function as a heuristic based on priority
+         */
 
+        // Return if we cannot move
+        if (!gc.isMoveReady(ranger.id())) {
+            return;
+        }
+
+        // Avoid enemy units, walk outside of their view range
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        if(enemies.size()>=friendly.size()){
+        	if (Pathing.escape(ranger)) {
+        		return;
+        	}
+        }
+
+        // Move towards initial enemy worker locations
+        /*
+        if (gc.round() < Config.RANGER_AUTO_ATTACK_ROUND && Info.number(UnitType.Ranger) >= 8 && ranger.location().isOnPlanet(Planet.Earth))
+            if (moveTowardsInitPoint())
+                return;
+        */
+
+        // Remove focal point if no units exist there
+        if (Player.focalPointMars != null) {
+            if (Player.focalPointMars.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPointMars) &&
+                    !gc.hasUnitAtLocation(Player.focalPointMars)) {
+                // System.out.println("Works");
+                Player.focalPoint = null;
+            }
+        }
+
+        // Get closest enemy
+        
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < enemies.size(); i++) {
+            long dist = ranger.location().mapLocation().distanceSquaredTo(enemies.get(i).location().mapLocation());
+            if (dist < minDist) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+
+        // Set new focal point
+        if (Player.focalPointMars == null) {
+            if (idx != -1) {
+                Player.focalPointMars = enemies.get(idx).location().mapLocation();
+            }
+        }
+
+        // Move towards focal point
+        if (Player.focalPointMars != null) {
+        		Pathing.move(ranger, Player.focalPointMars);	
+        }
+
+        
+
+        // Unit will bounce in order to escape factories
+        bounce();
+        
+     // Move towards rockets mid-game, and escape factories early on
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND && ranger.location().mapLocation().getPlanet()==Planet.Mars) {
+            if (moveTowardsRocket()) {
+                return;
+            }
+        }
+        
+
+        // If none of the above work, changes in a random direction (placeholder for now)
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+    }
 
     private static boolean bounce() {
 

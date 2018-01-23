@@ -516,7 +516,6 @@ public class Worker {
     }
     private static void updateWorkerStats() {
 
-        worker = gc.unit(workerId);
         workerId = worker.id();
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         workerLoc = worker.location().mapLocation();

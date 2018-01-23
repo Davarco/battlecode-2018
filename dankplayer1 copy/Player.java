@@ -11,6 +11,7 @@ public class Player {
     public static HashMap<Integer, Pathway> unitpaths;
     public static boolean initialKarbReached = false;
     public static MapLocation focalPoint;
+    public static MapLocation focalPointMars;
     public static long time = 0;
     public static String mapsize = "";
     public static int roundcount=0;
@@ -104,7 +105,6 @@ public class Player {
             // Get units and get counts
 
             setUnits();
-            Pathing.reset();
 
             // Run corresponding code for each type of unit
 
