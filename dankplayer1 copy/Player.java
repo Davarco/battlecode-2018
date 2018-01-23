@@ -16,6 +16,12 @@ public class Player {
     public static int roundcount=0;
     public static long workertime=0,rangertime=0, factorytime = 0;
     public static int rangercount=0, workercount = 0;
+    public static int[][] karboniteMap;
+    public static MapLocation[][] mapLocations;
+    public static int earthWidth;
+    public static int earthHeight;
+    public static int marsWidth;
+    public static int marsHeight;
     
 
     public static void main(String[] args) {
@@ -23,6 +29,17 @@ public class Player {
         // Start game by connecting to game controller
         gc = new GameController();
         unitpaths = new HashMap<>();
+        PlanetMap pm = gc.startingMap(Planet.Earth);
+        earthHeight = (int)pm.getHeight();
+        earthWidth = (int)pm.getWidth();
+        karboniteMap = new int[earthWidth][earthHeight];
+        mapLocations = new MapLocation[earthWidth][earthHeight];
+        for (int i = 0; i < earthWidth; i++) {
+            for (int j = 0; j < earthHeight; j++) {
+                karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
+                mapLocations[i][j] = new MapLocation(Planet.Earth, i, j);
+            }
+        }
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
         	mapsize = "smallmap";
         }
