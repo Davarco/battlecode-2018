@@ -60,13 +60,29 @@ public class Ranger {
 
         // Attack lowest HP target
         long minHp = Long.MAX_VALUE;
+        
         int idx = -1;
+        boolean checkiffactory = false;
         for (int i = 0; i < enemies.size(); i++) {
-            if (enemies.get(i).health() < minHp) {
+            if(enemies.get(i).unitType().equals(UnitType.Factory)) {
+            		if(!checkiffactory) {
+                    minHp = enemies.get(i).health();
+                    checkiffactory = true;
+                    idx = i;
+            		}
+            		else {
+            			if (enemies.get(i).health() < minHp) {
+                            minHp = enemies.get(i).health();
+                            idx = i;
+                        }
+            		}
+            }
+            if (!checkiffactory && enemies.get(i).health() < minHp) {
                 minHp = enemies.get(i).health();
                 idx = i;
             }
         }
+        
         if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
