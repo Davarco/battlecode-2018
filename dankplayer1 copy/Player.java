@@ -25,6 +25,7 @@ public class Player {
     public static int earthHeight;
     public static int marsWidth;
     public static int marsHeight;
+    public static int launchCounter = 0;
      
  
      public static void main(String[] args) {

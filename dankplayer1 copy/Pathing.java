@@ -46,20 +46,29 @@ public class Pathing {
     }
 
     private static PlanetMap pm;
+    private static PlanetMap pm1;
     private static GameController gc;
     private static int height;
     private static int width;
+    private static int marsHeight;
+    private static int marsWidth;
     private static Cell[][] mapNodes;
     private static boolean[][] terrain;
+    private static boolean[][] terrainMars;
 
 
     public static void init(GameController _gc) {
         gc = _gc;
         pm = gc.startingMap(Planet.Earth);
+        pm1 = gc.startingMap(Planet.Mars);
         height = (int) pm.getHeight();
         width = (int) pm.getWidth();
+        marsHeight = (int) pm1.getHeight();
+        marsWidth = (int) pm1.getWidth();
         terrain = new boolean[width][height];
+        terrainMars = new boolean[width][height];
         initTerrain(); // Copies the terrain map from PlanetMap to avoid making hella API calls
+        initTerrainMars();
     }
 
     private static void initTerrain() {
@@ -70,10 +79,18 @@ public class Pathing {
             }
         }
     }
+    private static void initTerrainMars() {
+        for (int i = 0; i < marsWidth; i++) {
+            for (int j = 0; j < marsHeight; j++) {
+                MapLocation loc = new MapLocation(Planet.Mars, i, j);
+                terrainMars[i][j] = pm1.isPassableTerrainAt(loc) == 1;
+            }
+        }
+    }
 
-    private static List<Cell> getNeighbors(Cell cell) {
+    private static List<Cell> getNeighbors(Cell cell, Planet planet) {
         if (cell.parent == null) {
-            return getGridNeighbors(cell,true);
+            return getGridNeighbors(cell,true,planet);
         } else {
             List<Cell> neighbors = new ArrayList<>();
             int x = cell.x;
@@ -86,42 +103,42 @@ public class Pathing {
             // Implements diagonal move
             if (dx != 0 && dy != 0) {
                 boolean moveX = false, moveY = false;
-                if(occupiable(x, y+dy)) {
+                if(occupiable(x, y+dy,planet)) {
                     neighbors.add(mapNodes[x][y+dy]);
                     moveY = true;
                 }
-                if(occupiable(x+dx, y)) {
+                if(occupiable(x+dx, y,planet)) {
                     neighbors.add(mapNodes[x+dx][y]);
                     moveX = true;
                 }
                 if(moveX || moveY)
-                    if (inBounds(x+dx, y+dy))
+                    if (inBounds(x+dx, y+dy,planet))
                         neighbors.add(mapNodes[x+dx][y+dy]);
 
-                if (!occupiable(x-dx, y) && moveY)
+                if (!occupiable(x-dx, y,planet) && moveY)
                     neighbors.add(mapNodes[x-dx][y+dy]);
 
-                if (!occupiable(x, y-dy) && moveX)
+                if (!occupiable(x, y-dy,planet) && moveX)
                     neighbors.add(mapNodes[x+dx][y-dy]);
             } else {
                 // Moving along y-axis...
                 if (dx == 0) {
-                    if (occupiable(x, y+dy)) {
+                    if (occupiable(x, y+dy,planet)) {
                         neighbors.add(mapNodes[x][y+dy]);
-                        if (!occupiable(x+1, y) && inBounds(x+1, y+dy))
+                        if (!occupiable(x+1, y,planet) && inBounds(x+1, y+dy,planet))
                             neighbors.add(mapNodes[x+1][y+dy]);
 
-                        if (!occupiable(x-1, y) && inBounds(x-1, y+dy))
+                        if (!occupiable(x-1, y,planet) && inBounds(x-1, y+dy,planet))
                             neighbors.add(mapNodes[x-1][y+dy]);
                     }
                     // Moving along x-axis...
                 } else {
-                    if (occupiable(x+dx, y)) {
+                    if (occupiable(x+dx, y,planet)) {
                         neighbors.add(mapNodes[x+dx][y]);
-                        if (!occupiable(x, y+1) && inBounds(x+dx, y+1))
+                        if (!occupiable(x, y+1,planet) && inBounds(x+dx, y+1,planet))
                             neighbors.add(mapNodes[x+dx][y+1]);
 
-                        if(!occupiable(x, y-1) && inBounds(x+dx, y-1)) {
+                        if(!occupiable(x, y-1,planet) && inBounds(x+dx, y-1,planet)) {
                             neighbors.add(mapNodes[x+dx][y-1]);
                         }
                     }
@@ -132,7 +149,7 @@ public class Pathing {
 
     }
 
-    private static Cell jump(Cell node, Cell parent, Cell target) {
+    private static Cell jump(Cell node, Cell parent, Cell target, Planet planet) {
 
         if (node == null) return null;
 
@@ -146,24 +163,24 @@ public class Pathing {
 //        System.out.println("dx: " + dx);
 //        System.out.println("dy: " + dy);
 
-        if (!occupiable(x, y)) return null;
+        if (!occupiable(x, y,planet)) return null;
 
         if (node.equals(target)) return node;
 
         if (dx !=0 && dy != 0) {
-            if ((occupiable(x-dx, y+dy) && !occupiable(x-dx, y)) || (occupiable(x+dx, y-dy) && !occupiable(x, y-dy))) {
+            if ((occupiable(x-dx, y+dy,planet) && !occupiable(x-dx, y,planet)) || (occupiable(x+dx, y-dy,planet) && !occupiable(x, y-dy,planet))) {
 //                System.out.println("returning pt 1");
                 return node;
             }
 
         } else {
             if (dx != 0) {
-                if ((occupiable(x+dx, y+1) && !occupiable(x, y+1)) || (occupiable(x+dx, y-1) && !occupiable(x, y-1))) {
+                if ((occupiable(x+dx, y+1,planet) && !occupiable(x, y+1,planet)) || (occupiable(x+dx, y-1,planet) && !occupiable(x, y-1,planet))) {
 //                    System.out.println("returning pt 2");
                     return node;
                 }
             } else {
-                if ((occupiable(x + 1, y + dy) && !occupiable(x + 1, y)) || (occupiable(x - 1, y + dy) && !occupiable(x - 1, y))) {
+                if ((occupiable(x + 1, y + dy,planet) && !occupiable(x + 1, y,planet)) || (occupiable(x - 1, y + dy,planet) && !occupiable(x - 1, y,planet))) {
 //                    System.out.println("returning pt 3");
                     return node;
                 }
@@ -171,26 +188,26 @@ public class Pathing {
         }
 
         if (dx != 0 && dy != 0) {
-            if (inBounds(x+dx, y)) {
+            if (inBounds(x+dx, y,planet)) {
 //                System.out.println("1 About to jump into a recursion into cell " + mapNodes[x+dx][y]);
-                if (jump(mapNodes[x + dx][y], node, target) != null) {
+                if (jump(mapNodes[x + dx][y], node, target,planet) != null) {
 //                    System.out.println("returning pt 4");
                     return node;
                 }
             }
-            if (inBounds(x, y+dy)) {
+            if (inBounds(x, y+dy,planet)) {
 //                System.out.println("2 About to jump into a recursion into cell " + mapNodes[x][y+dy]);
-                if (jump(mapNodes[x][y + dy], node, target) != null) {
+                if (jump(mapNodes[x][y + dy], node, target,planet) != null) {
 //                    System.out.println("returning pt 5");
                     return node;
                 }
             }
         }
 
-        if (occupiable(x+dx, y) || occupiable(x, y+dy)) {
-            if (inBounds(x+dx, y+dy)) {
+        if (occupiable(x+dx, y,planet) || occupiable(x, y+dy,planet)) {
+            if (inBounds(x+dx, y+dy,planet)) {
 //                System.out.println("3 About to jump into a diagonal into cell " + mapNodes[x+dx][y+dy]);
-                return jump(mapNodes[x+dx][y+dy], node, target);
+                return jump(mapNodes[x+dx][y+dy], node, target,planet);
             }
 
         }
@@ -199,15 +216,19 @@ public class Pathing {
         return null;
     }
 
-    public static ArrayList<MapLocation> path(MapLocation start, MapLocation end) {
+    public static ArrayList<MapLocation> path(MapLocation start, MapLocation end, Planet planet) {
 
         PriorityQueue<Cell> open = new PriorityQueue<>((Object o1, Object o2) -> {
             Cell c1 = (Cell) o1;
             Cell c2 = (Cell) o2;
             return Double.compare(c1.g+c1.h, c2.g+c2.h);
         });
-
-        mapNodes = new Cell[width][height];
+        if(planet == Planet.Earth){
+        	mapNodes = new Cell[width][height];
+        }
+        else{
+        	mapNodes = new Cell[marsWidth][marsHeight];
+        }
         for(int x = 0; x < mapNodes.length; x++) {
             for(int y = 0; y < mapNodes[0].length; y++) {
                 mapNodes[x][y] = new Cell();
@@ -232,11 +253,11 @@ public class Pathing {
             current.closed = true;
             if (current.equals(endNode))
                 break;
-            List<Cell> neighbors = getNeighbors(current);
+            List<Cell> neighbors = getNeighbors(current,planet);
 //            System.out.println(neighbors);
             for (int i = neighbors.size() - 1; i >= 0; i--) {
                 Cell next = neighbors.get(i);
-                Cell jumpNode = jump(next, current, endNode);
+                Cell jumpNode = jump(next, current, endNode,planet);
                 if (jumpNode != null) {
                     if (!jumpNode.closed) {
                         double addG = euclidean(current, next);
@@ -257,9 +278,9 @@ public class Pathing {
         if(endNode.closed) {
             ArrayList<MapLocation> path = new ArrayList<MapLocation>();
             current = endNode;
-            path.add(current.getMapLocation(Planet.Earth));
+            path.add(current.getMapLocation(planet));
             while(current.parent != null) {
-                path.add(current.parent.getMapLocation(Planet.Earth));
+                path.add(current.parent.getMapLocation(planet));
                 current = current.parent;
             }
             Collections.reverse(path);
@@ -270,14 +291,22 @@ public class Pathing {
         }
     }
 
-    private static boolean occupiable(int x, int y) {
-        return (inBounds(x, y) && terrain[x][y]);
+    private static boolean occupiable(int x, int y, Planet planet) {
+    	if(planet==Planet.Earth)
+    		return (inBounds(x, y, planet) && terrain[x][y]);
+    	else
+    		return (inBounds(x, y, planet) && terrainMars[x][y]);
     }
-    private static boolean inBounds(int x, int y) {
-        return (0 <= x && width > x && 0 <= y && height > y);
+    private static boolean inBounds(int x, int y, Planet planet) {
+    	if(planet == Planet.Earth){
+    		return (0 <= x && width > x && 0 <= y && height > y);
+    	}
+    	else{
+    		return (0 <= x && marsWidth > x && 0 <= y && marsHeight > y);
+    	}
     }
 
-    private static List<Cell> getGridNeighbors (Cell cell, boolean forcePassable) {
+    private static List<Cell> getGridNeighbors (Cell cell, boolean forcePassable, Planet planet) {
         List<Cell> neighbors = new ArrayList<>();
         int x = cell.x; int y = cell.y;
         for (int[] movePair : move) {
@@ -285,11 +314,11 @@ public class Pathing {
             int modY = movePair[1] + y;
 
             if (forcePassable) {
-                if (occupiable(modX, modY)) {
+                if (occupiable(modX, modY,planet)) {
                     neighbors.add(mapNodes[modX][modY]);
                 }
             } else {
-                if (inBounds(modX, modY)) {
+                if (inBounds(modX, modY,planet)) {
                     neighbors.add(mapNodes[modX][modY]);
                 }
             }
@@ -369,9 +398,10 @@ public class Pathing {
             return true;
         }
         boolean hasRecalculated = false;
+        Planet planet = TroopUnit.location().mapLocation().getPlanet();
         //Criterion 1
         if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
-            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation()));
+            Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit.location().mapLocation(), end.clone(),planet), end.clone(), TroopUnit.location().mapLocation()));
             hasRecalculated = true;
         }
         if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
@@ -381,7 +411,7 @@ public class Pathing {
 
         //Criterion 2
         if(!end.equals(TroopPath.goal)) {
-            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+            Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone(),planet), end.clone(), TroopUnit.location().mapLocation());
             hasRecalculated = true;
             if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
@@ -391,7 +421,7 @@ public class Pathing {
         //Criterion 3
         if(TroopUnit.location().mapLocation()!=Player.unitpaths.get(TroopUnit.id()).start) {
         		if(!hasRecalculated) {
-        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+        			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone(),planet), end.clone(), TroopUnit.location().mapLocation());
         		}
         		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                 return false;
@@ -406,7 +436,7 @@ public class Pathing {
                 return false;
             }
             else {
-                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone()), end.clone(), TroopUnit.location().mapLocation());
+                Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit.location().mapLocation(), end.clone(),planet), end.clone(), TroopUnit.location().mapLocation());
                 if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
                     return false;
                 }

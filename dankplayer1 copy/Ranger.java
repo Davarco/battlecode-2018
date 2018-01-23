@@ -197,7 +197,7 @@ public class Ranger {
                 idx = i;
             }
         }
-
+       
         // Set new focal point
         if (Player.focalPointMars == null) {
             if (idx != -1) {
@@ -207,7 +207,9 @@ public class Ranger {
 
         // Move towards focal point
         if (Player.focalPointMars != null) {
-        		Pathing.move(ranger, Player.focalPointMars);	
+        	 System.out.println(Player.focalPointMars);
+        	 System.out.println(ranger.location().mapLocation());
+        	 Pathing.move(ranger, Player.focalPointMars);	
         }
 
         

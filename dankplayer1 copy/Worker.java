@@ -174,7 +174,7 @@ public class Worker {
 	            create(UnitType.Rocket);
     		}
         }
-	    if (gc.karbonite()>20*(FactoryNumber) && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/8)) {
+	    if (gc.karbonite()>10*(FactoryNumber) && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/8)) {
 	        if(things.size()==0)
 	        	create(UnitType.Factory);
 	   }
@@ -199,7 +199,7 @@ public class Worker {
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(workerLoc);
-            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist) {
+            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && (rockets.get(i).structureIsBuilt()==0|| Player.launchCounter<1)) {
                 minDist = dist;
                 idx = i;
             }
@@ -496,11 +496,10 @@ public class Worker {
     	for (int i = num; i < Direction.values().length+num; i++) {
     		int tmp = i % Direction.values().length;
          	Direction dir = Direction.values()[tmp];
+         	if(marsKarbonite-marsKarbonitei<0)return;
             if (gc.canReplicate(worker.id(), dir)) {
                 gc.replicate(worker.id(), dir);
             }
-            if(marsKarbonite-marsKarbonitei<0)return;
-            
         }
     }
 

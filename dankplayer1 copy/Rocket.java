@@ -47,7 +47,14 @@ public class Rocket {
 	        // Load them all into the rocket
 	        for (int i = 0; i < friendlies.size(); i++) {
 	            if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
-	                gc.load(rocket.id(), friendlies.get(i).id());
+	            	if(Player.launchCounter<1){
+	            		gc.load(rocket.id(), friendlies.get(i).id());
+	            	}
+	            	else{
+	            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+	            			gc.load(rocket.id(), friendlies.get(i).id());
+	            		}
+	            	}
 	                System.out.println("Loading unit!");
 	            }
 	        }
@@ -66,7 +73,7 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (gc.round()>=Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size()>=4){
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4 || (Player.launchCounter < 1 && rocket.structureGarrison().size()>=2))){
         	int x=starti,y=startj;
         	
             for (; x < map.getWidth(); x+=2) {
@@ -78,6 +85,7 @@ public class Rocket {
 		                        starti = x;
 		                        startj = y+1;
 		                        System.out.println("Fucking blastoff to " + temp8 + "!");
+		                        Player.launchCounter++;
 		                        return;
 	                    }
                     }
