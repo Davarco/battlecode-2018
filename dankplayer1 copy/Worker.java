@@ -28,12 +28,12 @@ public class Worker {
         if(Player.mapsize.equals("smallmap")){
         	build();
         	move();
+        	repairStructure(UnitType.Factory);
+        	repairStructure(UnitType.Rocket);
         	harvestKarbonite();
         	if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3 ){
     	        replicate();
     	    }
-        	repairStructure(UnitType.Rocket);
-            repairStructure(UnitType.Factory);
         	return;
         	
         }
@@ -84,16 +84,14 @@ public class Worker {
         // Only move if we can move
         if (!gc.isMoveReady(worker.id()))
             return;
-
         // Similar to below, rockets are vital late game
         /*if (gc.round() <= 550 && gc.round() > Config.ROCKET_CREATION_ROUND) {
             if (moveTowardsRocket())
                 return;
         }*/
-
         // Moving towards factories has higher priority than escape early game
-        
-        if (gc.round() < 19) {
+        //NEEDS BETTER CONDITION
+        if (gc.round() < 150) {
         	if (moveTowardsFactory())
         		return;
             if (escape())
@@ -210,31 +208,70 @@ public class Worker {
         int idx = -1;
         for (int i = 0; i < units.size(); i++) {
             long dist = worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
-            if (dist < minDist && units.get(i).health() < units.get(i).maxHealth()) {
+            if (dist < minDist && units.get(i).structureIsBuilt()==0) {
                 minDist = dist;
                 idx = i;
             }
         }
+        if(minDist == 2){
+        	return true;
+        }
+        System.out.println("Index: "+idx);
         if (idx != -1) {
+        	//MAYBE add bug pathing
             //Pathing.move(worker, units.get(idx).location().mapLocation());
-            PlanetMap map = gc.startingMap(Planet.Earth);
+            	PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
                 MapLocation tmp = units.get(idx).location().mapLocation();
-                tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY());
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY());
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY() + 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY() - 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX() + 1, tmp.getY() - 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX() - 1, tmp.getY() + 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX(), tmp.getY() - 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
-                tmp = new MapLocation(Planet.Earth, tmp.getX(), tmp.getY() + 1);
-                if (map.onMap(tmp) && Pathing.move(worker, tmp)) return true;
+                int initx = tmp.getX();
+                int inity = tmp.getY();
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity);
+                if (map.onMap(tmp)){
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
+                if (map.onMap(tmp)){
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity - 1);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity + 1);
+                if (map.onMap(tmp)) {
+                	Pathing.move(worker, tmp);
+                	System.out.print("sdkhvbdsj");
+                	return true;
+                }
         }
 
         return false;
