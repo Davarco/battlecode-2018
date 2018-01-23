@@ -1,14 +1,12 @@
 import bc.*;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public class Mars {
 
     private static GameController gc;
     private static PlanetMap map;
-    private static ArrayList<ArrayList<MapLocation>> locations;
+    public static ArrayList<ArrayList<MapLocation>> locations;
     private static boolean visited[][];
     private static int W, H;
     private static int index;
@@ -62,5 +60,10 @@ public class Mars {
                 }
             }
         }
+        Collections.sort(locations, new Comparator<ArrayList<MapLocation> >() {
+            public int compare(ArrayList<MapLocation> o1, ArrayList<MapLocation> o2) {
+                return o2.size()-o1.size();
+            }
+        });
     }
 }
