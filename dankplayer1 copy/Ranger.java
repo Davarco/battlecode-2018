@@ -185,65 +185,65 @@ public class Ranger {
     }
 
     private static boolean moveTowardsRocket() {
-
+    	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
         // Move towards a low-HP rocket if possible
         VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(ranger.location().mapLocation());
-            if (Util.friendlyUnit(rockets.get(i)) && rockets.get(i).health() < rockets.get(i).maxHealth() && dist < minDist) {
+            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist) {
                 minDist = dist;
                 idx = i;
             }
         }
         if (idx != -1) {
-            PlanetMap map = gc.startingMap(Planet.Earth);
+            PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
             int initx = tmp.getX();
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            	 Pathing.move(ranger, tmp);
+            	Pathing.move(ranger, tmp);
             	return true;
             }
-            tmp = new MapLocation(Planet.Earth, initx - 1,inity);
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity);
             if (map.onMap(tmp)){
             	Pathing.move(ranger, tmp);
             	return true;
             }
-            tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
-            if (map.onMap(tmp)){
+            tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
+            if (map.onMap(tmp)) {
             	Pathing.move(ranger, tmp);
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            if (map.onMap(tmp)) {
+            if (map.onMap(tmp)){
             	Pathing.move(ranger, tmp);
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            	 Pathing.move(ranger, tmp);
+            	Pathing.move(ranger, tmp);
             	return true;
             }
-            tmp = new MapLocation(Planet.Earth,initx - 1, inity + 1);
-            if (map.onMap(tmp)){
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
+            if (map.onMap(tmp)) {
             	Pathing.move(ranger, tmp);
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
-            if (map.onMap(tmp)){
+            if (map.onMap(tmp)) {
             	Pathing.move(ranger, tmp);
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
-            if (map.onMap(tmp)){
+            if (map.onMap(tmp)) {
             	Pathing.move(ranger, tmp);
             	return true;
             }
-
-            return false;
+            // System.out.println("Moving towards friendly rocket.");
+            return true;
         }
 
         return false;
