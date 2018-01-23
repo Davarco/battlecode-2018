@@ -31,7 +31,7 @@ public class Worker {
         	repairStructure(UnitType.Factory);
         	repairStructure(UnitType.Rocket);
         	harvestKarbonite();
-        	if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3 ){
+        	if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3){
     	        replicate();
     	    }
         	return;
@@ -54,7 +54,7 @@ public class Worker {
         harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3){
+        if(Info.number(UnitType.Factory)*20>Info.number(UnitType.Worker)*3 && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/6)){
             replicate();
         }
         
@@ -85,10 +85,10 @@ public class Worker {
         if (!gc.isMoveReady(worker.id()))
             return;
         // Similar to below, rockets are vital late game
-        /*if (gc.round() <= 550 && gc.round() > Config.ROCKET_CREATION_ROUND) {
+        if (gc.round() > Config.ROCKET_CREATION_ROUND) {
             if (moveTowardsRocket())
                 return;
-        }*/
+        }
         // Moving towards factories has higher priority than escape early game
         //NEEDS BETTER CONDITION
         if (gc.round() < 150) {
@@ -143,28 +143,17 @@ public class Worker {
     private static void build() {
     	
         // Create factories
+    	VecUnit things = gc.senseNearbyUnitsByType(worker.location().mapLocation(), 16, UnitType.Factory);
     	int FactoryNumber=Info.number(UnitType.Factory);
-    	if(gc.round()>=80){
-	        if (gc.karbonite()>20*(FactoryNumber)) {
-	        	VecUnit things = gc.senseNearbyUnitsByType(worker.location().mapLocation(), 31, UnitType.Factory);
-	        	if(things.size()==0)
-	        		create(UnitType.Factory);
-	        }
-    	}
-    	else{
-    		if (gc.karbonite()>20*(FactoryNumber)) {
-	        	VecUnit things = gc.senseNearbyUnitsByType(worker.location().mapLocation(), 31, UnitType.Factory);
-	        	if(things.size()==0)
-	        		create(UnitType.Factory);
-	        }
-    	}
-        /*
-        // Build rockets
-        if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.round() <= 640) {
-            if (Info.number(UnitType.Rocket) < Config.ROCKET_EQUILIBRIUM) {
-                create(UnitType.Rocket);
-            }
-        }*/
+    	if (gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/6) {
+    		if(things.size()==0){
+	            create(UnitType.Rocket);
+    		}
+        }
+	    if (gc.karbonite()>20*(FactoryNumber) && !(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=Info.totalUnits/6)) {
+	        if(things.size()==0)
+	        	create(UnitType.Factory);
+	   }
     }
 
     private static boolean escape() {

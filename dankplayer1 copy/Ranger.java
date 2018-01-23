@@ -126,23 +126,18 @@ public class Ranger {
         		Pathing.move(ranger, Player.focalPoint);	
         }
 
-        // Move towards rockets mid-game, and escape factories early on
-        /*if (gc.round() >= 530 && ranger.location().isOnPlanet(Planet.Earth) && gc.round() <= 640) {
-            if (moveTowardsRocket()) {
-                return;
-            }
-        }*/
+        
 
         // Unit will bounce in order to escape factories
         bounce();
-
-        // Otherwise changes towards enemies
-        /*
-        if (idx != -1) {
-            Pathing.move(ranger, enemies.get(idx).location().mapLocation());
-            return;
+        
+     // Move towards rockets mid-game, and escape factories early on
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND) {
+            if (moveTowardsRocket()) {
+                return;
+            }
         }
-        */
+        
 
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
@@ -208,21 +203,45 @@ public class Ranger {
             int initx = tmp.getX();
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)) {
+            	 Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx - 1,inity);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)){
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)){
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)) {
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)) {
+            	 Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth,initx - 1, inity + 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)){
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)){
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
-            if (map.onMap(tmp) && Pathing.move(ranger, tmp)) return true;
+            if (map.onMap(tmp)){
+            	Pathing.move(ranger, tmp);
+            	return true;
+            }
 
             return false;
         }
