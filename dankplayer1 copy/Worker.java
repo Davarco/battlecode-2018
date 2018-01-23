@@ -19,7 +19,6 @@ public class Worker {
     private static MapLocation workerLoc;
     private static long marsKarbonite=0;
     private static long marsKarbonitei=0;
-    
 
     public static void init(GameController controller) {
         gc = controller;
@@ -41,7 +40,7 @@ public class Worker {
         	repairStructure(UnitType.Factory);
         	repairStructure(UnitType.Rocket);
         	harvestKarbonite();
-        	if(Info.number(UnitType.Factory)*20>7*Info.number(UnitType.Worker) && Info.number(UnitType.Ranger)<6*(Info.number(UnitType.Rocket)+1)){
+        	if(Info.number(UnitType.Factory)*20>7*Info.number(UnitType.Worker)*3){
     	        replicate();
     	    }
         	return;
@@ -64,7 +63,7 @@ public class Worker {
         harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Factory)*20>7*Info.number(UnitType.Worker) && !(Info.number(UnitType.Ranger)<6*(Info.number(UnitType.Rocket)))){
+        if(Info.number(UnitType.Factory)*20>5*Info.number(UnitType.Worker)*3){
             replicate();
         }
         
@@ -167,29 +166,22 @@ public class Worker {
     private static void build() {
     	
         // Create factories
-    	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 10, UnitType.Factory);
-    	VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 10, UnitType.Rocket);
+    	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
+    	VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
     	int FactoryNumber=Info.number(UnitType.Factory);
-        //System.out.println("3fwfdw: "+Info.number(UnitType.Rocket)+ " "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+ " " + Info.totalUnits);
-
-    	if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.karbonite()>10*(FactoryNumber)) {
+    	if (gc.round() > Config.ROCKET_CREATION_ROUND ) {
     		if(things.size()==0 && rthings.size()==0){
 	            create(UnitType.Rocket);
     		}
         }
-    	System.out.println("sfawefw: "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory)+ " "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+ " " + Info.totalUnits);
-    	if(Info.number(UnitType.Factory)<=5){
-    		if (gc.karbonite()>10*(FactoryNumber)) {
-    			if(things.size()==0)
-    				create(UnitType.Factory);
-    		}
-    	}
-    	/*else{
-    		if(gc.karbonite()>100+20*FactoryNumber+75*(Info.number(UnitType.Ranger)/8)){
-    			if(things.size()==0)
-    				create(UnitType.Factory);
-    		}
-    	}*/
+	    if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
+	        if(things.size()==0)
+	        	create(UnitType.Factory);
+	   }
+	   if (gc.karbonite()-100>20*(FactoryNumber)) {
+	       if(things.size()==0)
+	        	create(UnitType.Factory);
+	   }
     }
 
     private static boolean escape() {
@@ -284,7 +276,6 @@ public class Worker {
         if(minDist == 2){
         	return true;
         }
-        if(minDist>16)return false;
         if (idx != -1) {
         	//MAYBE add bug pathing
             //Pathing.move(worker, units.get(idx).location().mapLocation());
@@ -355,7 +346,7 @@ public class Worker {
         long maxDist = -Long.MAX_VALUE;
         int idx = 0;
         for (int i = 0; i < units.size(); i++) {
-            long dist = 16 - worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            long dist = 32 - worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
             if (dist > maxDist && units.get(i).health() == units.get(i).maxHealth()) {
                 maxDist = dist;
                 idx = i;
@@ -522,15 +513,7 @@ public class Worker {
         	int tmp = i % Direction.values().length;
         	Direction dir = Direction.values()[tmp];
             if (gc.canBlueprint(worker.id(), type, dir)) {
-                if(type == UnitType.Rocket){
-                	if(Player.rocketBuilt == false){
-                		gc.blueprint(worker.id(), type, dir);
-                		Player.rocketBuilt=true;
-                	}
-                }
-                else{
-                	gc.blueprint(worker.id(), type, dir);
-                }
+                gc.blueprint(worker.id(), type, dir);
             }
         }
     }

@@ -26,11 +26,6 @@ public class Player {
     public static int marsWidth;
     public static int marsHeight;
     public static int launchCounter = 0;
-    public static int totalEarth = 0;
-    public static int totalMars = 0;
-    public static int rocketCount = 0;
-    public static boolean rocketBuilt = false;
-    public static int rocketroundcount=0;
      
  
      public static void main(String[] args) {
@@ -110,13 +105,11 @@ public class Player {
 
             // Get units and get counts
 
-            
+            setUnits();
 
             // Run corresponding code for each type of unit
 
             long ta, tb;
-            setUnits();
-            setUnits();
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
                 boolean onMars = unit.location().isOnPlanet(Planet.Mars) && !unit.location().isInGarrison();
@@ -178,14 +171,14 @@ public class Player {
             long t2 = System.currentTimeMillis();
             
             Player.time = 0;
-            /*System.out.println("Ranger #"+Info.number(UnitType.Ranger));
+            System.out.println("Ranger #"+Info.number(UnitType.Ranger));
             System.out.println("Ranger Time: "+rangertime);
             System.out.println("Worker #"+Info.number(UnitType.Worker));
             System.out.println("Worker Time: "+workertime);
             System.out.println("Factory #"+Info.number(UnitType.Factory));
             System.out.println("Factory Time: "+factorytime);
             System.out.println("Total time "+ (t2-t1));
-            ;*/
+            ;
             
             rangertime = 0;
             workertime = 0;
@@ -196,12 +189,6 @@ public class Player {
             	System.gc();
             	System.runFinalization();
             	roundcount = 0;
-            }
-            if(rocketBuilt==true){
-            	rocketroundcount++;
-            }
-            if(rocketroundcount==9){
-            	rocketBuilt=false;
             }
             rangercount = 0;
             workercount = 0;
@@ -227,23 +214,13 @@ public class Player {
     private static void setUnits() {
 
         // Get units and get counts
-    	
         units = gc.myUnits();
-        System.out.println("ildfhbihfq "+units.size());        Info.reset();
+        Info.reset();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
-            Info.addUnit(unit.unitType());
             Info.addUnit(unit);
-            unit.clone();
-            if (unit.location().isInGarrison() || unit.location().isInSpace()) return;
-            if(unit.location().mapLocation().getPlanet()==Planet.Earth){
-            	totalEarth++;
-            }
-            else{
-            	totalMars++;
-            }
         }
         Info.totalUnits = units.size();
-        System.out.println("wefw: "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory)+ " "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+ " " + Info.totalUnits);
+        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
     }
 }
