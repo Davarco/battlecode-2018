@@ -40,9 +40,7 @@ public class Player {
         marsHeight = (int)pm1.getHeight();
         marsWidth = (int)pm1.getWidth();
         karboniteMap = new int[earthWidth][earthHeight];
-        mapLocations = new MapLocation[earthWidth][earthHeight];
         karboniteMapMars = new int[marsWidth][marsHeight];
-        mapLocationsMars = new MapLocation[marsWidth][marsHeight];
        
         
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
@@ -55,7 +53,6 @@ public class Player {
         	 for (int i = 0; i < earthWidth; i++) {
                  for (int j = 0; j < earthHeight; j++) {
                      karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
-                     mapLocations[i][j] = new MapLocation(Planet.Earth, i, j);
                  }
              }
         }
@@ -63,7 +60,6 @@ public class Player {
     		for (int i = 0; i < marsWidth; i++) {
                 for (int j = 0; j < marsHeight; j++) {
                     karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
-                    mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
                 }
             }
     	}
