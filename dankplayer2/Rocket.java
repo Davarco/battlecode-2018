@@ -52,23 +52,17 @@ public class Rocket {
 	        // Find units around to load
 	        friendlies = gc.senseNearbyUnitsByTeam(rocket.location().mapLocation(), rocket.visionRange(), Util.friendlyTeam());
 	
-	        // Load them all into the rocke
+	        // Load them all into the rocket
 	        for (int i = 0; i < friendlies.size(); i++) {
 	            if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
 	            	if(Player.launchCounter<1){
 	            		gc.load(rocket.id(), friendlies.get(i).id());
 	            	}
 	            	else{
-	            		if(gc.round()<=600){
-		            		if(friendlies.get(i).unitType()==UnitType.Ranger){
-		            			gc.load(rocket.id(), friendlies.get(i).id());
-		            		}
-	            		}
-	            		else{
-		            		gc.load(rocket.id(), friendlies.get(i).id());
+	            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+	            			gc.load(rocket.id(), friendlies.get(i).id());
 	            		}
 	            	}
-	            		
 	                System.out.println("Loading unit!");
 	            }
 	        }
@@ -87,20 +81,10 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4||gc.round()==749)){
-        	int orgindex = index1;
-        	while(Mars.locations.get(index1).size()<=4){
-        		index1 = (index1+1)%(Mars.locations.size());
-        		if(index1 == orgindex){
-        			break;
-        		}
-        	}
-        	if(gc.canLaunchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)))){
-        		gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
-        	}
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size()>=4){
+        	gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
             index1 = (index1+1)%(Mars.locations.size());
             index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
-            Player.launchCounter++;
         }
     }
 

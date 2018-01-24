@@ -40,29 +40,27 @@ public class Player {
         marsHeight = (int)pm1.getHeight();
         marsWidth = (int)pm1.getWidth();
         karboniteMap = new int[earthWidth][earthHeight];
+        mapLocations = new MapLocation[earthWidth][earthHeight];
         karboniteMapMars = new int[marsWidth][marsHeight];
-       
-        
+        mapLocationsMars = new MapLocation[marsWidth][marsHeight];
+        for (int i = 0; i < earthWidth; i++) {
+            for (int j = 0; j < earthHeight; j++) {
+                karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
+                mapLocations[i][j] = new MapLocation(Planet.Earth, i, j);
+            }
+        }
+        for (int i = 0; i < marsWidth; i++) {
+            for (int j = 0; j < marsHeight; j++) {
+                karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
+                mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
+            }
+        }
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
         	mapsize = "smallmap";
         }
         else{
         	mapsize = "largemap";
         }
-        if(gc.planet()==Planet.Earth){
-        	 for (int i = 0; i < earthWidth; i++) {
-                 for (int j = 0; j < earthHeight; j++) {
-                     karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
-                 }
-             }
-        }
-        if(gc.planet()==Planet.Mars){
-    		for (int i = 0; i < marsWidth; i++) {
-                for (int j = 0; j < marsHeight; j++) {
-                    karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
-                }
-            }
-    	}
 
         // Initialize focus points
         //FocusPoints.init(gc);
@@ -101,7 +99,6 @@ public class Player {
          */
         boolean quit = false;
         while (!quit) {
-        	
         	//System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
 //            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
@@ -223,9 +220,7 @@ public class Player {
         Info.reset();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
-            if(unit.unitType()==UnitType.Rocket || unit.unitType()==UnitType.Factory){
-            	Info.addUnit(unit);
-            }
+            Info.addUnit(unit);
             Info.addUnit(unit.unitType());
         }
         Info.totalUnits = units.size();
