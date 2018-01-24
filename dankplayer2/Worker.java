@@ -485,6 +485,14 @@ public class Worker {
         for (Direction d : Direction.values()) {
             if (gc.startingMap(worker.location().mapLocation().getPlanet()).onMap(worker.location().mapLocation().add(d)) && gc.canHarvest(worker.id(), d)) {
                 gc.harvest(worker.id(), d);
+                MapLocation ml = Pathing.DirectionToMapLocation(worker, d);
+                if(worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
+                		Player.karboniteMap[ml.getX()][ml.getY()] = (int)gc.karboniteAt(ml);
+                }
+                else {
+            			Player.karboniteMapMars[ml.getX()][ml.getY()] = (int)gc.karboniteAt(ml);
+                }
+                
             }
         }
     }
@@ -498,11 +506,7 @@ public class Worker {
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 if (i >= 0 && i < Player.earthWidth && j >= 0 && j < Player.earthHeight && Player.karboniteMap[i][j] != 0) {
-                    int trueKarb = (int) gc.karboniteAt(Player.mapLocations[i][j]);
-                    if (trueKarb != Player.karboniteMap[i][j]) {
-                        Player.karboniteMap[i][j] = trueKarb;
-                    }
-                    int heuristic = (int) Math.pow((Math.pow((x-i), 2) + Math.pow((y-j), 2)), 2);
+                    int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
                     if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
                         bestISoFar = i;
@@ -512,7 +516,7 @@ public class Worker {
             }
         }
         if (bestISoFar != -1) {
-            return Player.mapLocations[bestISoFar][bestJSoFar];
+            return new MapLocation(Planet.Earth, bestISoFar, bestJSoFar);
         } else {
             return null;
         }
@@ -526,11 +530,7 @@ public class Worker {
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 if (i >= 0 && i < Player.marsWidth && j >= 0 && j < Player.marsHeight && Player.karboniteMapMars[i][j] != 0) {
-                    int trueKarb = (int) gc.karboniteAt(Player.mapLocationsMars[i][j]);
-                    if (trueKarb != Player.karboniteMapMars[i][j]) {
-                        Player.karboniteMapMars[i][j] = trueKarb;
-                    }
-                    int heuristic = (int) Math.pow((Math.pow((x-i), 2) + Math.pow((y-j), 2)), 2);
+                    int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
                     if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
                         bestISoFar = i;
@@ -540,7 +540,7 @@ public class Worker {
             }
         }
         if (bestISoFar != -1) {
-            return Player.mapLocationsMars[bestISoFar][bestJSoFar];
+            return new MapLocation(Planet.Mars, bestISoFar, bestJSoFar);
         } else {
             return null;
         }
