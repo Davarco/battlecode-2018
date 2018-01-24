@@ -59,6 +59,14 @@ public class Player {
                  }
              }
         }
+        if(gc.planet()==Planet.Mars){
+    		for (int i = 0; i < marsWidth; i++) {
+                for (int j = 0; j < marsHeight; j++) {
+                    karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
+                    mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
+                }
+            }
+    	}
 
         // Initialize focus points
         //FocusPoints.init(gc);
@@ -97,14 +105,7 @@ public class Player {
          */
         boolean quit = false;
         while (!quit) {
-        	if(gc.planet()==Planet.Mars){
-        		for (int i = 0; i < marsWidth; i++) {
-                    for (int j = 0; j < marsHeight; j++) {
-                        karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
-                        mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
-                    }
-                }
-        	}
+        	
         	//System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
 //            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");

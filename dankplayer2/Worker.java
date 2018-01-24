@@ -182,9 +182,9 @@ public class Worker {
 	        }
     	}
     	else{
-    		if (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)-15)/5) {
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		if((things.size()>0|| gc.round()>600) && rthings.size()==0){
+    		if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 12, UnitType.Ranger);
+	    		if((things.size()>0|| gc.round()>600) && rthings.size()>0){
 		            create(UnitType.Rocket);
 	    		}
 	        }
@@ -196,10 +196,15 @@ public class Worker {
 		    }
     	}
     	else{
-    		if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=3) {
-		        if(things.size()==0)
-		        	create(UnitType.Factory);
-		    }
+    		VecUnit thingsSmall = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
+    		if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
+    			if(Info.number(UnitType.Factory)==0){
+    	        	create(UnitType.Factory);
+    			}
+    			else if (thingsSmall.size()>1){
+    				create(UnitType.Factory);
+    			}
+    	    }
     	}
 	    return;
     }
