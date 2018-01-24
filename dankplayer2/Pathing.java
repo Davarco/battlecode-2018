@@ -452,7 +452,7 @@ public class Pathing {
         return false;
     }
 
-    private static MapLocation DirectionToMapLocation(Unit unit, Direction direction) {
+    public static MapLocation DirectionToMapLocation(Unit unit, Direction direction) {
         switch (direction) {
             case North:
                 return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY()+1);
@@ -470,6 +470,8 @@ public class Pathing {
                 return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()-1, unit.location().mapLocation().getY());
             case Northwest:
                 return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()-1, unit.location().mapLocation().getY()+1);
+            case Center:
+                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY());
         }
         return null;
     }
