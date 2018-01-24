@@ -226,7 +226,9 @@ public class Player {
         Info.reset();
         for (int i = 0; i < units.size(); i++) {
             Unit unit = units.get(i);
-            Info.addUnit(unit);
+            if(unit.unitType()==UnitType.Rocket || unit.unitType()==UnitType.Factory){
+            	Info.addUnit(unit);
+            }
             Info.addUnit(unit.unitType());
         }
         Info.totalUnits = units.size();

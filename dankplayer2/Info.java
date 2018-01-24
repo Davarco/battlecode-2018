@@ -22,9 +22,8 @@ public class Info {
         rangerCount = 0;
         factoryCount = 0;
         unitByTypes = new EnumMap<>(UnitType.class);
-        for (UnitType type: UnitType.values()) {
-            unitByTypes.put(type, new ArrayList<>());
-        }
+        unitByTypes.put(UnitType.Rocket, new ArrayList<>());
+        unitByTypes.put(UnitType.Factory, new ArrayList<>());
     }
 
     public static void addUnit(Unit unit) {

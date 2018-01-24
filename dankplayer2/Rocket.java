@@ -52,7 +52,7 @@ public class Rocket {
 	        // Find units around to load
 	        friendlies = gc.senseNearbyUnitsByTeam(rocket.location().mapLocation(), rocket.visionRange(), Util.friendlyTeam());
 	
-	        // Load them all into the rocket
+	        // Load them all into the rocke
 	        for (int i = 0; i < friendlies.size(); i++) {
 	            if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
 	            	if(Player.launchCounter<1){

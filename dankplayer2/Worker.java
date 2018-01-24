@@ -170,13 +170,13 @@ public class Worker {
     private static void build() {
     	
         // Create factories
-    	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
+    	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 64, UnitType.Factory);
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
 	    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		if((things.size()>0|| gc.round()>600) && rthings.size()==0){
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 12, UnitType.Ranger);
+	    		if((things.size()>0|| gc.round()>600) && rthings.size()>0){
 		            create(UnitType.Rocket);
 	    		}
 	        }
@@ -228,7 +228,7 @@ public class Worker {
                 idx = i;
             }
         }
-        if(minDist > 16) return false;
+        if(minDist > 20) return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(workerLoc.getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -404,7 +404,7 @@ public class Worker {
         long maxDist = -Long.MAX_VALUE;
         int idx = 0;
         for (int i = 0; i < units.size(); i++) {
-            long dist = 32 - worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            long dist = 16 - worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
             if (dist > maxDist && units.get(i).health() == units.get(i).maxHealth()) {
                 maxDist = dist;
                 idx = i;

@@ -140,20 +140,41 @@ public class Ranger {
 	
 	        // Move towards focal point
 	        if (Player.focalPoint != null) {
-	        		Pathing.move(ranger, Player.focalPoint);	
+	        	Pathing.move(ranger, Player.focalPoint);	
 	        }
         }
 
         
-
+        if(returnToFactory())
+        	return;
         // Unit will bounce in order to escape factories
-        bounce();
-        
+        if(ditchFactory())
+        	return;
+        if(ditchRocket())
+        	return;
      // Move towards rockets mid-game, and escape factories early on
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+    }
+    private static boolean returnToFactory(){
+    	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+        if (units.size() == 0) return false;
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < units.size(); i++) {
+            long dist =  ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if(dist<=16) return false;
+            if (dist < minDist && units.get(i).health() == units.get(i).maxHealth()) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if (minDist >= 1000)  return false;
+        if(idx == -1)return false;
+        Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        return true;
     }
  private static void moveMars() {
     	
@@ -272,6 +293,43 @@ public class Ranger {
         }
 
         return false;
+    }
+    private static boolean ditchFactory() {
+        List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+        if (units.size() == 0) return false;
+        long maxDist = -Long.MAX_VALUE;
+        int idx = 0;
+        for (int i = 0; i < units.size(); i++) {
+            long dist = 50 - ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist > maxDist && units.get(i).health() == units.get(i).maxHealth()) {
+                maxDist = dist;
+                idx = i;
+            }
+        }
+        if (maxDist <= 0)  return false;
+
+        Direction opposite = Pathing.opposite(ranger.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(ranger, opposite);
+        return true;
+    }
+    private static boolean ditchRocket() {
+        List<Unit> units = Info.unitByTypes.get(UnitType.Rocket);
+        if (units.size() == 0) return false;
+        long maxDist = -Long.MAX_VALUE;
+        int idx = 0;
+        for (int i = 0; i < units.size(); i++) {
+        	if(units.get(i).structureIsBuilt()==1)continue;
+            long dist = 50 - ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist > maxDist && units.get(i).health() == units.get(i).maxHealth()) {
+                maxDist = dist;
+                idx = i;
+            }
+        }
+        if (maxDist <= 0)  return false;
+
+        Direction opposite = Pathing.opposite(ranger.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(ranger, opposite);
+        return true;
     }
 
     private static boolean moveTowardsRocket() {
