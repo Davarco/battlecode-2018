@@ -1,18 +1,20 @@
-import bc.Direction;
-import bc.GameController;
-import bc.Unit;
-import bc.VecUnit;
+import java.util.*;
+import bc.*;
 
 public class Healer {
 
     private static Unit healer;
     private static GameController gc;
     private static VecUnit friendlies;
+    private static HashMap<Integer, Integer> counterMap;
+    private static HashMap<Integer, Direction> directionMap;
 
     private static boolean isAttacked;
 
     public static void init(GameController controller) {
         gc = controller;
+        counterMap = new HashMap<>();
+        directionMap = new HashMap<>();
     }
 
     public static void runEarth(Unit unit) {
@@ -99,11 +101,52 @@ public class Healer {
             }
         }
         if (idx != -1) {
-            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false) {
-                Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
+            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false && Player.focalPoint != null) {
+        			Pathing.move(healer, Player.focalPoint);
             }
         }
+        bounce();
 
         // Move randomly (placeholder, this is never optimal)
     }
+    private static boolean bounce() {
+
+        // Reset if counter is 8
+        counterMap.putIfAbsent(healer.id(), 0);
+        if (counterMap.get(healer.id()) >= 8) {
+            counterMap.put(healer.id(), 0);
+
+            // Find possible movement directions
+            List<Direction> dirList = new ArrayList<>();
+            for (Direction d : Direction.values()) {
+                MapLocation loc = healer.location().mapLocation().add(d);
+                if (gc.startingMap(healer.location().mapLocation().getPlanet()).onMap(loc) && (gc.startingMap(healer.location().mapLocation().getPlanet()).isPassableTerrainAt(loc) == 1) && (gc.isOccupiable(loc) == 1)) {
+                    dirList.add(d);
+                }
+            }
+
+            // Get one of the possible directions if they exist
+            if (dirList.size() != 0) {
+                int idx = (int) (Math.random() * dirList.size());
+
+                // Set the current direction
+                directionMap.put(healer.id(), dirList.get(idx));
+            }
+        }
+
+        // Try to move in the current direction
+        Direction dir = directionMap.get(healer.id());
+        if (dir != null) {
+            if (Pathing.tryMove(healer, dir))
+                counterMap.put(healer.id(), counterMap.get(healer.id())+1);
+            else
+                counterMap.put(healer.id(), 0);
+        } else {
+            // Reset the direction
+            counterMap.put(healer.id(), 8);
+        }
+
+        return false;
+    }
+
 }
