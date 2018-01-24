@@ -95,7 +95,9 @@ public class Rocket {
         			break;
         		}
         	}
-        	gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
+        	if(gc.canLaunchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)))){
+        		gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
+        	}
             index1 = (index1+1)%(Mars.locations.size());
             index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
             Player.launchCounter++;
