@@ -1,7 +1,5 @@
 import bc.*;
 
-import java.util.HashMap;
-
 public class Factory {
 
     private static Unit factory;
@@ -9,7 +7,7 @@ public class Factory {
 
     public static void init(GameController controller) {
         gc = controller;
-        
+
     }
 
     public static void run(Unit unit) {
@@ -40,7 +38,7 @@ public class Factory {
     private static void build() {
 
         // Workers are vital, build them if we have nothing left
-    	if (Info.number(UnitType.Worker) < Info.number(UnitType.Factory)) {
+        if (Info.number(UnitType.Worker) < Info.number(UnitType.Factory)) {
             if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
                 gc.produceRobot(factory.id(), UnitType.Worker);
                 Info.addUnit(UnitType.Worker);
@@ -48,35 +46,32 @@ public class Factory {
         }
 
         // See if the factory can build the ranger
-        if(Player.mapsize.equals("largemap")){
-	        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-	        	if(gc.round()<=100){
-	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker) ){
-	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
-	        	         Info.addUnit(UnitType.Ranger);
-	        		 }   
-	        	}
-	        	else{
-	        		if(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-10)/5){
-	        			gc.produceRobot(factory.id(), UnitType.Ranger);
-	        	    	Info.addUnit(UnitType.Ranger);
-	        		}
-	        	}
-	        }
-        }
-	        
-        else{
-        	if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-	        	gc.produceRobot(factory.id(), UnitType.Ranger);
-		          Info.addUnit(UnitType.Ranger);     
-	        }
+        if (Player.largeMap) {
+            if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+                if (gc.round() <= 100) {
+                    if (Info.number(UnitType.Ranger) < 2 * Info.number(UnitType.Worker)) {
+                        gc.produceRobot(factory.id(), UnitType.Ranger);
+                        Info.addUnit(UnitType.Ranger);
+                    }
+                } else {
+                    if (gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket) >= (Info.number(UnitType.Ranger) - 10) / 5) {
+                        gc.produceRobot(factory.id(), UnitType.Ranger);
+                        Info.addUnit(UnitType.Ranger);
+                    }
+                }
+            }
+        } else {
+            if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+                gc.produceRobot(factory.id(), UnitType.Ranger);
+                Info.addUnit(UnitType.Ranger);
+            }
         }
     }
 
     private static void unload() {
 
         // Check all possible directions
-        for (Direction dir: Direction.values()) {
+        for (Direction dir : Direction.values()) {
             if (gc.canUnload(factory.id(), dir)) {
                 gc.unload(factory.id(), dir);
             }

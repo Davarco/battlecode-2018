@@ -18,17 +18,18 @@ public class Ranger {
         directionMap = new HashMap<>();
         counterMap = new HashMap<>();
     }
-    public static void runMars(Unit unit){
-    	ranger = unit;
+
+    public static void runMars(Unit unit) {
+        ranger = unit;
         if (ranger.location().isInGarrison()) return;
-    	if (!attack()) {
+        if (!attack()) {
             moveMars();
             attack();
         } else {
             moveMars();
         }
-    	return;
     }
+
     public static void runEarth(Unit unit) {
 
         // Receive ranger from main runner
@@ -60,29 +61,28 @@ public class Ranger {
 
         // Attack lowest HP target
         long minHp = Long.MAX_VALUE;
-        
+
         int idx = -1;
-        boolean checkiffactory = false;
+        boolean isFactory = false;
         for (int i = 0; i < enemies.size(); i++) {
-            if(enemies.get(i).unitType().equals(UnitType.Factory)) {
-            		if(!checkiffactory) {
+            if (enemies.get(i).unitType().equals(UnitType.Factory)) {
+                if (!isFactory) {
                     minHp = enemies.get(i).health();
-                    checkiffactory = true;
+                    isFactory = true;
                     idx = i;
-            		}
-            		else {
-            			if (enemies.get(i).health() < minHp) {
-                            minHp = enemies.get(i).health();
-                            idx = i;
-                        }
-            		}
+                } else {
+                    if (enemies.get(i).health() < minHp) {
+                        minHp = enemies.get(i).health();
+                        idx = i;
+                    }
+                }
             }
-            if (!checkiffactory && enemies.get(i).health() < minHp) {
+            if (!isFactory && enemies.get(i).health() < minHp) {
                 minHp = enemies.get(i).health();
                 idx = i;
             }
         }
-        
+
         if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
@@ -100,19 +100,19 @@ public class Ranger {
         if (!gc.isMoveReady(ranger.id())) {
             return;
         }
-        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND ) {
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >= Config.ROCKET_CREATION_ROUND) {
             if (moveTowardsRocket()) {
                 return;
             }
         }
-        
+
         // Avoid enemy units, walk outside of their view range
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
-        if(enemies.size()>=friendly.size() && gc.round()<=300){
-        	if (Pathing.escape(ranger)) {
-        		return;
-        	}
+        if (enemies.size() >= friendly.size() && gc.round() <= 300) {
+            if (Pathing.escape(ranger)) {
+                return;
+            }
         }
 
         // Move towards initial enemy worker locations
@@ -132,7 +132,6 @@ public class Ranger {
         }
 
         // Get closest enemy
-        
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
@@ -152,21 +151,20 @@ public class Ranger {
 
         // Move towards focal point
         if (Player.focalPoint != null) {
-        		Pathing.move(ranger, Player.focalPoint);	
+            Pathing.move(ranger, Player.focalPoint);
         }
 
-        
 
         // Unit will bounce in order to escape factories
         bounce();
-        
-     // Move towards rockets mid-game, and escape factories early on
-        
+
+        // Move towards rockets mid-game, and escape factories early on
 
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
- private static void moveMars() {
+
+    private static void moveMars() {
     	
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
@@ -180,10 +178,10 @@ public class Ranger {
         // Avoid enemy units, walk outside of their view range
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
-        if(enemies.size()>=friendly.size()){
-        	if (Pathing.escape(ranger)) {
-        		return;
-        	}
+        if (enemies.size() >= friendly.size()) {
+            if (Pathing.escape(ranger)) {
+                return;
+            }
         }
 
         // Move towards initial enemy worker locations
@@ -203,7 +201,6 @@ public class Ranger {
         }
 
         // Get closest enemy
-        
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < enemies.size(); i++) {
@@ -213,7 +210,7 @@ public class Ranger {
                 idx = i;
             }
         }
-       
+
         // Set new focal point
         if (Player.focalPointMars == null) {
             if (idx != -1) {
@@ -223,23 +220,22 @@ public class Ranger {
 
         // Move towards focal point
         if (Player.focalPointMars != null) {
-        	 System.out.println(Player.focalPointMars);
-        	 System.out.println(ranger.location().mapLocation());
-        	 Pathing.move(ranger, Player.focalPointMars);	
+            System.out.println(Player.focalPointMars);
+            System.out.println(ranger.location().mapLocation());
+            Pathing.move(ranger, Player.focalPointMars);
         }
 
-        
 
         // Unit will bounce in order to escape factories
         bounce();
-        
-     // Move towards rockets mid-game, and escape factories early on
-        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >=Config.ROCKET_CREATION_ROUND && ranger.location().mapLocation().getPlanet()==Planet.Mars) {
+
+        // Move towards rockets mid-game, and escape factories early on
+        if (ranger.location().isOnPlanet(Planet.Earth) && gc.round() >= Config.ROCKET_CREATION_ROUND && ranger.location().mapLocation().getPlanet() == Planet.Mars) {
             if (moveTowardsRocket()) {
                 return;
             }
         }
-        
+
 
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
@@ -274,7 +270,7 @@ public class Ranger {
         Direction dir = directionMap.get(ranger.id());
         if (dir != null) {
             if (Pathing.tryMove(ranger, dir))
-                counterMap.put(ranger.id(), counterMap.get(ranger.id())+1);
+                counterMap.put(ranger.id(), counterMap.get(ranger.id()) + 1);
             else
                 counterMap.put(ranger.id(), 0);
         } else {
@@ -286,19 +282,19 @@ public class Ranger {
     }
 
     private static boolean moveTowardsRocket() {
-    	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
+        if (ranger.location().mapLocation().getPlanet() == Planet.Mars) return false;
         // Move towards a low-HP rocket if possible
         VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(ranger.location().mapLocation());
-            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && rockets.get(i).structureIsBuilt()==1) {
+            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && rockets.get(i).structureIsBuilt() == 1) {
                 minDist = dist;
                 idx = i;
             }
         }
-        if(minDist>10)return false;
+        if (minDist > 10) return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -306,59 +302,59 @@ public class Ranger {
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity);
-            if (map.onMap(tmp)){
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
-            }
-            tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            if (map.onMap(tmp)){
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
-            		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(ranger, tmp)) {
+                    Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             // System.out.println("Moving towards friendly rocket.");
             return true;

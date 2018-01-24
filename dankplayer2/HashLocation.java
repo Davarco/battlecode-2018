@@ -1,23 +1,23 @@
 import bc.*;
-public class maplocation {
-	private MapLocation maploc=null;
-	public maplocation(MapLocation h){
+public class HashLocation {
+
+	private MapLocation maploc;
+	public HashLocation(MapLocation h){
 		maploc = h;
 	}
-	private MapLocation getmaplocation(){
+	private MapLocation getMapLocation(){
 		return maploc;
 	}
 	
 	@Override
 	public boolean equals(Object o){
-		return this.maploc.equals(((maplocation)o).getmaplocation());
+		return this.maploc.equals(((HashLocation)o).getMapLocation());
 	}
-	
-	
+
 	@Override
 	public int hashCode()
     {
-		int code = 0;
+		int code;
 		if(maploc.getPlanet()==Planet.Earth){
 			code = maploc.getX()+maploc.getY()*100;
 		}

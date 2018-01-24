@@ -3,22 +3,17 @@ import bc.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Worker {
 
     private static Unit worker;
-    
+
     private static GameController gc;
     private static VecUnit rockets;
     private static HashMap<Integer, Direction> directionMap;
     private static HashMap<Integer, Integer> counterMap;
-    private static int W,H;
-    private static final int min_karbonite=100;
     private static int workerId;
     private static MapLocation workerLoc;
-    private static long marsKarbonite=0;
-    private static long marsKarbonitei=0;
 
     public static void init(GameController controller) {
         gc = controller;
@@ -27,72 +22,73 @@ public class Worker {
     }
 
     public static void runEarth(Unit unit) {
-    	
+
         // Receive worker from main runner
         worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         workerLoc = worker.location().mapLocation();
         workerId = worker.id();
-        if(Player.mapsize.equals("smallmap")){
-        	build();
-        	move();
-        	updateWorkerStats();
-        	repairStructure(UnitType.Factory);
-        	repairStructure(UnitType.Rocket);
-        	harvestKarbonite();
-        	if(Info.number(UnitType.Factory)*3+Info.number(UnitType.Rocket)*2>Info.number(UnitType.Worker)){
-    	        replicate();
-    	    }
-        	return;
-        	
+
+        // Ideal worker runner is different based on map size
+        if (!Player.largeMap) {
+            build();
+            move();
+            updateWorkerStats();
+            repairStructure(UnitType.Factory);
+            repairStructure(UnitType.Rocket);
+            harvestKarbonite();
+            if (Info.number(UnitType.Factory) * 3 + Info.number(UnitType.Rocket) * 2 > Info.number(UnitType.Worker)) {
+                replicate();
+            }
+            return;
         }
+
+        // Handle beginning game
         //long t1 = System.currentTimeMillis();
-        if(gc.round()<=15){
-        	harvestEarly();
-        	replicate();
-        	return;
+        if (gc.round() <= 15) {
+            harvestEarly();
+            replicate();
+            return;
         }
-        
-        if(gc.karbonite()>=100 ){
-        	Player.initialKarbReached=true;
+
+        // Handle karbonite
+        if (gc.karbonite() >= 100) {
+            Player.initialKarbReached = true;
         }
-        if(!Player.initialKarbReached){
-        	moveTowardsKarbonite();
-        	return;
+        if (!Player.initialKarbReached) {
+            moveTowardsKarbonite();
+            return;
         }
         harvestKarbonite();
-        
-        //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Factory)*20>5*Info.number(UnitType.Worker)){
+
+        // Replicate if appropriate
+        if (Info.number(UnitType.Factory) * 20 > 5 * Info.number(UnitType.Worker)) {
             replicate();
         }
-        
+
         // Build things that we need to
         build();
 
         // General move function, handles priorities
-        
         move();
         updateWorkerStats();
-        
+
         // Repair structures that we can
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         repairStructure(UnitType.Factory);
         repairStructure(UnitType.Rocket);
-        
-        // Harvest karbonite if we can
     }
-    public static void runMars(Unit unit){
-    	worker = unit;
+
+    public static void runMars(Unit unit) {
+        worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         replicateMars();
         workerLoc = worker.location().mapLocation();
         workerId = worker.id();
-        marsKarbonitei = gc.karbonite();
         harvestKarbonite();
         move();
         updateWorkerStats();
-        
+
     }
 
     private static void move() {
@@ -105,83 +101,81 @@ public class Worker {
         if (!gc.isMoveReady(workerId))
             return;
         // Similar to below, rockets are vital late game
-        
+
         // Moving towards factories has higher priority than escape early game
         //NEEDS BETTER CONDITION
         if (gc.round() < 150) {
-        	if (moveTowardsFactory())
-        		return;
-        	if (moveTowardsKarbonite()){	
-            	System.out.print("daislhcbaislhvbqs");
+            if (moveTowardsFactory())
+                return;
+            if (moveTowardsKarbonite()) {
                 return;
             }
             if (escape())
                 return;
-            
-        } 
-        else {
-            if (escape()){
+
+        } else {
+            if (escape()) {
                 return;
             }
-            if(worker.location().mapLocation().getPlanet()==Planet.Earth){
-            	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
-            		if (moveTowardsRocket())
-            			return;
-            	}
-            	if (moveTowardsFactory()){
-            		return;
-            	}
+            if (worker.location().mapLocation().getPlanet() == Planet.Earth) {
+                if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+                    if (moveTowardsRocket())
+                        return;
+                }
+                if (moveTowardsFactory()) {
+                    return;
+                }
             }
-            if (moveTowardsKarbonite()){	
-            	System.out.print("daislhcbaislhvbqs");
+            if (moveTowardsKarbonite()) {
                 return;
             }
         }
-        
-       
-        
+
+
         // Otherwise bounce and give more space to the factories
-       if(worker.location().mapLocation().getPlanet()==Planet.Earth){
-	       if(ditchFactory())
-	    	   return;
-       }
-       if(bounce()){
-	   	   return;
-       }
-    }
-    private static void harvestEarly(){
-        for (int i = 0; i < Direction.values().length; i++) {
-        	Direction dir = Direction.values()[i];
-        	if(gc.canHarvest(workerId,dir)){
-        		gc.harvest(workerId, dir);
-        		break;
-        	}	
+        if (worker.location().mapLocation().getPlanet() == Planet.Earth) {
+            if (ditchFactory())
+                return;
+        }
+        if (bounce()) {
+            return;
         }
     }
-    private static void moveRandom(){
-    	int a  = (int)(Math.random()*Direction.values().length);
-    	if(gc.canMove(worker.id(),Direction.values()[a])){
-    		gc.moveRobot(worker.id(),Direction.values()[a]);
-    	}
+
+    private static void harvestEarly() {
+        for (int i = 0; i < Direction.values().length; i++) {
+            Direction dir = Direction.values()[i];
+            if (gc.canHarvest(workerId, dir)) {
+                gc.harvest(workerId, dir);
+                break;
+            }
+        }
+    }
+
+    private static void moveRandom() {
+        int a = (int) (Math.random() * Direction.values().length);
+        if (gc.canMove(worker.id(), Direction.values()[a])) {
+            gc.moveRobot(worker.id(), Direction.values()[a]);
+        }
     }
 
     private static void build() {
-    	
+
         // Create factories
-    	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
-    	
-    	int FactoryNumber=Info.number(UnitType.Factory);
-    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
-    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-    		if(things.size()>0 && rthings.size()==0){
-	            create(UnitType.Rocket);
-    		}
+        VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
+
+        int FactoryNumber = Info.number(UnitType.Factory);
+        if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+            VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
+            if (things.size() > 0 && rthings.size() == 0) {
+                create(UnitType.Rocket);
+            }
         }
-	    if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
-	        if(things.size()==0)
-	        	create(UnitType.Factory);
-	    }
-	    return;
+        if (gc.karbonite() > 10 * (FactoryNumber) && Info.number(UnitType.Factory) <= 5) {
+            if (things.size() == 0)
+                create(UnitType.Factory);
+        }
+        return;
     }
 
     private static boolean escape() {
@@ -196,19 +190,19 @@ public class Worker {
     }
 
     private static boolean moveTowardsRocket() {
-    	if(workerLoc.getPlanet()==Planet.Mars)return false;
+        if (workerLoc.getPlanet() == Planet.Mars) return false;
         // Move towards a low-HP rocket if possible
         rockets = gc.senseNearbyUnitsByType(workerLoc, worker.visionRange(), UnitType.Rocket);
         long minDist = Long.MAX_VALUE;
         int idx = -1;
         for (int i = 0; i < rockets.size(); i++) {
             long dist = rockets.get(i).location().mapLocation().distanceSquaredTo(workerLoc);
-            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && (rockets.get(i).structureIsBuilt()==0|| Player.launchCounter<1)) {
+            if (Util.friendlyUnit(rockets.get(i)) && dist < minDist && (rockets.get(i).structureIsBuilt() == 0 || Player.launchCounter < 1)) {
                 minDist = dist;
                 idx = i;
             }
         }
-        if(minDist > 16) return false;
+        if (minDist > 16) return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(workerLoc.getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -216,59 +210,59 @@ public class Worker {
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity);
-            if (map.onMap(tmp)){
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
-            }
-            tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            if (map.onMap(tmp)){
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(worker, tmp)){
-            		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-            	}
-            	return true;
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+                }
+                return true;
             }
             // System.out.println("Moving towards friendly rocket.");
             return true;
@@ -285,97 +279,98 @@ public class Worker {
         int idx = -1;
         for (int i = 0; i < units.size(); i++) {
             long dist = worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
-            if (dist < minDist && units.get(i).structureIsBuilt()==0) {
+            if (dist < minDist && units.get(i).structureIsBuilt() == 0) {
                 minDist = dist;
                 idx = i;
             }
         }
-        if(minDist == 2){
-        	return true;
+        if (minDist == 2) {
+            return true;
         }
-        if(minDist > 16){
-        	return false;
+        if (minDist > 16) {
+            return false;
         }
         if (idx != -1) {
-        	//MAYBE add bug pathing
+            //MAYBE add bug pathing
             //Pathing.move(worker, units.get(idx).location().mapLocation());
-            	PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
-                MapLocation tmp = units.get(idx).location().mapLocation();
-                int initx = tmp.getX();
-                int inity = tmp.getY();
-                tmp = new MapLocation(Planet.Earth, initx + 1, inity);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+            PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
+            MapLocation tmp = units.get(idx).location().mapLocation();
+            int initx = tmp.getX();
+            int inity = tmp.getY();
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx - 1, inity);
-                if (map.onMap(tmp)){
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-                if (map.onMap(tmp)){
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx, inity - 1);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx, inity - 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
-                tmp = new MapLocation(Planet.Earth, initx, inity + 1);
-                if (map.onMap(tmp)) {
-                	if(!Pathing.move(worker, tmp)){
-                		Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-                	}
-                	return true;
+                return true;
+            }
+            tmp = new MapLocation(Planet.Earth, initx, inity + 1);
+            if (map.onMap(tmp)) {
+                if (!Pathing.move(worker, tmp)) {
+                    Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
                 }
+                return true;
+            }
         }
 
         return false;
     }
 
     private static boolean moveTowardsKarbonite() {
-    	MapLocation bestKarb;
-    	if(gc.planet()==Planet.Earth)bestKarb = bestKarboniteLoc();
-    	else{
-    		bestKarb = bestKarboniteLocMars();
-    	}
+        MapLocation bestKarb;
+        if (gc.planet() == Planet.Earth) bestKarb = bestKarboniteLoc();
+        else {
+            bestKarb = bestKarboniteLocMars();
+        }
         if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
             return Pathing.move(worker, bestKarb);
         }
-        
+
         return false;
     }
+
     private static boolean ditchFactory() {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
@@ -388,7 +383,7 @@ public class Worker {
                 idx = i;
             }
         }
-        if (maxDist <= 0)  return false;
+        if (maxDist <= 0) return false;
 
         Direction opposite = Pathing.opposite(worker.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
         Pathing.tryMove(worker, opposite);
@@ -423,19 +418,17 @@ public class Worker {
         // Try to move in the current direction
         Direction dir = directionMap.get(worker.id());
         if (dir != null) {
-            if (Pathing.tryMove(worker, dir)){
-                counterMap.put(worker.id(), counterMap.get(worker.id())+1);
+            if (Pathing.tryMove(worker, dir)) {
+                counterMap.put(worker.id(), counterMap.get(worker.id()) + 1);
                 return true;
-            }
-            else{
+            } else {
                 counterMap.put(worker.id(), 0);
                 return false;
             }
-        } 
-        else {
+        } else {
             // Reset the direction
             counterMap.put(worker.id(), 8);
-            
+
         }
 
         return false;
@@ -447,7 +440,7 @@ public class Worker {
         // Repair a Structure in range, only in Earth
         if (worker.location().mapLocation().getPlanet().equals(Planet.Earth)) {
             for (int i = 0; i < structures.size(); i++) {
-                if (gc.canBuild(worker.id(), structures.get(i).id()) && structures.get(i).structureIsBuilt()==0) {
+                if (gc.canBuild(worker.id(), structures.get(i).id()) && structures.get(i).structureIsBuilt() == 0) {
                     gc.build(worker.id(), structures.get(i).id());
                 }
             }
@@ -463,11 +456,11 @@ public class Worker {
     }
 
     private static MapLocation bestKarboniteLoc() {
-    	int x = workerLoc.getX();
-    	int y = workerLoc.getY();
-    	int bestHeuristicSoFar = Integer.MAX_VALUE;
-    	int bestISoFar = -1;
-    	int bestJSoFar = -1;
+        int x = workerLoc.getX();
+        int y = workerLoc.getY();
+        int bestHeuristicSoFar = Integer.MAX_VALUE;
+        int bestISoFar = -1;
+        int bestJSoFar = -1;
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 if (i >= 0 && i < Player.earthWidth && j >= 0 && j < Player.earthHeight && Player.karboniteMap[i][j] != 0) {
@@ -475,7 +468,7 @@ public class Worker {
                     if (trueKarb != Player.karboniteMap[i][j]) {
                         Player.karboniteMap[i][j] = trueKarb;
                     }
-                    int heuristic = (int) Math.pow((Math.pow((x-i), 2) + Math.pow((y-j), 2)), 2);
+                    int heuristic = (int) Math.pow((Math.pow((x - i), 2) + Math.pow((y - j), 2)), 2);
                     if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
                         bestISoFar = i;
@@ -490,12 +483,13 @@ public class Worker {
             return null;
         }
     }
+
     private static MapLocation bestKarboniteLocMars() {
-    	int x = workerLoc.getX();
-    	int y = workerLoc.getY();
-    	int bestHeuristicSoFar = Integer.MAX_VALUE;
-    	int bestISoFar = -1;
-    	int bestJSoFar = -1;
+        int x = workerLoc.getX();
+        int y = workerLoc.getY();
+        int bestHeuristicSoFar = Integer.MAX_VALUE;
+        int bestISoFar = -1;
+        int bestJSoFar = -1;
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 if (i >= 0 && i < Player.marsWidth && j >= 0 && j < Player.marsHeight && Player.karboniteMapMars[i][j] != 0) {
@@ -503,7 +497,7 @@ public class Worker {
                     if (trueKarb != Player.karboniteMapMars[i][j]) {
                         Player.karboniteMapMars[i][j] = trueKarb;
                     }
-                    int heuristic = (int) Math.pow((Math.pow((x-i), 2) + Math.pow((y-j), 2)), 2);
+                    int heuristic = (int) Math.pow((Math.pow((x - i), 2) + Math.pow((y - j), 2)), 2);
                     if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
                         bestISoFar = i;
@@ -518,22 +512,24 @@ public class Worker {
             return null;
         }
     }
-    private static void replicate(){
-    	int num = (int) (Math.random() * Direction.values().length);
-    	for (int i = num; i < Direction.values().length+num; i++) {
-    		int tmp = i % Direction.values().length;
-         	Direction dir = Direction.values()[tmp];
+
+    private static void replicate() {
+        int num = (int) (Math.random() * Direction.values().length);
+        for (int i = num; i < Direction.values().length + num; i++) {
+            int tmp = i % Direction.values().length;
+            Direction dir = Direction.values()[tmp];
             if (gc.canReplicate(worker.id(), dir)) {
                 gc.replicate(worker.id(), dir);
             }
         }
     }
-    private static void replicateMars(){
-    	int num = (int) (Math.random() * Direction.values().length);
-    	for (int i = num; i < Direction.values().length+num; i++) {
-    		int tmp = i % Direction.values().length;
-         	Direction dir = Direction.values()[tmp];
-         	if(Info.number(UnitType.Worker)<10)return;
+
+    private static void replicateMars() {
+        int num = (int) (Math.random() * Direction.values().length);
+        for (int i = num; i < Direction.values().length + num; i++) {
+            int tmp = i % Direction.values().length;
+            Direction dir = Direction.values()[tmp];
+            if (Info.number(UnitType.Worker) < 10) return;
             if (gc.canReplicate(worker.id(), dir)) {
                 gc.replicate(worker.id(), dir);
             }
@@ -541,17 +537,17 @@ public class Worker {
     }
 
     private static void create(UnitType type) {
-    	int num = (int) (Math.random() * Direction.values().length);
-        for (int i = num; i < Direction.values().length+num; i++) {
-        	int tmp = i % Direction.values().length;
-        	Direction dir = Direction.values()[tmp];
+        int num = (int) (Math.random() * Direction.values().length);
+        for (int i = num; i < Direction.values().length + num; i++) {
+            int tmp = i % Direction.values().length;
+            Direction dir = Direction.values()[tmp];
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
             }
         }
     }
-    private static void updateWorkerStats() {
 
+    private static void updateWorkerStats() {
         workerId = worker.id();
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         workerLoc = worker.location().mapLocation();
