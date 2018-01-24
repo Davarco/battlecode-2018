@@ -63,7 +63,7 @@ public class Worker {
         harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Factory)*20>5*Info.number(UnitType.Worker)){
+        if(Info.number(UnitType.Factory)*20>5*Info.number(UnitType.Worker) && gc.round()<=600){
             replicate();
         }
         
@@ -85,7 +85,9 @@ public class Worker {
     public static void runMars(Unit unit){
     	worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
-        replicateMars();
+        if(Info.number(UnitType.Worker)<10 || gc.round()>=750){
+        	replicateMars();
+        }
         workerLoc = worker.location().mapLocation();
         workerId = worker.id();
         marsKarbonitei = gc.karbonite();
@@ -171,16 +173,34 @@ public class Worker {
     	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
-    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
-    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-    		if(things.size()>0 && rthings.size()==0){
-	            create(UnitType.Rocket);
-    		}
-        }
-	    if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
-	        if(things.size()==0)
-	        	create(UnitType.Factory);
-	    }
+    	if(Player.mapsize.equals("largemap")){
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
+	    		if((things.size()>0|| gc.round()>600) && rthings.size()==0){
+		            create(UnitType.Rocket);
+	    		}
+	        }
+    	}
+    	else{
+    		if (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)-15)/5) {
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
+	    		if((things.size()>0|| gc.round()>600) && rthings.size()==0){
+		            create(UnitType.Rocket);
+	    		}
+	        }
+    	}
+    	if(Player.mapsize.equals("largemap")){
+	    	if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
+		        if(things.size()==0)
+		        	create(UnitType.Factory);
+		    }
+    	}
+    	else{
+    		if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=3) {
+		        if(things.size()==0)
+		        	create(UnitType.Factory);
+		    }
+    	}
 	    return;
     }
 
@@ -285,7 +305,7 @@ public class Worker {
         int idx = -1;
         for (int i = 0; i < units.size(); i++) {
             long dist = worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
-            if (dist < minDist && units.get(i).structureIsBuilt()==0) {
+            if (dist < minDist && (units.get(i).structureIsBuilt()==0||gc.round()>=600)) {
                 minDist = dist;
                 idx = i;
             }
@@ -293,9 +313,11 @@ public class Worker {
         if(minDist == 2){
         	return true;
         }
-        if(minDist > 16){
-        	return false;
-        }
+        //if(!Player.mapsize.equals("smallmap")){
+	        if(minDist > 16 || gc.round()>=600  ){
+	        	return false;
+	        }
+        //}
         if (idx != -1) {
         	//MAYBE add bug pathing
             //Pathing.move(worker, units.get(idx).location().mapLocation());
@@ -531,10 +553,9 @@ public class Worker {
     private static void replicateMars(){
     	int num = (int) (Math.random() * Direction.values().length);
     	for (int i = num; i < Direction.values().length+num; i++) {
-    		int tmp = i % Direction.values().length;
-         	Direction dir = Direction.values()[tmp];
-         	if(Info.number(UnitType.Worker)<10)return;
-            if (gc.canReplicate(worker.id(), dir)) {
+    		int tmp = i % Direction.values().length; 
+        	Direction dir = Direction.values()[tmp];
+            if (gc.canReplicate(worker.id(), dir) && gc.karbonite()>120) {
                 gc.replicate(worker.id(), dir);
             }
         }

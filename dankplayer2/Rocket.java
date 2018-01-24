@@ -59,10 +59,16 @@ public class Rocket {
 	            		gc.load(rocket.id(), friendlies.get(i).id());
 	            	}
 	            	else{
-	            		if(friendlies.get(i).unitType()==UnitType.Ranger){
-	            			gc.load(rocket.id(), friendlies.get(i).id());
+	            		if(gc.round()<=600){
+		            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+		            			gc.load(rocket.id(), friendlies.get(i).id());
+		            		}
+	            		}
+	            		else{
+		            		gc.load(rocket.id(), friendlies.get(i).id());
 	            		}
 	            	}
+	            		
 	                System.out.println("Loading unit!");
 	            }
 	        }
@@ -81,10 +87,14 @@ public class Rocket {
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
         PlanetMap map = gc.startingMap(Planet.Mars);
-        if (gc.round()>=Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size()>=4){
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4||gc.round()==749)){
+        	while(Mars.locations.get(index1).size()<=4){
+        		index1++;
+        	}
         	gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
             index1 = (index1+1)%(Mars.locations.size());
             index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
+            Player.launchCounter++;
         }
     }
 

@@ -57,7 +57,7 @@ public class Factory {
 	        		 }   
 	        	}
 	        	else{
-	        		if(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-10)/5){
+	        		if(gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-10)/5 ||gc.round()>=650)){
 	        			gc.produceRobot(factory.id(), UnitType.Ranger);
 	        	    	Info.addUnit(UnitType.Ranger);
 	        		}
@@ -66,10 +66,29 @@ public class Factory {
         }
 	        
         else{
-        	if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-	        	gc.produceRobot(factory.id(), UnitType.Ranger);
-		          Info.addUnit(UnitType.Ranger);     
-	        }
+        	if(gc.round()<=100){
+	        	if(Info.number(UnitType.Worker)>2){
+		        	if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+			        	gc.produceRobot(factory.id(), UnitType.Ranger);
+				          Info.addUnit(UnitType.Ranger);     
+			        }
+	        	}
+	        	else{
+	        		if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
+			        	gc.produceRobot(factory.id(), UnitType.Worker);
+				          Info.addUnit(UnitType.Worker);     
+			        }
+	        	}
+	        	
+        	}
+        	else{
+        		if(Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-15)/5){
+        			if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+        				gc.produceRobot(factory.id(), UnitType.Ranger);
+        				Info.addUnit(UnitType.Ranger);
+        			}
+        		}
+        	}
         }
     }
 

@@ -64,19 +64,6 @@ public class Ranger {
         int idx = -1;
         boolean checkiffactory = false;
         for (int i = 0; i < enemies.size(); i++) {
-            if(enemies.get(i).unitType().equals(UnitType.Factory)) {
-            		if(!checkiffactory) {
-                    minHp = enemies.get(i).health();
-                    checkiffactory = true;
-                    idx = i;
-            		}
-            		else {
-            			if (enemies.get(i).health() < minHp) {
-                            minHp = enemies.get(i).health();
-                            idx = i;
-                        }
-            		}
-            }
             if (!checkiffactory && enemies.get(i).health() < minHp) {
                 minHp = enemies.get(i).health();
                 idx = i;
@@ -109,7 +96,7 @@ public class Ranger {
         // Avoid enemy units, walk outside of their view range
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
-        if(enemies.size()>=friendly.size() && gc.round()<=300){
+        if(enemies.size()>=friendly.size()){
         	if (Pathing.escape(ranger)) {
         		return;
         	}
@@ -123,36 +110,38 @@ public class Ranger {
         */
 
         // Remove focal point if no units exist there
-        if (Player.focalPoint != null) {
-            if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
-                    !gc.hasUnitAtLocation(Player.focalPoint)) {
-                // System.out.println("Works");
-                Player.focalPoint = null;
-            }
-        }
-
-        // Get closest enemy
-        
-        long minDist = Long.MAX_VALUE;
-        int idx = -1;
-        for (int i = 0; i < enemies.size(); i++) {
-            long dist = ranger.location().mapLocation().distanceSquaredTo(enemies.get(i).location().mapLocation());
-            if (dist < minDist) {
-                minDist = dist;
-                idx = i;
-            }
-        }
-
-        // Set new focal point
-        if (Player.focalPoint == null) {
-            if (idx != -1) {
-                Player.focalPoint = enemies.get(idx).location().mapLocation();
-            }
-        }
-
-        // Move towards focal point
-        if (Player.focalPoint != null) {
-        		Pathing.move(ranger, Player.focalPoint);	
+        if(gc.round()<=600 && gc.planet()== Planet.Earth){
+	        if (Player.focalPoint != null) {
+	            if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
+	                    !gc.hasUnitAtLocation(Player.focalPoint)) {
+	                // System.out.println("Works");
+	                Player.focalPoint = null;
+	            }
+	        }
+	
+	        // Get closest enemy
+	        
+	        long minDist = Long.MAX_VALUE;
+	        int idx = -1;
+	        for (int i = 0; i < enemies.size(); i++) {
+	            long dist = ranger.location().mapLocation().distanceSquaredTo(enemies.get(i).location().mapLocation());
+	            if (dist < minDist) {
+	                minDist = dist;
+	                idx = i;
+	            }
+	        }
+	
+	        // Set new focal point
+	        if (Player.focalPoint == null) {
+	            if (idx != -1) {
+	                Player.focalPoint = enemies.get(idx).location().mapLocation();
+	            }
+	        }
+	
+	        // Move towards focal point
+	        if (Player.focalPoint != null) {
+	        		Pathing.move(ranger, Player.focalPoint);	
+	        }
         }
 
         
@@ -298,7 +287,7 @@ public class Ranger {
                 idx = i;
             }
         }
-        if(minDist>10)return false;
+        if(minDist>10 || gc.round()>=600)return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
