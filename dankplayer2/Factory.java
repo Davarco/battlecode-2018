@@ -4,40 +4,42 @@ import java.util.HashMap;
 
 public class Factory {
 
-    private static Unit factory;
-    private static GameController gc;
+	private static Unit factory;
+	private static GameController gc;
 
-    public static void init(GameController controller) {
-        gc = controller;
-        
-    }
+	public static void init(GameController controller) {
+		gc = controller;
 
-    public static void run(Unit unit) {
+	}
 
-        // Receive factory from main runner
-        factory = unit;
+	public static void run(Unit unit) {
 
-        // Build best unit possible
-        build();
+		// Receive factory from main runner
+		factory = unit;
 
-        // Unload any units in queue
-        unload();
-    }
+		// Build best unit possible
+		build();
 
-    /*
-    private static void manageWorkerAssignments() {
-        if (factory.health() < 150 && !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still a blueprint
-            Player.workerDestinations.put(factory.id(), Util.openSpacesAround(factory.location().mapLocation(), (int) Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
+		// Unload any units in queue
+		unload();
+	}
 
-        if (factory.health() == factory.maxHealth()) {
-            Player.workerDestinations.remove(factory.id());
-            System.out.println("REMOVED DESTINATION FROM FACTORY< FREE TO GO!!!!!!!!!!");
-        }
+	/*
+	 * private static void manageWorkerAssignments() { if (factory.health() < 150 &&
+	 * !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still
+	 * a blueprint Player.workerDestinations.put(factory.id(),
+	 * Util.openSpacesAround(factory.location().mapLocation(), (int)
+	 * Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
+	 * 
+	 * if (factory.health() == factory.maxHealth()) {
+	 * Player.workerDestinations.remove(factory.id());
+	 * System.out.println("REMOVED DESTINATION FROM FACTORY< FREE TO GO!!!!!!!!!!");
+	 * }
+	 * 
+	 * }
+	 */
 
-    }
-    */
-
-    private static void build() {
+	private static void build() {
 
         // Workers are vital, build them if we have nothing left
     	if (Info.number(UnitType.Worker) < Info.number(UnitType.Factory)) {
@@ -70,7 +72,7 @@ public class Factory {
         }
         else {
         	System.out.println(Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer));
-        		if(gc.canProduceRobot(factory.id(), UnitType.Ranger) && (Info.number(UnitType.Healer)*5>Info.number(UnitType.Ranger) || Info.number(UnitType.Ranger)<15)) {
+        		if(gc.canProduceRobot(factory.id(), UnitType.Ranger) && (Info.number(UnitType.Healer)*10>Info.number(UnitType.Ranger) || Info.number(UnitType.Ranger)<15)) {
         			gc.produceRobot(factory.id(), UnitType.Ranger);
        	         Info.addUnit(UnitType.Ranger);
         		}
@@ -81,38 +83,14 @@ public class Factory {
         		}
         }
     }
-	        
-        else{
-        	if(Info.number(UnitType.Worker)>2){
-        		if(gc.round()<=600 && (Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-10)/7||gc.round()<=50)){
-		        	if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-			        	gc.produceRobot(factory.id(), UnitType.Ranger);
-				          Info.addUnit(UnitType.Ranger);     
-			        }
-        		}
-        		else if (gc.round()>=600 && Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger))/5){
-        			if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
-			        	gc.produceRobot(factory.id(), UnitType.Ranger);
-				          Info.addUnit(UnitType.Ranger);     
-			        }
-        		}
-        	}
-        	else{
-        		if (gc.canProduceRobot(factory.id(), UnitType.Worker)) {
-        			gc.produceRobot(factory.id(), UnitType.Worker);
-        			Info.addUnit(UnitType.Worker);
-       			}
-        	}
-        }
-    }
 
-    private static void unload() {
+	private static void unload() {
 
-        // Check all possible directions
-        for (Direction dir: Direction.values()) {
-            if (gc.canUnload(factory.id(), dir)) {
-                gc.unload(factory.id(), dir);
-            }
-        }
-    }
+		// Check all possible directions
+		for (Direction dir : Direction.values()) {
+			if (gc.canUnload(factory.id(), dir)) {
+				gc.unload(factory.id(), dir);
+			}
+		}
+	}
 }
