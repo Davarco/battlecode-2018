@@ -324,7 +324,7 @@ public class Ranger {
         for (int i = 0; i < units.size(); i++) {
             long dist =  ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
             if(dist<=16) return false;
-            if (dist < minDist && units.get(i).health() == units.get(i).maxHealth()) {
+            if (dist < minDist) {
                 minDist = dist;
                 idx = i;
             }

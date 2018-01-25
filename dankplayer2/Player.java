@@ -74,6 +74,7 @@ public class Player {
 
         // Initialize the different types of troops
         setUnits();
+        Pathing.reset();
         Worker.init(gc);
         Knight.init(gc);
         Ranger.init(gc);
@@ -185,14 +186,14 @@ public class Player {
             long t2 = System.currentTimeMillis();
             
             Player.time = 0;
-            System.out.println("Ranger #"+Info.number(UnitType.Ranger));
+            /*System.out.println("Ranger #"+Info.number(UnitType.Ranger));
             System.out.println("Ranger Time: "+rangertime);
             System.out.println("Worker #"+Info.number(UnitType.Worker));
             System.out.println("Worker Time: "+workertime);
             System.out.println("Factory #"+Info.number(UnitType.Factory));
             System.out.println("Factory Time: "+factorytime);
             System.out.println("Total time "+ (t2-t1));
-            ;
+            ;*/
             
             rangertime = 0;
             workertime = 0;
@@ -221,8 +222,9 @@ public class Player {
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
-        gc.queueResearch(UnitType.Worker);  // 25
-        gc.queueResearch(UnitType.Worker);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
     }
     private static void initResearchSmall() {
     	gc.queueResearch(UnitType.Rocket);
