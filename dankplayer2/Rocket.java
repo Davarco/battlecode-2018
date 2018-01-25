@@ -3,21 +3,21 @@ import bc.*;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 
 public class Rocket {
 
     private static Unit rocket;
     private static GameController gc;
     private static VecUnit friendlies;
+    private static int starti=1, startj=1;
     private static int index1 = 0;
-    private static List<Integer> index2;
+    private static ArrayList<Integer> index2;
 
     public static void init(GameController controller) {
         gc = controller;
-        index2 = new ArrayList<>();
-        for (int x = 0; x < Mars.locations.size(); x++) {
-            index2.add(0);
+        	index2 = new ArrayList<Integer>();
+        for(int x = 0; x<Mars.locations.size(); x++) {
+        		index2.add(0);
         }
     }
 
@@ -32,6 +32,8 @@ public class Rocket {
 
         // Send them to Mars when full
         send();
+
+
     }
 
     public static void runMars(Unit unit) {
@@ -41,29 +43,36 @@ public class Rocket {
     }
 
     private static void load() {
-
-        if (gc.round() >= Config.ROCKET_CREATION_ROUND) {
-            // Only load when on earth
-            if (rocket.location().mapLocation().getPlanet().equals(Planet.Mars))
-                return;
-
-            // Find units around to load
-            friendlies = gc.senseNearbyUnitsByTeam(rocket.location().mapLocation(), rocket.visionRange(), Util.friendlyTeam());
-
-            // Load them all into the rocket
-            for (int i = 0; i < friendlies.size(); i++) {
-                if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
-                    if (Player.launchCounter < 1) {
-                        gc.load(rocket.id(), friendlies.get(i).id());
-                    } else {
-                        if (friendlies.get(i).unitType() == UnitType.Ranger) {
-                            gc.load(rocket.id(), friendlies.get(i).id());
-                        }
-                    }
-                    System.out.println("Loading unit!");
-                }
-            }
-        }
+    	
+    	if (gc.round()>=Config.ROCKET_CREATION_ROUND){
+        // Only load when on earth
+	        if (rocket.location().mapLocation().getPlanet().equals(Planet.Mars))
+	            return;
+	
+	        // Find units around to load
+	        friendlies = gc.senseNearbyUnitsByTeam(rocket.location().mapLocation(), rocket.visionRange(), Util.friendlyTeam());
+	
+	        // Load them all into the rocke
+	        for (int i = 0; i < friendlies.size(); i++) {
+	            if (gc.canLoad(rocket.id(), friendlies.get(i).id())) {
+	            	if(Player.launchCounter<1){
+	            		gc.load(rocket.id(), friendlies.get(i).id());
+	            	}
+	            	else{
+	            		if(gc.round()<=600){
+		            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+		            			gc.load(rocket.id(), friendlies.get(i).id());
+		            		}
+	            		}
+	            		else{
+		            		gc.load(rocket.id(), friendlies.get(i).id());
+	            		}
+	            	}
+	            		
+	                System.out.println("Loading unit!");
+	            }
+	        }
+    	}
     }
 
     private static void send() {
@@ -77,10 +86,21 @@ public class Rocket {
         // Send rocket over to opposite planet when we're loaded
         // TODO For now, just sending to a random open location.
         // TODO In the future, this should actually pick a point where we can deal the most damage to enemy troops.
-        if (gc.round() >= Config.ROCKET_CREATION_ROUND && rocket.structureGarrison().size() >= 4) {
-            gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
-            index1 = (index1 + 1) % (Mars.locations.size());
-            index2.set(index1, (index2.get(index1) + (Mars.locations.get(index1).size() == 7 ? index2.get(index1) + 11 : index2.get(index1) + 7)) % (Mars.locations.get(index1).size()));
+        PlanetMap map = gc.startingMap(Planet.Mars);
+        if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4||gc.round()==749)){
+        	int orgindex = index1;
+        	while(Mars.locations.get(index1).size()<=4){
+        		index1 = (index1+1)%(Mars.locations.size());
+        		if(index1 == orgindex){
+        			break;
+        		}
+        	}
+        	if(gc.canLaunchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)))){
+        		gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
+        	}
+            index1 = (index1+1)%(Mars.locations.size());
+            index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
+            Player.launchCounter++;
         }
     }
 
@@ -91,7 +111,7 @@ public class Rocket {
             return;
 
         // Check all possible directions
-        for (Direction dir : Direction.values()) {
+        for (Direction dir: Direction.values()) {
             if (gc.canUnload(rocket.id(), dir)) {
                 gc.unload(rocket.id(), dir);
             }
