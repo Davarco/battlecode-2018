@@ -49,29 +49,38 @@ public class Factory {
 
         // See if the factory can build the ranger
         if(Player.mapsize.equals("largemap")){
-	        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+        	if(gc.round() > Config.ROCKET_CREATION_ROUND && Info.number(UnitType.Rocket)<=(Info.number(UnitType.Healer)+Info.number(UnitType.Ranger))/8) {
+        		return;
+        	}
+	       if ( gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
+	    	   //Info.number(UnitType.Ranger)<5*Info.number(UnitType.Healer) &&
 	        	if(gc.round()<=100){
-	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker) ){
+	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker)){
 	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
 	        	         Info.addUnit(UnitType.Ranger);
 	        		 }   
 	        	}
 	        	else{
-	        		if(gc.round()<=650){
-		        		if(gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)-10)/5)){
-		        			gc.produceRobot(factory.id(), UnitType.Ranger);
-		        	    	Info.addUnit(UnitType.Ranger);
-		        		}
-	        		}
-	        		else{
-	        			if(Info.number(UnitType.Rocket)>=Info.number(UnitType.Ranger)/5){
-		        			gc.produceRobot(factory.id(), UnitType.Ranger);
-		        	    	Info.addUnit(UnitType.Ranger);
-		        		}
-	        		}
+	        		if(Info.number(UnitType.Ranger)<4*Info.number(UnitType.Worker)){
+	        			 gc.produceRobot(factory.id(), UnitType.Ranger);
+	        	         Info.addUnit(UnitType.Ranger);
+	        		 } 
 	        	}
 	        }
         }
+        else {
+        	System.out.println(Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer));
+        		if(gc.canProduceRobot(factory.id(), UnitType.Ranger) && (Info.number(UnitType.Healer)*5>Info.number(UnitType.Ranger) || Info.number(UnitType.Ranger)<15)) {
+        			gc.produceRobot(factory.id(), UnitType.Ranger);
+       	         Info.addUnit(UnitType.Ranger);
+        		}
+        		//Info.number(UnitType.Ranger)<5*Info.number(UnitType.Healer)+10 && 
+        		else if(gc.canProduceRobot(factory.id(), UnitType.Healer)) {
+        			gc.produceRobot(factory.id(), UnitType.Healer);
+       	        Info.addUnit(UnitType.Healer);
+        		}
+        }
+    }
 	        
         else{
         	if(Info.number(UnitType.Worker)>2){
