@@ -11,7 +11,7 @@ public class Knight {
         gc = controller;
     }
 
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
 
         // Receive knight from main runner
         knight = unit;
@@ -25,8 +25,8 @@ public class Knight {
         }
     }
 
-    public static void runMars(Unit unit) {
+    public static void runMars(Unit unit) throws Exception {
         knight = unit;
-        System.out.println("Knight #" + knight.id() + " is on Mars!");
+        Logging.debug("Knight #" + knight.id() + " is on Mars!");
     }
 }

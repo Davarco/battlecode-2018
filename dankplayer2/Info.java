@@ -16,7 +16,7 @@ public class Info {
     public static int factoryCount;
     public static long totalUnits;
 
-    public static void reset() {
+    public static void reset() throws Exception {
         rocketCount=0;
         workerCount = 0;
         rangerCount = 0;
@@ -26,14 +26,14 @@ public class Info {
         unitByTypes.put(UnitType.Factory, new ArrayList<>());
     }
 
-    public static void addUnit(Unit unit) {
+    public static void addUnit(Unit unit) throws Exception {
         // System.out.println("fuck " + unitCounts.get(unit.unitType()) + " " + unitByTypes.get(unit.unitType()).size());
         if (!unit.location().isInGarrison() && !unit.location().isInSpace())
             unitByTypes.get(unit.unitType()).add(unit);
         // System.out.println("fuck code " + unitCounts.get(unit.unitType()) + " " + unitByTypes.get(unit.unitType()).size());
     }
 
-    public static void addUnit(UnitType unit) {
+    public static void addUnit(UnitType unit) throws Exception {
     	switch (unit){
     	case Ranger:
     		rangerCount++;

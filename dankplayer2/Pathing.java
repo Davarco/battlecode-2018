@@ -21,28 +21,28 @@ public class Pathing {
         double f, g, h;
     }
 
-    private static boolean isValid(MapLocation loc) {
+    private static boolean isValid(MapLocation loc) throws Exception{
         int x = loc.getX();
         int y = loc.getY();
         return (x >= 0) && (y >= 0) && (x < W) && (y < H);
     }
 
-    private static boolean isUnblocked(Unit unit, MapLocation loc) {
+    private static boolean isUnblocked(Unit unit, MapLocation loc) throws Exception{
         MapLocation start = unit.location().mapLocation();
         if (loc.equals(start) || loc.equals(dest))
             return true;
         return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1);
     }
 
-    private static boolean isDestination(MapLocation loc) {
+    private static boolean isDestination(MapLocation loc) throws Exception{
         return loc.equals(dest);
     }
 
-    private static double heuristic(MapLocation loc) {
+    private static double heuristic(MapLocation loc) throws Exception{
         return Math.sqrt(loc.distanceSquaredTo(dest));
     }
 
-    private static Direction traverse(Cell details[][]) {
+    private static Direction traverse(Cell details[][]) throws Exception{
         int x = dest.getX();
         int y = dest.getY();
         Stack<Pair> path = new Stack<>();
@@ -60,11 +60,11 @@ public class Pathing {
         return new MapLocation(planet, (Integer)p1.left, (Integer)p1.right).directionTo(new MapLocation(planet, (Integer)p2.left, (Integer)p2.right));
     }
 
-    private static void reverse(Cell details[][]) {
+    private static void reverse(Cell details[][]) throws Exception{
         // IS BROKEN, DON'T USE
         int x = start.getX();
         int y = start.getY();
-        System.out.println("-> ["  + x + ", " + y + "] ");
+        Logging.debug("-> ["  + x + ", " + y + "] ");
         while (x != dest.getX() && y != dest.getY()) {
             int tx = x;
             int ty = y;
@@ -73,7 +73,7 @@ public class Pathing {
         }
     }
 
-    public static Direction astar(Unit unit, MapLocation end) {
+    public static Direction astar(Unit unit, MapLocation end) throws Exception{
 
         // Set start and dest
         // SWITCH THEM SO WE DON'T HAVE TO TRAVERSE <- NEVER MIND
@@ -108,13 +108,10 @@ public class Pathing {
         cellDetails[startx][starty].pY = starty;
 
         // Initialize open list
-        PriorityQueue<Pair<Double, Pair<Integer, Integer>>> openList = new PriorityQueue<>(new Comparator<Pair<Double, Pair<Integer, Integer>>>() {
-            @Override
-            public int compare(Pair<Double, Pair<Integer, Integer>> a, Pair<Double, Pair<Integer, Integer>> b) {
-                if (a.left < b.left) return -1;
-                if (a.left > b.left) return 1;
-                return 0;
-            }
+        PriorityQueue<Pair<Double, Pair<Integer, Integer>>> openList = new PriorityQueue<>((a, b) -> {
+            if (a.left < b.left) return -1;
+            if (a.left > b.left) return 1;
+            return 0;
         });
         openList.add(new Pair<>(0.0, new Pair<>(startx, starty)));
 
@@ -180,24 +177,24 @@ public class Pathing {
         return null;
     }
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception {
 
         // Get game controller
         gc = controller;
 
         // Get map constraints
-        System.out.println("Initializing pathing directions!");
+        Logging.info("Initializing pathing directions!");
         planet = gc.planet();
         map = gc.startingMap(planet);
         W = (int) map.getWidth();
         H = (int) map.getHeight();
     }
 
-    public static void reset() {
+    public static void reset() throws Exception {
         stored = new HashMap<>();
     }
 
-    public static Direction opposite(Direction direction) {
+    public static Direction opposite(Direction direction) throws Exception {
         switch (direction) {
             case North:
                 return Direction.South;
@@ -220,7 +217,7 @@ public class Pathing {
         return null;
     }
 
-    public static boolean move(Unit unit, MapLocation end) {
+    public static boolean move(Unit unit, MapLocation end) throws Exception {
 
         // Check if we already have it
         long t1 = System.currentTimeMillis();
@@ -236,7 +233,7 @@ public class Pathing {
                     stored.putIfAbsent(location, new ArrayList<>());
                     stored.get(location).add(start);
                     long t2 = System.currentTimeMillis();
-                    System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
+                    Logging.debug((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
                     return tryMove(unit, dir);
                 }
             }
@@ -247,13 +244,13 @@ public class Pathing {
         stored.putIfAbsent(end, new ArrayList<>());
         stored.get(end).add(start);
         long t2 = System.currentTimeMillis();
-        System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
+        Logging.debug((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
 
         // Move unit
         return move(unit, dir);
     }
 
-    public static boolean move(Unit unit, Direction direction) {
+    public static boolean move(Unit unit, Direction direction) throws Exception {
         if (direction == null) return false;
         if (gc.isMoveReady(unit.id()) && gc.canMove(unit.id(), direction)) {
             gc.moveRobot(unit.id(), direction);
@@ -263,7 +260,7 @@ public class Pathing {
         return false;
     }
 
-    public static boolean tryMove(Unit unit, Direction direction) {
+    public static boolean tryMove(Unit unit, Direction direction) throws Exception {
 
         // Get idx of direction
         int idx = -1;
@@ -313,7 +310,7 @@ public class Pathing {
     Code that moves the robot away from the closest enemy.
     Best used for Worker, Healers, Low HP units.
      */
-    public static boolean escape(Unit unit) {
+    public static boolean escape(Unit unit) throws Exception {
 
         // Return false if no units are found
         VecUnit enemies = gc.senseNearbyUnitsByTeam(unit.location().mapLocation(), unit.visionRange(), Util.enemyTeam());
@@ -374,7 +371,7 @@ public class Pathing {
             return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
         }
     }
-    public static MapLocation DirectionToMapLocation(Unit unit, Direction direction) {
+    public static MapLocation DirectionToMapLocation(Unit unit, Direction direction) throws Exception {
         switch (direction) {
             case North:
                 return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY()+1);

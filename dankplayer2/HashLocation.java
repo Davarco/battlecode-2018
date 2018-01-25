@@ -5,9 +5,7 @@ public class HashLocation {
 	public HashLocation(MapLocation h){
 		maploc = h;
 	}
-	private MapLocation getMapLocation(){
-		return maploc;
-	}
+	private MapLocation getMapLocation() {return maploc; }
 	
 	@Override
 	public boolean equals(Object o){

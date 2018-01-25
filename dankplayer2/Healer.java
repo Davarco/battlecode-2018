@@ -15,7 +15,7 @@ public class Healer {
         gc = controller;
     }
 
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
 
         // Receive healer from main runner
         healer = unit;
@@ -39,13 +39,13 @@ public class Healer {
     }
 
 
-    public static void runMars(Unit unit) {
+    public static void runMars(Unit unit) throws Exception {
         healer = unit;
 
-        System.out.println("Healer #" + healer.id() + " is on Mars!");
+        Logging.debug("Healer #" + healer.id() + " is on Mars!");
     }
 
-    private static boolean heal() {
+    private static boolean heal() throws Exception {
 
         // Return true if we cannot heal
         if (!gc.isHealReady(healer.id()))
@@ -72,7 +72,7 @@ public class Healer {
         return true;
     }
 
-    private static void move() {
+    private static void move() throws Exception {
 
         // Return if we cannot move
         if (!gc.isMoveReady(healer.id()))
@@ -99,7 +99,7 @@ public class Healer {
             }
         }
         if (idx != -1) {
-            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false) {
+            if(!Pathing.move(healer, friendlies.get(idx).location().mapLocation())) {
                 Pathing.move(healer, FocusPoints.GeographicFocusPointsE.get(0));
             }
         }

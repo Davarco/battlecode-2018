@@ -11,7 +11,7 @@ public class Mars {
     private static int W, H;
     private static int index;
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception{
         gc = controller;
         map = gc.startingMap(Planet.Mars);
         W = (int)map.getWidth();
@@ -26,7 +26,7 @@ public class Mars {
         floodfill(); 
     }
 
-    private static ArrayList<MapLocation> bfs(int x, int y) {
+    private static ArrayList<MapLocation> bfs(int x, int y) throws Exception{
     	 	LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
     	 	ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
          visited[x][y] = true;
@@ -49,7 +49,7 @@ public class Mars {
          return ans;
     }
 
-    private static void floodfill() {
+    private static void floodfill() throws Exception{
         // Setup the visited grid
 
         // Go through points, bfs

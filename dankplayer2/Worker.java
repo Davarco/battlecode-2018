@@ -20,13 +20,13 @@ public class Worker {
     private static long marsKarbonite=0;
     private static long marsKarbonitei=0;
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception {
         gc = controller;
         directionMap = new HashMap<>();
         counterMap = new HashMap<>();
     }
 
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
     	//ArrayList<MapLocation> tmp = Pathing.path(worker, new MapLocation(Planet.Earth,6,12));
     	//System.out.println();
     	//System.out.println();
@@ -91,7 +91,7 @@ public class Worker {
         
         // Harvest karbonite if we can
     }
-    public static void runMars(Unit unit){
+    public static void runMars(Unit unit) throws Exception {
     	worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         if(Info.number(UnitType.Worker)<10 || gc.round()>=750){
@@ -106,7 +106,7 @@ public class Worker {
         
     }
 
-    private static void move() {
+    private static void move() throws Exception {
     	
         /*
         TODO Implement the entire worker move function as a heuristic based on priority 
@@ -169,7 +169,7 @@ public class Worker {
 	   	   return;
        }
     }
-    private static void harvestEarly(){
+    private static void harvestEarly() throws Exception {
         for (int i = 0; i < Direction.values().length; i++) {
         	Direction dir = Direction.values()[i];
         	if(gc.canHarvest(workerId,dir)){
@@ -178,14 +178,14 @@ public class Worker {
         	}	
         }
     }
-    private static void moveRandom(){
+    private static void moveRandom() throws Exception {
     	int a  = (int)(Math.random()*Direction.values().length);
     	if(gc.canMove(worker.id(),Direction.values()[a])){
     		gc.moveRobot(worker.id(),Direction.values()[a]);
     	}
     }
 
-    private static void build() {
+    private static void build() throws Exception {
     	
         // Create factories
     	VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 64, UnitType.Factory);
@@ -221,18 +221,18 @@ public class Worker {
 	    return;
     }
 
-    private static boolean escape() {
+    private static boolean escape() throws Exception {
 
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
-            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
+            Logging.debug("Worker " + worker.location().mapLocation() + " is being attacked!");
             return true;
         }
 
         return false;
     }
 
-    private static boolean moveTowardsRocket() {
+    private static boolean moveTowardsRocket() throws Exception {
     	if(workerLoc.getPlanet()==Planet.Mars)return false;
         // Move towards a low-HP rocket if possible
         rockets = gc.senseNearbyUnitsByType(workerLoc, worker.visionRange(), UnitType.Rocket);
@@ -314,7 +314,7 @@ public class Worker {
         return false;
     }
 
-    private static boolean moveTowardsFactory() {
+    private static boolean moveTowardsFactory() throws Exception {
 
         // Move towards the closest factory
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
@@ -403,15 +403,15 @@ public class Worker {
         return false;
     }
 
-    private static boolean moveTowardsKarbonite() {
+    private static boolean moveTowardsKarbonite() throws Exception {
     	MapLocation bestKarb;
     	if(gc.planet()==Planet.Earth)bestKarb = bestKarboniteLoc();
     	else{
     		bestKarb = bestKarboniteLocMars();
     	}
         if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
-        	System.out.println(bestKarb);
-        	if(Pathing.move(worker, bestKarb)==false){
+        	Logging.debug(bestKarb.toString());
+        	if(!Pathing.move(worker, bestKarb)){
         		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
         	}
             return true;
@@ -419,7 +419,7 @@ public class Worker {
         
         return false;
     }
-    private static boolean ditchFactory() {
+    private static boolean ditchFactory() throws Exception {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
         long maxDist = -Long.MAX_VALUE;
@@ -438,7 +438,7 @@ public class Worker {
         return true;
     }
 
-    private static boolean bounce() {
+    private static boolean bounce() throws Exception {
 
         // Reset if counter is 8
         counterMap.putIfAbsent(worker.id(), 0);
@@ -484,7 +484,7 @@ public class Worker {
 
         return false;
     }
-    private static boolean returnToFactory(){
+    private static boolean returnToFactory() throws Exception {
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
         long minDist = Long.MAX_VALUE;
@@ -503,7 +503,7 @@ public class Worker {
         return true;
     }
 
-    private static void repairStructure(UnitType StructureToRepair) {
+    private static void repairStructure(UnitType StructureToRepair) throws Exception {
         VecUnit structures = gc.senseNearbyUnitsByType(worker.location().mapLocation(), worker.visionRange(), StructureToRepair);
 
         // Repair a Structure in range, only in Earth
@@ -516,7 +516,7 @@ public class Worker {
         }
     }
 
-    private static void harvestKarbonite() {
+    private static void harvestKarbonite() throws Exception {
         for (Direction d : Direction.values()) {
             if (gc.startingMap(worker.location().mapLocation().getPlanet()).onMap(worker.location().mapLocation().add(d)) && gc.canHarvest(worker.id(), d)) {
                 gc.harvest(worker.id(), d);
@@ -531,7 +531,7 @@ public class Worker {
         }
     }
 
-    private static MapLocation bestKarboniteLoc() {
+    private static MapLocation bestKarboniteLoc() throws Exception {
     	int x = workerLoc.getX();
     	int y = workerLoc.getY();
     	int bestHeuristicSoFar = Integer.MAX_VALUE;
@@ -555,7 +555,7 @@ public class Worker {
             return null;
         }
     }
-    private static MapLocation bestKarboniteLocMars() {
+    private static MapLocation bestKarboniteLocMars() throws Exception {
     	int x = workerLoc.getX();
     	int y = workerLoc.getY();
     	int bestHeuristicSoFar = Integer.MAX_VALUE;
@@ -579,7 +579,7 @@ public class Worker {
             return null;
         }
     }
-    private static void replicate(){
+    private static void replicate() throws Exception {
     	int num = (int) (Math.random() * Direction.values().length);
     	for (int i = num; i < Direction.values().length+num; i++) {
     		int tmp = i % Direction.values().length;
@@ -589,7 +589,7 @@ public class Worker {
             }
         }
     }
-    private static void replicateMars(){
+    private static void replicateMars() throws Exception {
     	int num = (int) (Math.random() * Direction.values().length);
     	int numreplicated = 0;
     	for (int i = num; i < Direction.values().length+num; i++) {
@@ -603,7 +603,7 @@ public class Worker {
         }
     }
 
-    private static void create(UnitType type) {
+    private static void create(UnitType type) throws Exception {
     	int num = (int) (Math.random() * Direction.values().length);
         for (int i = num; i < Direction.values().length+num; i++) {
         	int tmp = i % Direction.values().length;
@@ -613,7 +613,7 @@ public class Worker {
             }
         }
     }
-    private static void updateWorkerStats() {
+    private static void updateWorkerStats() throws Exception {
 
         workerId = worker.id();
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;

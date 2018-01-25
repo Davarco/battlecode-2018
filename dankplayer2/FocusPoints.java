@@ -26,7 +26,7 @@ public class FocusPoints {
         }
     }
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception {
 
         // Get game controller
         gc = controller;
@@ -34,7 +34,7 @@ public class FocusPoints {
         // map = gc.startingMap(Planet.Earth);
     }
 
-    public void EnemyFocusPoints() {
+    public void EnemyFocusPoints() throws Exception {
         W = (int) map.getWidth();
         H = (int) map.getHeight();
         for (int x = 0; x < W; x++) {
@@ -44,14 +44,14 @@ public class FocusPoints {
         }
     }
 
-    public static String tab(int x) {
+    public static String tab(int x) throws Exception {
         if (x < 10 && x >= 0) {
             return "  ";
         }
         return " ";
     }
 
-    public static void GeographicFocusPoints() {
+    public static void GeographicFocusPoints() throws Exception {
         map = gc.startingMap(Planet.Earth);
         W = (int) map.getWidth();
         H = (int) map.getHeight();
@@ -65,7 +65,7 @@ public class FocusPoints {
         H = (int) map.getHeight();
     }
 
-    public static ArrayList<MapLocation> Assign() {
+    public static ArrayList<MapLocation> Assign() throws Exception {
         // Run until queue is empty
         int max = 0;
         ArrayList<MapLocation> ans = new ArrayList<MapLocation>();
@@ -94,7 +94,7 @@ public class FocusPoints {
     }
 
 
-    public static void InitGeoGraph() {
+    public static void InitGeoGraph() throws Exception {
         //adds a buffer
         geographicmap = new int[W + 2][H + 2];
         queue = new LinkedList<BufferPoint>();

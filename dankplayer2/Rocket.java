@@ -13,7 +13,7 @@ public class Rocket {
     private static int index1 = 0;
     private static ArrayList<Integer> index2;
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception {
         gc = controller;
         	index2 = new ArrayList<Integer>();
         for(int x = 0; x<Mars.locations.size(); x++) {
@@ -22,7 +22,7 @@ public class Rocket {
     }
 
 
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
 
         // Receive rocket from main runner
         rocket = unit;
@@ -36,13 +36,13 @@ public class Rocket {
 
     }
 
-    public static void runMars(Unit unit) {
+    public static void runMars(Unit unit) throws Exception {
         rocket = unit;
         // Start unloading troops on Mars
         unload();
     }
 
-    private static void load() {
+    private static void load() throws Exception {
     	
     	if (gc.round()>=Config.ROCKET_CREATION_ROUND){
         // Only load when on earth
@@ -69,13 +69,13 @@ public class Rocket {
 	            		}
 	            	}
 	            		
-	                System.out.println("Loading unit!");
+	                Logging.debug("Loading unit!");
 	            }
 	        }
     	}
     }
 
-    private static void send() {
+    private static void send() throws Exception {
 
         // Only send when on earth
         // TODO It might not be a bad idea to have the rocket blow up once it's reached Mars, as it's useless and takes up space
@@ -104,7 +104,7 @@ public class Rocket {
         }
     }
 
-    private static void unload() {
+    private static void unload() throws Exception {
 
         // Only unload on Mars
         if (rocket.location().mapLocation().getPlanet().equals(Planet.Earth))

@@ -18,7 +18,7 @@ public class Ranger {
         directionMap = new HashMap<>();
         counterMap = new HashMap<>();
     }
-    public static void runMars(Unit unit){
+    public static void runMars(Unit unit) throws Exception {
     	ranger = unit;
         if (ranger.location().isInGarrison()) return;
     	if (!attack()) {
@@ -29,7 +29,7 @@ public class Ranger {
         }
     	return;
     }
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
 
         // Receive ranger from main runner
         ranger = unit;
@@ -56,7 +56,7 @@ public class Ranger {
 	        }
         }
     }
- private static void moveSmall() {
+ private static void moveSmall() throws Exception {
     	
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
@@ -123,7 +123,7 @@ public class Ranger {
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
- private static boolean moveTowardsRocketSmall() {
+ private static boolean moveTowardsRocketSmall() throws Exception {
  	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
      // Move towards a low-HP rocket if possible
      VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
@@ -205,7 +205,7 @@ public class Ranger {
      return false;
  }
 
-    private static boolean attack() {
+    private static boolean attack() throws Exception {
 
         // Return true if attack isn't ready
         if (!gc.isAttackReady(ranger.id()))
@@ -235,7 +235,7 @@ public class Ranger {
         return true;
     }
 
-    private static void move() {
+    private static void move() throws Exception {
     	
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
@@ -316,7 +316,7 @@ public class Ranger {
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
-    private static boolean returnToFactory(){
+    private static boolean returnToFactory() throws Exception {
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
         long minDist = Long.MAX_VALUE;
@@ -334,7 +334,7 @@ public class Ranger {
         Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
         return true;
     }
- private static void moveMars() {
+ private static void moveMars() throws Exception {
     	
         /*
         TODO Implement the entire worker changes function as a heuristic based on priority
@@ -391,8 +391,8 @@ public class Ranger {
 
         // Move towards focal point
         if (Player.focalPointMars != null) {
-        	 System.out.println(Player.focalPointMars);
-        	 System.out.println(ranger.location().mapLocation());
+        	 Logging.debug(Player.focalPointMars.toString());
+        	 Logging.debug(ranger.location().mapLocation().toString());
         	 Pathing.move(ranger, Player.focalPointMars);	
         }
 
@@ -413,7 +413,7 @@ public class Ranger {
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
-    private static boolean bounce() {
+    private static boolean bounce() throws Exception {
 
         // Reset if counter is 8
         counterMap.putIfAbsent(ranger.id(), 0);
@@ -452,7 +452,7 @@ public class Ranger {
 
         return false;
     }
-    private static boolean ditchFactory() {
+    private static boolean ditchFactory() throws Exception {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
         long maxDist = -Long.MAX_VALUE;
@@ -470,7 +470,7 @@ public class Ranger {
         Pathing.tryMove(ranger, opposite);
         return true;
     }
-    private static boolean ditchRocket() {
+    private static boolean ditchRocket() throws Exception {
         List<Unit> units = Info.unitByTypes.get(UnitType.Rocket);
         if (units.size() == 0) return false;
         long maxDist = -Long.MAX_VALUE;
@@ -490,7 +490,7 @@ public class Ranger {
         return true;
     }
 
-    private static boolean moveTowardsRocket() {
+    private static boolean moveTowardsRocket() throws Exception {
     	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
         // Move towards a low-HP rocket if possible
         VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);

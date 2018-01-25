@@ -7,12 +7,12 @@ public class Factory {
     private static Unit factory;
     private static GameController gc;
 
-    public static void init(GameController controller) {
+    public static void init(GameController controller) throws Exception {
         gc = controller;
         
     }
 
-    public static void run(Unit unit) {
+    public static void run(Unit unit) throws Exception {
 
         // Receive factory from main runner
         factory = unit;
@@ -24,20 +24,7 @@ public class Factory {
         unload();
     }
 
-    /*
-    private static void manageWorkerAssignments() {
-        if (factory.health() < 150 && !Player.workerDestinations.containsKey(factory.id())) // Indicates it's still a blueprint
-            Player.workerDestinations.put(factory.id(), Util.openSpacesAround(factory.location().mapLocation(), (int) Info.number(UnitType.Worker)/Info.number(UnitType.Factory)));
-
-        if (factory.health() == factory.maxHealth()) {
-            Player.workerDestinations.remove(factory.id());
-            System.out.println("REMOVED DESTINATION FROM FACTORY< FREE TO GO!!!!!!!!!!");
-        }
-
-    }
-    */
-
-    private static void build() {
+    private static void build() throws Exception {
 
         // Workers are vital, build them if we have nothing left
     	if (Info.number(UnitType.Worker) < Info.number(UnitType.Factory)) {
@@ -97,7 +84,7 @@ public class Factory {
         }
     }
 
-    private static void unload() {
+    private static void unload() throws Exception {
 
         // Check all possible directions
         for (Direction dir: Direction.values()) {

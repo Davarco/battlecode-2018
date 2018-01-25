@@ -11,7 +11,7 @@ public class Mage {
         gc = controller;
     }
 
-    public static void runEarth(Unit unit) {
+    public static void runEarth(Unit unit) throws Exception {
 
         // Receive mage from main runner
         mage = unit;
@@ -24,7 +24,7 @@ public class Mage {
             }
         }
     }
-    public static void runMars(Unit unit) {
+    public static void runMars(Unit unit) throws Exception {
         mage = unit;
 
     }
