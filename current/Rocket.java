@@ -60,7 +60,7 @@ public class Rocket {
 	            	}
 	            	else{
 	            		if(gc.round()<=600){
-		            		if(friendlies.get(i).unitType()==UnitType.Ranger){
+		            		if(friendlies.get(i).unitType()==UnitType.Ranger || friendlies.get(i).unitType()==UnitType.Healer){
 		            			gc.load(rocket.id(), friendlies.get(i).id());
 		            		}
 	            		}

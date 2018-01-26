@@ -251,6 +251,6 @@ public class Player {
             Info.addUnit(unit.unitType());
         }
         Info.totalUnits = units.size();
-        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
+        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
     }
 }

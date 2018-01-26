@@ -14,6 +14,7 @@ public class Info {
     public static int workerCount;
     public static int rangerCount;
     public static int factoryCount;
+    public static int healerCount;
     public static long totalUnits;
 
     public static void reset() {
@@ -21,6 +22,7 @@ public class Info {
         workerCount = 0;
         rangerCount = 0;
         factoryCount = 0;
+        healerCount = 0;
         unitByTypes = new EnumMap<>(UnitType.class);
         unitByTypes.put(UnitType.Rocket, new ArrayList<>());
         unitByTypes.put(UnitType.Factory, new ArrayList<>());
@@ -47,7 +49,10 @@ public class Info {
     	case Rocket:
     		rocketCount++;
     		break;
-    	}
+    	case Healer:
+    		healerCount++;
+    		break;
+		}
     	return;
     }
 
@@ -61,6 +66,8 @@ public class Info {
 	    		return factoryCount;
 	    	case Rocket:
 	    		return rocketCount;
+	    	case Healer:
+	    		return healerCount;
     	}
     	return -1;
     }

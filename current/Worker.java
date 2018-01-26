@@ -193,7 +193,7 @@ public class Worker {
 	    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Factory);
+	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
 	    		if(rthings.size()>0 &&  rthings1.size()<2 && things.size()>0){
 		            create(UnitType.Rocket);
 	    		}
