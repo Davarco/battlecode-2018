@@ -59,14 +59,14 @@ public class Factory {
 	        	else{
 	        		if(gc.round()<=650){
 		        		if(gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)){
-		        			//if(Info.number(UnitType.Healer)>=Info.number(UnitType.Ranger)/4){
+		        			if(Info.number(UnitType.Healer)>=Info.number(UnitType.Ranger)/4){
 		        				gc.produceRobot(factory.id(), UnitType.Ranger);
 		        	    		Info.addUnit(UnitType.Ranger);
-		        			//}
-		        			//else{
-		        			//	gc.produceRobot(factory.id(), UnitType.Healer);
-		        			//	Info.addUnit(UnitType.Healer);
-		        			//}
+		        			}
+		        			else{
+		        				gc.produceRobot(factory.id(), UnitType.Healer);
+		        				Info.addUnit(UnitType.Healer);
+		        			}
 		        		}
 	        		}
 	        		else{
