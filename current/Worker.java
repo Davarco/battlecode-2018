@@ -57,16 +57,21 @@ public class Worker {
         }
         //long t1 = System.currentTimeMillis();
         if(gc.round()<=15){
-        	harvestEarly();
+        	moveTowardsKarbonite();
         	replicate();
         	return;
         }
         
-        if(gc.karbonite()>=100 ){
+        if(gc.karbonite()>=200 ){
         	Player.initialKarbReached=true;
         }
         if(!Player.initialKarbReached){
-        	moveTowardsKarbonite();
+        	System.out.println("adfqadavshdhua " + gc.round() );
+        	harvestKarbonite();
+        	if(moveTowardsKarbonite()){
+        		return;
+        	}
+        	bounce();
         	return;
         }
         harvestKarbonite();
@@ -120,11 +125,12 @@ public class Worker {
         // Moving towards factories has higher priority than escape early game
         //NEEDS BETTER CONDITION
         if (gc.round() < 150) {
+        	
+        	if (moveTowardsFactory())
+        		return;
         	if (moveTowardsKarbonite()){	
                 return;
             }
-        	if (moveTowardsFactory())
-        		return;
             if (escape())
                 return;
             
@@ -190,7 +196,7 @@ public class Worker {
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND) {
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
@@ -205,6 +211,7 @@ public class Worker {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 12, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		if(rthings.size()>0 &&  rthings1.size()<2&& things.size()>0){
+	    			
 		            create(UnitType.Rocket);
 	    		}
 	        }
@@ -212,7 +219,7 @@ public class Worker {
     	if(Player.mapsize.equals("largemap")){
     		VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 32, UnitType.Factory);
     		VecUnit enemies = gc.senseNearbyUnitsByTeam(workerLoc, worker.visionRange(), Util.enemyTeam());
-	    	if (gc.karbonite()-100>=10*Info.number(UnitType.Factory) && Info.number(UnitType.Factory)<=5) {
+	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory)&& Info.number(UnitType.Factory)<=2) {
 		        if(things.size()==0 && enemies.size()==0)
 		        	create(UnitType.Factory);
 		    }
@@ -229,7 +236,6 @@ public class Worker {
 
         // See if unit needs to escape
         if (Pathing.escape(worker)) {
-            System.out.println("Worker " + worker.location().mapLocation() + " is being attacked!");
             return true;
         }
 
@@ -414,7 +420,6 @@ public class Worker {
     		bestKarb = bestKarboniteLocMars();
     	}
         if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
-        	System.out.println(bestKarb);
         	if(Pathing.move(worker, bestKarb)==false){
         		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
         	}

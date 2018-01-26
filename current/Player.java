@@ -221,9 +221,9 @@ public class Player {
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
         gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
-        gc.queueResearch(UnitType.Healer);  // 25
-        gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Healer);  // 25
     }
     private static void initResearchSmall() {
