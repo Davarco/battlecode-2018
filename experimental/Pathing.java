@@ -236,7 +236,7 @@ public class Pathing {
                     stored.putIfAbsent(location, new ArrayList<>());
                     stored.get(location).add(start);
                     long t2 = System.currentTimeMillis();
-                    System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
+                    //System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
                     return tryMove(unit, dir);
                 }
             }
@@ -247,7 +247,7 @@ public class Pathing {
         stored.putIfAbsent(end, new ArrayList<>());
         stored.get(end).add(start);
         long t2 = System.currentTimeMillis();
-        System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
+        //System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
 
         // Move unit
         return move(unit, dir);

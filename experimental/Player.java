@@ -75,13 +75,13 @@ public class Player {
         // Initialize the different types of troops
         setUnits();
         Pathing.reset();
+        Mars.init(gc);
         Worker.init(gc);
         Knight.init(gc);
         Ranger.init(gc);
         Mage.init(gc);
         Healer.init(gc);
         Factory.init(gc);
-        Mars.init(gc);
         Rocket.init(gc);
         
 
@@ -221,9 +221,9 @@ public class Player {
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
         gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
-        gc.queueResearch(UnitType.Healer);  // 25
-        gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Healer);  // 25
     }
     private static void initResearchSmall() {
@@ -251,6 +251,6 @@ public class Player {
             Info.addUnit(unit.unitType());
         }
         Info.totalUnits = units.size();
-        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Worker)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
+        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
     }
 }
