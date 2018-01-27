@@ -15,6 +15,8 @@ public class Pathing {
     private static PlanetMap map;
     private static MapLocation start, dest;
     private static Planet planet;
+    private static int prev[][];
+    private static boolean visited[][];
 
     private static class Cell {
         int pX, pY;
@@ -179,6 +181,128 @@ public class Pathing {
 
         return null;
     }
+    
+    
+    private static ArrayList<MapLocation> path(Unit unit, MapLocation start, MapLocation end) {
+
+        // Initialize direction grid
+        // System.out.println("Running pathing! " + start + " to " + end);
+        Planet planet = start.getPlanet();
+        prev = new int[W][H];
+        int x=start.getX(), y=start.getY();
+
+        // Run BFS from start node
+        LinkedList<MapLocation> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[W][H];
+        for(int x1 = 0; x1<W; x1++) {
+        	 for(int y1 = 0; y1<H; y1++) {
+         		visited[x1][y1] = false;
+             }
+        }
+        visited[x][y] = true;
+        queue.add(new MapLocation(planet, x, y));
+        System.out.println("Moving Troop Number"+unit.id()+"("+start.getX()+", "+start.getY()+") to ("+end.getX()+", "+end.getY()+")");
+        // Run until queue is empty
+        boolean found = false;
+        boolean ReachedEnd = false;
+        while (!queue.isEmpty() && ReachedEnd == false) {
+            MapLocation location = queue.poll();
+            if(location.getX() == end.getX() && location.getY() == end.getY()) {
+            	 	ReachedEnd  = true;
+            	 	break;
+            }
+            for (int i = 0; i < 8; i++) {
+                int a = location.getX() + move[i][0];
+                int b = location.getY() + move[i][1];
+                MapLocation temp = new MapLocation(planet, a, b);
+                if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
+                		// && (!temp.isWithinRange(unit.visionRange(), start) || !gc.hasUnitAtLocation(temp)) &&
+                		prev[a][b] = i;
+                    // System.out.println(prev[a][b] + " " + a + " " + b);
+                    visited[a][b] = true;
+                    queue.add(new MapLocation(planet, a, b));
+                }
+            }
+        }
+        System.out.println(ReachedEnd);
+        /*
+        Use this to debug.
+        for (int i = H-1; i > 0; i--) {
+            for (int j = 0; j < W; j++) {
+                System.out.print(prev[j][i]);
+            }
+            System.out.println();
+        }
+        */
+
+        // Go backwards from end point
+        if(!ReachedEnd) {
+        		return null;
+        }
+        MapLocation lastLoc = end.clone();
+        ArrayList<MapLocation> ml = new ArrayList<MapLocation>();
+        while (!end.equals(start)) {
+            // Subtract direction, NOT add
+            int a=end.getX(), b=end.getY();
+            lastLoc.setX(a);
+            lastLoc.setY(b);
+          //  System.out.println(end.getX()+" "+end.getY()+" "+prev[end.getX()][end.getY()]);
+            end.setX(a-move[prev[a][b]][0]);
+            end.setY(b-move[prev[a][b]][1]);
+            ml.add(lastLoc.clone());
+            // System.out.println("Subtracting " + prev[a][b] + " from " + lastLoc + " forms " + end);
+        }
+        Collections.reverse(ml);
+        // System.out.println(dir);
+        return ml.size() == 0?null:ml;
+    }
+    
+    public static boolean movebfs(Unit TroopUnit, MapLocation end) {
+ 		if(!gc.isMoveReady(TroopUnit.id())) { //check if unit can move
+ 			return false;
+ 		}
+ 		if(TroopUnit.location().mapLocation().equals(end)) { //check if unit is at location
+ 			return true;
+ 		}
+ 		//Critertion 1
+ 		if(!Player.unitpaths.containsKey(TroopUnit.id())) { 				//check if no previous path array
+ 			Player.unitpaths.put(TroopUnit.id(), new Pathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone()));
+ 		}
+ 		if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+ 			return false;
+ 		}
+ 		Pathway TroopPath = Player.unitpaths.get(TroopUnit.id());
+
+ 		//Criterion 2
+ 		if(!end.equals(TroopPath.goal)) {
+ 			Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone());
+ 			if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+ 				return false;
+ 			}
+ 		}
+ 		MapLocation next = TroopPath.getNextLocation();
+ 		//Criterion 3
+ 		if(next!= null && !gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))) { 	//check if unit is in the way and unit is not in final location
+ 			//might need to override later
+ 			if(TroopPath.NextLocationIsEnd()) {
+ 				return false;
+ 			}
+ 			else {
+ 				Player.unitpaths.get(TroopUnit.id()).setNewPathway(path(TroopUnit, TroopUnit.location().mapLocation(), end.clone()), end.clone());
+ 				if(Player.unitpaths.get(TroopUnit.id()).PathwayDoesNotExist()) {
+ 					return false;
+ 				}
+ 			}
+ 		}
+ 		
+ 		//Move unit
+ 		if(next!=null && gc.canMove(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next))){
+ 			gc.moveRobot(TroopUnit.id(), TroopUnit.location().mapLocation().directionTo(next));
+ 			TroopPath.index++; 
+ 			return true;
+ 		}
+ 		return false;
+     }
 
     public static void init(GameController controller) {
 
