@@ -52,7 +52,7 @@ public class Worker {
 
 
     public static void runEarth(Unit unit) {
-    	//ArrayList<MapLocation> tmp = EarthPathing.path(worker, new MapLocation(Planet.Earth,6,12));
+    	//ArrayList<MapLocation> tmp = Pathing.path(worker, new MapLocation(Planet.Earth,6,12));
     	//System.out.println();
     	//System.out.println();
     	//for(int x = 0; x < tmp.size(); x++){
@@ -70,7 +70,7 @@ public class Worker {
         if(Info.number(UnitType.Worker)<=maxworkers-2 && initialreached){
         	stopcollecting = true;
         }
-        /*if(Player.largemap.equals("smallmap")){
+        /*if(Player.mapsize.equals("smallmap")){
         	build();
         	move();
         	updateWorkerStats();
@@ -165,13 +165,13 @@ public class Worker {
                 return;
             
         } 
-        else {
+        else if (gc.round()<600){
             if (escape()){
                 return;
             }
-    		if(worker.health()<=20){
-    			moveTowardsFactory();
-    		}
+    			if(worker.health()<=20){
+    				moveTowardsFactory();
+    			}
             if (moveTowardsKarbonite()){	
                 return;
             }
@@ -191,6 +191,29 @@ public class Worker {
             	if (moveTowardsFactory()){
             		return;
             	}
+            }
+        }
+        else {
+        		if (escape()){
+                return;
+            }
+        		if (moveTowardsRocket()) {
+    				return;
+        		}
+        		VecUnit friendlies = gc.senseNearbyUnitsByTeam(worker.location().mapLocation(), worker.visionRange(), Util.friendlyTeam());
+             long minDist = Long.MAX_VALUE;
+             int idx = -1;
+        		for (int i = 0; i < friendlies.size(); i++) {
+                    long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
+                    if (friendlies.get(i).unitType()==UnitType.Ranger && Util.friendlyUnit(friendlies.get(i)) && dist < minDist) {
+                        minDist = dist;
+                        idx = i;
+                    }
+            }
+            if (idx != -1) {
+                if(Pathing.move(worker, friendlies.get(idx).location().mapLocation()) == false) {
+                		Pathing.move(worker, friendlies.get(idx).location().mapLocation());
+                 }
             }
         }
         
@@ -229,14 +252,28 @@ public class Worker {
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4|| Player.launchCounter==0)) {
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.round()<=625 && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4|| Player.launchCounter==0)) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
-	    		if(rthings.size()>0 &&  rthings1.size()<2 && things.size()>0){
+	    		if(rthings.size()>1 &&  rthings1.size()<2 && things.size()>0){
 		            create(UnitType.Rocket);
 	    		}
-	        }
+	    }
+	    	else if (gc.round() > 575 && gc.round()<=625 && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer))/4|| Player.launchCounter==0)) {
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
+	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
+	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
+	    		if(rthings.size()>1 &&  rthings1.size()<2 && things.size()>0){
+		            create(UnitType.Rocket);
+	    		}
+	    }
+	    	else {
+	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
+	    		if(rthings.size()>1){
+	    			create(UnitType.Rocket);
+	    		}
+	    	}
     	}
     	else{
     		if (gc.round() > 50) {
@@ -252,7 +289,7 @@ public class Worker {
     	if(Player.mapsize.equals("largemap")){
     		VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 32, UnitType.Factory);
     		VecUnit enemies = gc.senseNearbyUnitsByTeam(workerLoc, worker.visionRange(), Util.enemyTeam());
-	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory)&& Info.number(UnitType.Factory)<=2) {
+	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory) && gc.round()<=600) {
 		        if(things.size()==0 && enemies.size()==0)
 		        	create(UnitType.Factory);
 		    }
@@ -373,14 +410,14 @@ public class Worker {
         if(minDist == 2){
         	return true;
         }
-        //if(!Player.largemap.equals("smallmap")){
+        //if(!Player.mapsize.equals("smallmap")){
 	        if(minDist > 16 || gc.round()>=600  ){
 	        	return false;
 	        }
         //}
         if (idx != -1) {
         	//MAYBE add bug pathing
-            //EarthPathing.move(worker, units.get(idx).location().mapLocation());
+            //Pathing.move(worker, units.get(idx).location().mapLocation());
             	PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
                 MapLocation tmp = units.get(idx).location().mapLocation();
                 int initx = tmp.getX();
@@ -493,7 +530,7 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(EarthPathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
+			//if(Pathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))));
         	//}
@@ -521,7 +558,7 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(EarthPathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
+			//if(Pathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx))));
         	//}
@@ -535,7 +572,7 @@ public class Worker {
     		for(int y = temp.getY()+2; y<ranger.location().mapLocation().getY()-2; y++){
     			MapLocation t1 = new MapLocation(temp.getPlanet(), temp.getX(), temp.getY())
         		if(gc.karboniteAt()!=0){
-            		EarthPathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+            		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
         		}
         	}
     	}*/

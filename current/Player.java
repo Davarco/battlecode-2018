@@ -102,7 +102,7 @@ public class Player {
 //        MapLocation start = new MapLocation(Planet.Earth, 0, (int)gc.startingMap(Planet.Earth).getHeight()-1);
 //        MapLocation end = new MapLocation(Planet.Earth, (int)gc.startingMap(Planet.Earth).getWidth()-1,0);
 //        double t1 = System.currentTimeMillis();
-//        ArrayList<MapLocation> res = EarthPathing.path(start, end);
+//        ArrayList<MapLocation> res = Pathing.path(start, end);
 //        double t2 = System.currentTimeMillis();
 //        System.out.println("JPS took " + (t2-t1) + " ms :" + res);
 

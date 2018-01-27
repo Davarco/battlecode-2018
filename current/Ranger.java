@@ -121,7 +121,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
  private static boolean moveTowardsRocketSmall() {
  	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
@@ -316,7 +316,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
     private static boolean returnToFactory(){
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
@@ -412,7 +412,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
     private static boolean bounce() {
@@ -505,7 +505,7 @@ public class Ranger {
                 idx = i;
             }
         }
-        if(minDist>10 && gc.round()<=600)return false;
+        if(minDist>16 && gc.round()<=600)return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -513,58 +513,58 @@ public class Ranger {
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity);
             if (map.onMap(tmp)){
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            if (map.onMap(tmp)){
+            //if (map.onMap(tmp)){
             	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            //	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            //	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!Pathing.move(ranger, tmp)){
+            	//if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	}
+            	//}
             	return true;
             }
             // System.out.println("Moving towards friendly rocket.");
