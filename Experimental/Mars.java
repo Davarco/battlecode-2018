@@ -147,25 +147,45 @@ public class Mars {
                 return o2.size()-o1.size();
             }
         });
+        int min = 1<<30;
+        for(int x = 0; x<locations.size();x++){
+        	if(locations.get(x).size() <= 4){
+        		continue;
+        	}
+        	min = locations.get(x).size()<min?locations.get(x).size():min;
+        }
+        if(min == 1<<30){
+        	min = 1;
+        }
+        for(int x = 0; x<locations.size();x++){
+        	Rocket.ratio.add((int)(locations.get(x).size()/min));
+        	Rocket.ratiocount+=Rocket.ratio.get(x);
+        }
+        Rocket.orgratio = new ArrayList<>(Rocket.ratio);
+        Rocket.orgratiocount = Rocket.ratiocount;
     }
     
     private static void floodfillEarth() {
         // Setup the visited grid
-
+    	index = 0;
         // Go through points, bfs
     		for (int x = 0; x < W; x++) {
             for (int y = 0; y < H; y++) {
             	MapLocation temp = new MapLocation(Planet.Earth, x, y);
-            	 if (gc.hasUnitAtLocation(temp) && map.isPassableTerrainAt(temp) == 1) {
+            	 if (gc.hasUnitAtLocation(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[temp.getX()][temp.getY()]) {
             		 	//System.out.println(temp);
             		 	Earthqueue.add(temp);
             		 	Earthqueueindex.add(index);
             			karboniteplacesEarth.add(new ArrayList<MapLocation>());
+            			Worker.skipIndex.put(index, false);
+                		bfsEarth(Planet.Earth);
+                		Earthqueue.clear();
+            		 	Earthqueueindex.clear();
             		 	index++;
                 }
             }
-        }
-    		bfsEarth(Planet.Earth);
+            
+    	}
     }
     
     private static void floodfillMars() {
@@ -177,6 +197,7 @@ public class Mars {
 	    		Marsqueue.add(new MapLocation(Planet.Mars, locations.get(x).get(0).getX(), locations.get(x).get(0).getY()));
     		 	Marsqueueindex.add(index);
     			karboniteplacesMars.add(new ArrayList<MapLocation>());
+    			Worker.skipIndex.put(index, false);
     		 	index++;
 	    	}
     		bfsMars(Planet.Mars);
