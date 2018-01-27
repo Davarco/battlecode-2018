@@ -12,6 +12,11 @@ public class Rocket {
     private static int starti=1, startj=1;
     private static int index1 = 0;
     private static ArrayList<Integer> index2;
+    public static ArrayList<Integer> ratio = new ArrayList<Integer>();
+    public static ArrayList<Integer> orgratio = new ArrayList<Integer>();
+    private static PlanetMap map;
+    public static int ratiocount = 0;
+    public static int orgratiocount = 0;
 
     public static void init(GameController controller) {
         gc = controller;
@@ -19,6 +24,7 @@ public class Rocket {
         for(int x = 0; x<Mars.locations.size(); x++) {
         		index2.add(0);
         }
+        map = gc.startingMap(Planet.Mars);
     }
 
 
@@ -89,17 +95,27 @@ public class Rocket {
         PlanetMap map = gc.startingMap(Planet.Mars);
         if (gc.round()>=Config.ROCKET_CREATION_ROUND && (rocket.structureGarrison().size()>=4||gc.round()==749)){
         	int orgindex = index1;
-        	while(Mars.locations.get(index1).size()<=4){
+        	while(ratio.get(index1)<=0){
         		index1 = (index1+1)%(Mars.locations.size());
         		if(index1 == orgindex){
         			break;
         		}
         	}
+            index2.set(index1, (Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7)%(Mars.locations.get(index1).size()));
+            while(map.isPassableTerrainAt(Mars.locations.get(index1).get(index2.get(index1)))!=1){
+                index2.set(index1, (Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7)%(Mars.locations.get(index1).size()));
+            }
         	if(gc.canLaunchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)))){
         		gc.launchRocket(rocket.id(), Mars.locations.get(index1).get(index2.get(index1)));
+        		ratio.set(index1, ratio.get(index1)-1);
+        		ratiocount--;
+        		if(ratiocount == 0){
+        			ratio = new ArrayList<>(orgratio);
+        			ratiocount = orgratiocount;
+        		}
+        		System.out.println("***************** "+Mars.locations.get(index1).get(index2.get(index1)));
         	}
             index1 = (index1+1)%(Mars.locations.size());
-            index2.set(index1, (index2.get(index1)+(Mars.locations.get(index1).size() == 7?index2.get(index1)+11 : index2.get(index1)+7))%(Mars.locations.get(index1).size()));
             Player.launchCounter++;
         }
     }
