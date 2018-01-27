@@ -75,6 +75,7 @@ public class Player {
         // Initialize the different types of troops
         setUnits();
         Pathing.reset();
+        FocusPoints.init(gc);
         Mars.init(gc);
         Worker.init(gc);
         Knight.init(gc);

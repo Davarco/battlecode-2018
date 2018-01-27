@@ -88,7 +88,7 @@ public class Worker {
         updateKarboniteIndexMars();
         if(gc.round()<=15){
         	moveTowardsKarbonite();
-        	replicate();
+        	harvestKarbonite();
         	return;
         }
         
@@ -104,7 +104,6 @@ public class Worker {
         	bounce();
         	return;
         }
-        harvestKarbonite();
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
         if(Info.number(UnitType.Factory)*20>3*Info.number(UnitType.Worker)){
@@ -115,7 +114,8 @@ public class Worker {
         build();
 
         // General move function, handles priorities
-        
+        harvestKarbonite();
+
         move();
         updateWorkerStats();
         
@@ -165,13 +165,13 @@ public class Worker {
                 return;
             
         } 
-        else if (gc.round()<600){
+        else {
             if (escape()){
                 return;
             }
-    			if(worker.health()<=20){
-    				moveTowardsFactory();
-    			}
+    		if(worker.health()<=80){
+    			moveTowardsFactory();
+    		}
             if (moveTowardsKarbonite()){	
                 return;
             }
@@ -193,32 +193,8 @@ public class Worker {
             	}
             }
         }
-        else {
-        		if (escape()){
-                return;
-            }
-        		if (moveTowardsRocket()) {
-    				return;
-        		}
-        		VecUnit friendlies = gc.senseNearbyUnitsByTeam(worker.location().mapLocation(), worker.visionRange(), Util.friendlyTeam());
-             long minDist = Long.MAX_VALUE;
-             int idx = -1;
-        		for (int i = 0; i < friendlies.size(); i++) {
-                    long dist = friendlies.get(i).location().mapLocation().distanceSquaredTo(worker.location().mapLocation());
-                    if (friendlies.get(i).unitType()==UnitType.Ranger && Util.friendlyUnit(friendlies.get(i)) && dist < minDist) {
-                        minDist = dist;
-                        idx = i;
-                    }
-            }
-            if (idx != -1) {
-                if(Pathing.move(worker, friendlies.get(idx).location().mapLocation()) == false) {
-                		Pathing.move(worker, friendlies.get(idx).location().mapLocation());
-                 }
-            }
-        }
         
        
-        
         // Otherwise bounce and give more space to the factories
        if(worker.location().mapLocation().getPlanet()==Planet.Earth){
 	       if(ditchFactory())
@@ -252,28 +228,14 @@ public class Worker {
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && gc.round()<=625 && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4|| Player.launchCounter==0)) {
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
-	    		if(rthings.size()>1 &&  rthings1.size()<2 && things.size()>0){
+	    		if(rthings.size()>0 &&  rthings1.size()<2 && things.size()>0){
 		            create(UnitType.Rocket);
 	    		}
-	    }
-	    	else if (gc.round() > 575 && gc.round()<=625 && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer))/4|| Player.launchCounter==0)) {
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
-	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
-	    		if(rthings.size()>1 &&  rthings1.size()<2 && things.size()>0){
-		            create(UnitType.Rocket);
-	    		}
-	    }
-	    	else {
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
-	    		if(rthings.size()>1){
-	    			create(UnitType.Rocket);
-	    		}
-	    	}
+	        }
     	}
     	else{
     		if (gc.round() > 50) {
@@ -289,7 +251,7 @@ public class Worker {
     	if(Player.mapsize.equals("largemap")){
     		VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 32, UnitType.Factory);
     		VecUnit enemies = gc.senseNearbyUnitsByTeam(workerLoc, worker.visionRange(), Util.enemyTeam());
-	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory) && gc.round()<=600) {
+	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory)&& Info.number(UnitType.Factory)<=2) {
 		        if(things.size()==0 && enemies.size()==0)
 		        	create(UnitType.Factory);
 		    }
@@ -534,7 +496,8 @@ public class Worker {
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))));
         	//}
-			
+        		System.out.println("*************"+Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)));
+
 			return true;
 		} else {
 			int idx = Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
@@ -585,15 +548,25 @@ public class Worker {
     		bestKarb = bestKarboniteLocMars();
     	}
         if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
-        	if(Pathing.move(worker, bestKarb)==false){
-        		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+        	if(gc.planet().equals(Planet.Earth)){
+        		if(Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()] == Mars.earthplaces[bestKarb.getX()][bestKarb.getY()]){
+                	if(Pathing.move(worker, bestKarb)==false){
+                		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+                		System.out.println("*************"+bestKarb);
+                	}
+        		}
+        	}
+        	else{
+        		if(Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()] == Mars.marsplaces[bestKarb.getX()][bestKarb.getY()]){
+                	if(Pathing.move(worker, bestKarb)==false){
+                		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+                		System.out.println("*************"+bestKarb);
+                	}
+        		}
         	}
             return true;
         }
-        if(gc.round()<200){
-        	return moveTowardsKarboniteFar();
-        }
-        return false;
+       return moveTowardsKarboniteFar();
     }
     private static boolean ditchFactory() {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
@@ -789,13 +762,18 @@ public class Worker {
         for (int i = num; i < Direction.values().length+num; i++) {
         	int tmp = i % Direction.values().length;
         	Direction dir = Direction.values()[tmp];
+        	MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
+        	if(type.equals(UnitType.Factory) || type.equals(UnitType.Rocket)){
+        		if(FocusPoints.geographicmap[temp.getX()+1][temp.getY()+1]<=1){
+        			return;
+        		}
+        	}
             if (gc.canBlueprint(worker.id(), type, dir)) {
                 gc.blueprint(worker.id(), type, dir);
             }
         }
     }
     private static void updateWorkerStats() {
-
         workerId = worker.id();
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         workerLoc = worker.location().mapLocation();

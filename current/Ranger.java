@@ -39,6 +39,9 @@ public class Ranger {
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
+        if(ranger.health()<80){
+        	moveTowardsFactory();
+        }
         if(Player.mapsize.equals("largemap")){
 	        if (!attack()) {
 	            move();
@@ -205,37 +208,35 @@ public class Ranger {
      return false;
  }
 
- private static boolean attack() {
+    private static boolean attack() {
 
-     // Return true if attack isn't ready
-     if (!gc.isAttackReady(ranger.id()))
-         return true;
+        // Return true if attack isn't ready
+        if (!gc.isAttackReady(ranger.id()))
+            return true;
 
-     // Get enemy units
-     enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
-     if (enemies.size() == 0)
-         return false;
+        // Get enemy units
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
+        if (enemies.size() == 0)
+            return false;
 
-     // Attack lowest HP target
-     long minHp = Long.MAX_VALUE;
+        // Attack lowest HP target
+        long minHp = Long.MAX_VALUE;
+        
+        int idx = -1;
+        boolean checkiffactory = false;
+        for (int i = 0; i < enemies.size(); i++) {
+            if (!checkiffactory && enemies.get(i).health() < minHp && gc.canAttack(ranger.id(), enemies.get(i).id())) {
+                minHp = enemies.get(i).health();
+                idx = i;
+            }
+        }
+        
+        if (idx!= -1 && gc.canAttack(ranger.id(), enemies.get(idx).id())) {
+            gc.attack(ranger.id(), enemies.get(idx).id());
+        }
 
-     int idx = -1;
-     boolean checkiffactory = false;
-     for (int i = 0; i < enemies.size(); i++) { 
-    	 	int k = 0;
-         if(enemies.get(i).unitType()==UnitType.Healer) k = 10000;
-         if (!checkiffactory && enemies.get(i).health()-k < minHp && gc.canAttack(ranger.id(), enemies.get(i).id())) {
-             minHp = enemies.get(i).health();
-             idx = i;
-         }
-     }
-
-     if (idx!= -1 && gc.canAttack(ranger.id(), enemies.get(idx).id())) {
-         gc.attack(ranger.id(), enemies.get(idx).id());
-     }
-
-     return true;
- }
+        return true;
+    }
 
     private static void move() {
     	
@@ -505,7 +506,7 @@ public class Ranger {
                 idx = i;
             }
         }
-        if(minDist>16 && gc.round()<=600)return false;
+        if(minDist>10 && gc.round()<=600)return false;
         if (idx != -1) {
             PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
             MapLocation tmp = rockets.get(idx).location().mapLocation();
@@ -513,58 +514,58 @@ public class Ranger {
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity);
             if (map.onMap(tmp)){
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
             if (map.onMap(tmp)) {
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
-            //if (map.onMap(tmp)){
+            if (map.onMap(tmp)){
             	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
             if (map.onMap(tmp)) {
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            //	}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp)) {
-            //	if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp)) {
-            	//if(!Pathing.move(ranger, tmp)){
+            	if(!Pathing.move(ranger, tmp)){
             		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
-            	//}
+            	}
             	return true;
             }
             // System.out.println("Moving towards friendly rocket.");
@@ -573,4 +574,92 @@ public class Ranger {
 
         return false;
     }
+    private static boolean moveTowardsFactory() {
+
+        // Move towards the closest factory
+        List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < units.size(); i++) {
+            long dist = ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist < minDist && (units.get(i).structureIsBuilt()==0||gc.round()>=600)) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if(minDist == 2){
+        	return true;
+        }
+        //if(!Player.mapsize.equals("smallmap")){
+	        if(minDist > 16 || gc.round()>=600  ){
+	        	return false;
+	        }
+        //}
+        if (idx != -1) {
+        	//MAYBE add bug pathing
+            //Pathing.move(ranger, units.get(idx).location().mapLocation());
+            	PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
+                MapLocation tmp = units.get(idx).location().mapLocation();
+                int initx = tmp.getX();
+                int inity = tmp.getY();
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity);
+                if (map.onMap(tmp)){
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
+                if (map.onMap(tmp)){
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity - 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+        }
+        return false;
+    }
+
 }

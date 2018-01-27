@@ -32,16 +32,12 @@ public class FocusPoints {
         gc = controller;
         // Get map constraints
         // map = gc.startingMap(Planet.Earth);
+        GeographicFocusPoints();
     }
 
     public void EnemyFocusPoints() {
         W = (int) map.getWidth();
         H = (int) map.getHeight();
-        for (int x = 0; x < W; x++) {
-            for (int y = 0; y > H; y++) {
-
-            }
-        }
     }
 
     public static String tab(int x) {

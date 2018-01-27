@@ -147,11 +147,27 @@ public class Mars {
                 return o2.size()-o1.size();
             }
         });
+        int min = 1<<30;
+        for(int x = 0; x<locations.size();x++){
+        	if(locations.get(x).size() <= 4){
+        		continue;
+        	}
+        	min = locations.get(x).size()<min?locations.get(x).size():min;
+        }
+        if(min == 1<<30){
+        	min = 1;
+        }
+        for(int x = 0; x<locations.size();x++){
+        	Rocket.ratio.add((int)(locations.get(x).size()/min));
+        	Rocket.ratiocount+=Rocket.ratio.get(x);
+        }
+        Rocket.orgratio = new ArrayList<>(Rocket.ratio);
+        Rocket.orgratiocount = Rocket.ratiocount;
     }
     
     private static void floodfillEarth() {
         // Setup the visited grid
-
+    	index = 0;
         // Go through points, bfs
     		for (int x = 0; x < W; x++) {
             for (int y = 0; y < H; y++) {
@@ -168,7 +184,8 @@ public class Mars {
             		 	index++;
                 }
             }
-        }System.out.println("************ "+index);
+            
+    	}
     }
     
     private static void floodfillMars() {
