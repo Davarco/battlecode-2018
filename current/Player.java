@@ -75,13 +75,13 @@ public class Player {
         // Initialize the different types of troops
         setUnits();
         Pathing.reset();
+        Mars.init(gc);
         Worker.init(gc);
         Knight.init(gc);
         Ranger.init(gc);
         Mage.init(gc);
         Healer.init(gc);
         Factory.init(gc);
-        Mars.init(gc);
         Rocket.init(gc);
         
 

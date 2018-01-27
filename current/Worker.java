@@ -7,24 +7,49 @@ import java.util.Map;
 
 public class Worker {
 
-    private static Unit worker;
-    
-    private static GameController gc;
-    private static VecUnit rockets;
-    private static HashMap<Integer, Direction> directionMap;
-    private static HashMap<Integer, Integer> counterMap;
-    private static int W,H;
-    private static final int min_karbonite=100;
-    private static int workerId;
-    private static MapLocation workerLoc;
-    private static long marsKarbonite=0;
-    private static long marsKarbonitei=0;
+	private static Unit worker;
 
-    public static void init(GameController controller) {
-        gc = controller;
-        directionMap = new HashMap<>();
-        counterMap = new HashMap<>();
-    }
+	private static GameController gc;
+	private static VecUnit rockets;
+	private static HashMap<Integer, Direction> directionMap;
+	private static HashMap<Integer, Integer> counterMap;
+	private static int W, H;
+	private static final int min_karbonite = 100;
+	private static int workerId;
+	private static MapLocation workerLoc;
+	private static long marsKarbonite = 0;
+	private static long marsKarbonitei = 0;
+	private static int[][] floodfillEarth;
+	public static PlanetMap earthmap;
+	public static int amountskipped = 0;
+	public static boolean noMoreKarbonite = false;
+	public static HashMap<Integer, Boolean> skipIndex = new HashMap<>();
+	private static ArrayList<Integer> earthkarboindex = new ArrayList<Integer>();
+	private static ArrayList<Integer> marskarboindex = new ArrayList<Integer>();
+	public static HashMap<Integer, Boolean> builders = new HashMap<>();
+	public static HashMap<Integer, Boolean> originalworker = new HashMap<>();
+	public static boolean initialworkers = false;
+	public static boolean stopcollecting = false;
+	public static boolean initialreached = false;
+	public static int maxworkers = 0;
+
+
+	public static void init(GameController controller) {
+		gc = controller;
+		directionMap = new HashMap<>();
+		counterMap = new HashMap<>();
+		if (gc.planet().equals(Planet.Earth)) {
+			for (int x = 0; x < Mars.karboniteplacesEarth.size(); x++) {
+				earthkarboindex.add(0);
+			}
+		} else {
+			for (int x = 0; x < Mars.karboniteplacesMars.size(); x++) {
+				marskarboindex.add(0);
+			}
+		}
+		earthmap = gc.startingMap(Planet.Earth);
+	}
+
 
     public static void runEarth(Unit unit) {
     	//ArrayList<MapLocation> tmp = Pathing.path(worker, new MapLocation(Planet.Earth,6,12));
@@ -42,7 +67,10 @@ public class Worker {
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         workerLoc = worker.location().mapLocation();
         workerId = worker.id();
-        if(Player.mapsize.equals("smallmap")){
+        if(Info.number(UnitType.Worker)<=maxworkers-2 && initialreached){
+        	stopcollecting = true;
+        }
+        /*if(Player.mapsize.equals("smallmap")){
         	build();
         	move();
         	updateWorkerStats();
@@ -54,8 +82,10 @@ public class Worker {
     	    }
         	return;
         	
-        }
+        }*/
         //long t1 = System.currentTimeMillis();
+        updateKarboniteIndexEarth();
+        updateKarboniteIndexMars();
         if(gc.round()<=15){
         	moveTowardsKarbonite();
         	replicate();
@@ -139,6 +169,9 @@ public class Worker {
             if (escape()){
                 return;
             }
+    		if(worker.health()<=20){
+    			moveTowardsFactory();
+    		}
             if (moveTowardsKarbonite()){	
                 return;
             }
@@ -196,7 +229,7 @@ public class Worker {
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)) {
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4|| Player.launchCounter==0)) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
@@ -412,8 +445,103 @@ public class Worker {
 
         return false;
     }
+    private static void updateKarboniteIndexEarth() {
+		if (gc.planet().equals(Planet.Mars)) {
+			return;
+		}
+		int idx = Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
+		while (earthkarboindex.get(idx) < Mars.karboniteplacesEarth.get(idx).size()
+				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))
+				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))) == 0) {
+			earthkarboindex.set(idx, earthkarboindex.get(idx) + 1);
+		}
+	}
+
+	private static void updateKarboniteIndexMars() {
+		if (gc.planet().equals(Planet.Earth)) {
+			return;
+		}
+		int idx = Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
+		while (marskarboindex.get(idx) < Mars.karboniteplacesEarth.get(idx).size()
+				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx)))
+				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx))) == 0) {
+			marskarboindex.set(idx, marskarboindex.get(idx) + 1);
+		}
+	}
+
+    
+    private static boolean moveTowardsKarboniteFar() {
+		if (gc.planet().equals(Planet.Earth)) {
+			int idx = Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
+			if (Mars.karboniteplacesEarth.get(idx).size() == 0) {
+				if(skipIndex.get(idx) == false){
+					skipIndex.put(idx, true);
+					amountskipped++;
+					if(amountskipped == Mars.karboniteplacesEarth.size()){
+						noMoreKarbonite = true;
+					}
+				}
+				return false;
+			}
+			if (earthkarboindex.get(idx) >= Mars.karboniteplacesEarth.get(idx).size()) {
+				if(skipIndex.get(idx) == false){
+					skipIndex.put(idx, true);
+					amountskipped++;
+					if(amountskipped == Mars.karboniteplacesEarth.size()){
+						noMoreKarbonite = true;
+					}
+				}
+				return false;
+			}
+			//if(Pathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
+				Pathing.tryMove(worker, worker.location().mapLocation()
+						.directionTo(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))));
+        	//}
+			
+			return true;
+		} else {
+			int idx = Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
+			if (Mars.karboniteplacesMars.get(idx).size() == 0) {
+				if(skipIndex.get(idx) == false){
+					skipIndex.put(idx, true);
+					amountskipped++;
+					if(amountskipped == Mars.karboniteplacesMars.size()){
+						noMoreKarbonite = true;
+					}
+				};
+				return false;
+			}
+			if (marskarboindex.get(idx) >= Mars.karboniteplacesMars.get(idx).size()) {
+				if(skipIndex.get(idx) == false){
+					skipIndex.put(idx, true);
+					amountskipped++;
+				}
+				if(amountskipped == Mars.karboniteplacesMars.size()){
+					noMoreKarbonite = true;
+				}
+				return false;
+			}
+			//if(Pathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
+				Pathing.tryMove(worker, worker.location().mapLocation()
+						.directionTo(Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx))));
+        	//}
+			return true;
+		}
+	}
 
     private static boolean moveTowardsKarbonite() {
+    	/*MapLocation temp = ranger.location().mapLocation();
+    	for(int x = temp.getX-2; x<temp..getX()-2; x++){
+    		for(int y = temp.getY()+2; y<ranger.location().mapLocation().getY()-2; y++){
+    			MapLocation t1 = new MapLocation(temp.getPlanet(), temp.getX(), temp.getY())
+        		if(gc.karboniteAt()!=0){
+            		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+        		}
+        	}
+    	}*/
+    	if(stopcollecting == true){
+        	return moveTowardsFactory();
+    	}
     	MapLocation bestKarb;
     	if(gc.planet()==Planet.Earth)bestKarb = bestKarboniteLoc();
     	else{
@@ -425,7 +553,9 @@ public class Worker {
         	}
             return true;
         }
-        
+        if(gc.round()<200){
+        	return moveTowardsKarboniteFar();
+        }
         return false;
     }
     private static boolean ditchFactory() {
@@ -589,6 +719,11 @@ public class Worker {
         }
     }
     private static void replicate(){
+    	if(gc.planet().equals(Planet.Earth) && Info.workerCount>10){
+        	initialreached = true;
+        	maxworkers = Info.workerCount;
+			return;
+		}
     	int num = (int) (Math.random() * Direction.values().length);
     	for (int i = num; i < Direction.values().length+num; i++) {
     		int tmp = i % Direction.values().length;

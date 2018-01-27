@@ -63,11 +63,11 @@ public class Healer {
             return false;
 
         // Heal lowest HP target by difference
-        long minHp = Long.MAX_VALUE;
+        long minHp = 0;
         int idx = -1;
         for (int i = 0; i < friendlies.size(); i++) {
-            if (friendlies.get(i).maxHealth() - friendlies.get(i).health() < minHp) {
-                minHp = friendlies.get(i).health();
+            if (friendlies.get(i).maxHealth() - friendlies.get(i).health() >= minHp) {
+                minHp = friendlies.get(i).maxHealth() - friendlies.get(i).health();
                 idx = i;
             }
         }

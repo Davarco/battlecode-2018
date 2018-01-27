@@ -205,35 +205,37 @@ public class Ranger {
      return false;
  }
 
-    private static boolean attack() {
+ private static boolean attack() {
 
-        // Return true if attack isn't ready
-        if (!gc.isAttackReady(ranger.id()))
-            return true;
+     // Return true if attack isn't ready
+     if (!gc.isAttackReady(ranger.id()))
+         return true;
 
-        // Get enemy units
-        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
-        if (enemies.size() == 0)
-            return false;
+     // Get enemy units
+     enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.attackRange(), Util.enemyTeam());
+     if (enemies.size() == 0)
+         return false;
 
-        // Attack lowest HP target
-        long minHp = Long.MAX_VALUE;
-        
-        int idx = -1;
-        boolean checkiffactory = false;
-        for (int i = 0; i < enemies.size(); i++) {
-            if (!checkiffactory && enemies.get(i).health() < minHp) {
-                minHp = enemies.get(i).health();
-                idx = i;
-            }
-        }
-        
-        if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
-            gc.attack(ranger.id(), enemies.get(idx).id());
-        }
+     // Attack lowest HP target
+     long minHp = Long.MAX_VALUE;
 
-        return true;
-    }
+     int idx = -1;
+     boolean checkiffactory = false;
+     for (int i = 0; i < enemies.size(); i++) { 
+    	 	int k = 0;
+         if(enemies.get(i).unitType()==UnitType.Healer) k = 10000;
+         if (!checkiffactory && enemies.get(i).health()-k < minHp && gc.canAttack(ranger.id(), enemies.get(i).id())) {
+             minHp = enemies.get(i).health();
+             idx = i;
+         }
+     }
+
+     if (idx!= -1 && gc.canAttack(ranger.id(), enemies.get(idx).id())) {
+         gc.attack(ranger.id(), enemies.get(idx).id());
+     }
+
+     return true;
+ }
 
     private static void move() {
     	
