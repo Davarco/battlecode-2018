@@ -7,11 +7,10 @@ public class Pathway {
 	public MapLocation goal;
 	public MapLocation start;
 	
-	public Pathway(ArrayList<MapLocation> p, MapLocation g, MapLocation s) {
+	public Pathway(ArrayList<MapLocation> p, MapLocation s) {
 		unitpathway = p;
 		index = 0;
-		goal = g;
-		start = s;
+		goal = s;
 	}
 	
 	public MapLocation getNextLocation() {
@@ -20,11 +19,9 @@ public class Pathway {
 		else return null;
 	}
 	
-	public void setNewPathway(ArrayList<MapLocation> p, MapLocation k, MapLocation s) {
+	public void setNewPathway(ArrayList<MapLocation> p,  MapLocation s) {
 		unitpathway = p;
-		goal = k;
-		index = 0;
-		start = s;
+		goal = s;
 	}
 	
 	public boolean NextLocationIsEnd() {
