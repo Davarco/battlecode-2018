@@ -27,7 +27,7 @@ public class Worker {
     }
 
     public static void runEarth(Unit unit) throws Exception {
-    	//ArrayList<MapLocation> tmp = Pathing.path(worker, new MapLocation(Planet.Earth,6,12));
+    	//ArrayList<MapLocation> tmp = EarthPathing.path(worker, new MapLocation(Planet.Earth,6,12));
     	//System.out.println();
     	//System.out.println();
     	//for(int x = 0; x < tmp.size(); x++){
@@ -330,14 +330,14 @@ public class Worker {
         if(minDist == 2){
         	return true;
         }
-        //if(!Player.mapsize.equals("smallmap")){
+        //if(!Player.largemap.equals("smallmap")){
 	        if(minDist > 16 || gc.round()>=600  ){
 	        	return false;
 	        }
         //}
         if (idx != -1) {
         	//MAYBE add bug pathing
-            //Pathing.move(worker, units.get(idx).location().mapLocation());
+            //EarthPathing.move(worker, units.get(idx).location().mapLocation());
             	PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
                 MapLocation tmp = units.get(idx).location().mapLocation();
                 int initx = tmp.getX();

@@ -52,7 +52,7 @@ public class Worker {
 
 
     public static void runEarth(Unit unit) {
-    	//ArrayList<MapLocation> tmp = Pathing.path(worker, new MapLocation(Planet.Earth,6,12));
+    	//ArrayList<MapLocation> tmp = EarthPathing.path(worker, new MapLocation(Planet.Earth,6,12));
     	//System.out.println();
     	//System.out.println();
     	//for(int x = 0; x < tmp.size(); x++){
@@ -70,7 +70,7 @@ public class Worker {
         if(Info.number(UnitType.Worker)<=maxworkers-2 && initialreached){
         	stopcollecting = true;
         }
-        /*if(Player.mapsize.equals("smallmap")){
+        /*if(Player.largemap.equals("smallmap")){
         	build();
         	move();
         	updateWorkerStats();
@@ -373,14 +373,14 @@ public class Worker {
         if(minDist == 2){
         	return true;
         }
-        //if(!Player.mapsize.equals("smallmap")){
+        //if(!Player.largemap.equals("smallmap")){
 	        if(minDist > 16 || gc.round()>=600  ){
 	        	return false;
 	        }
         //}
         if (idx != -1) {
         	//MAYBE add bug pathing
-            //Pathing.move(worker, units.get(idx).location().mapLocation());
+            //EarthPathing.move(worker, units.get(idx).location().mapLocation());
             	PlanetMap map = gc.startingMap(worker.location().mapLocation().getPlanet());
                 MapLocation tmp = units.get(idx).location().mapLocation();
                 int initx = tmp.getX();
@@ -493,7 +493,7 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(Pathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
+			//if(EarthPathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))));
         	//}
@@ -521,7 +521,7 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(Pathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
+			//if(EarthPathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx))));
         	//}
@@ -535,7 +535,7 @@ public class Worker {
     		for(int y = temp.getY()+2; y<ranger.location().mapLocation().getY()-2; y++){
     			MapLocation t1 = new MapLocation(temp.getPlanet(), temp.getX(), temp.getY())
         		if(gc.karboniteAt()!=0){
-            		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
+            		EarthPathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
         		}
         	}
     	}*/

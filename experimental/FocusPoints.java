@@ -72,8 +72,8 @@ public class FocusPoints {
         while (!queue.isEmpty()) {
             BufferPoint location = queue.poll();
             for (int i = 0; i < 8; i++) {
-                int a = location.x + Pathing.move[i][0];
-                int b = location.y + Pathing.move[i][1];
+                int a = location.x + EarthPathing.move[i][0];
+                int b = location.y + EarthPathing.move[i][1];
                 if (a >= 0 && a < W + 2 && b >= 0 && b < H + 2 && geographicmap[a][b] == -1) {
                     geographicmap[a][b] = geographicmap[location.x][location.y] + 1;
                     max = max > geographicmap[location.x][location.y] + 1 ? max : geographicmap[location.x][location.y] + 1;

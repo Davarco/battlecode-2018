@@ -1,7 +1,5 @@
 import bc.*;
 
-import java.util.HashMap;
-
 public class Factory {
 
     private static Unit factory;
@@ -48,7 +46,7 @@ public class Factory {
         }
 
         // See if the factory can build the ranger
-        if(Player.mapsize.equals("largemap")){
+        if(Player.largemap){
 	        if (gc.canProduceRobot(factory.id(), UnitType.Ranger)) {
 	        	if(gc.round()<=100){
 	        		 if(Info.number(UnitType.Ranger)<2*Info.number(UnitType.Worker) ){

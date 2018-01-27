@@ -121,7 +121,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
  private static boolean moveTowardsRocketSmall() throws Exception {
  	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
@@ -314,7 +314,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
     private static boolean returnToFactory() throws Exception {
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
@@ -410,7 +410,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
     private static boolean bounce() throws Exception {
