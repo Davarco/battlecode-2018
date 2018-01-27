@@ -39,6 +39,9 @@ public class Ranger {
         Scenario 1: Attack first and then run away to get out of enemy range
         Scenario 2: Move first to get into range and then attack
          */
+        if(ranger.health()<80){
+        	moveTowardsFactory();
+        }
         if(Player.mapsize.equals("largemap")){
 	        if (!attack()) {
 	            move();
@@ -121,7 +124,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
  private static boolean moveTowardsRocketSmall() {
  	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
@@ -222,13 +225,13 @@ public class Ranger {
         int idx = -1;
         boolean checkiffactory = false;
         for (int i = 0; i < enemies.size(); i++) {
-            if (!checkiffactory && enemies.get(i).health() < minHp) {
+            if (!checkiffactory && enemies.get(i).health() < minHp && gc.canAttack(ranger.id(), enemies.get(i).id())) {
                 minHp = enemies.get(i).health();
                 idx = i;
             }
         }
         
-        if (gc.canAttack(ranger.id(), enemies.get(idx).id())) {
+        if (idx!= -1 && gc.canAttack(ranger.id(), enemies.get(idx).id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
         }
 
@@ -314,7 +317,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
     private static boolean returnToFactory(){
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
@@ -410,7 +413,7 @@ public class Ranger {
         
 
         // If none of the above work, changes in a random direction (placeholder for now)
-        // EarthPathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
+        // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
 
     private static boolean bounce() {
@@ -571,4 +574,92 @@ public class Ranger {
 
         return false;
     }
+    private static boolean moveTowardsFactory() {
+
+        // Move towards the closest factory
+        List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+        long minDist = Long.MAX_VALUE;
+        int idx = -1;
+        for (int i = 0; i < units.size(); i++) {
+            long dist = ranger.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+            if (dist < minDist && (units.get(i).structureIsBuilt()==0||gc.round()>=600)) {
+                minDist = dist;
+                idx = i;
+            }
+        }
+        if(minDist == 2){
+        	return true;
+        }
+        //if(!Player.mapsize.equals("smallmap")){
+	        if(minDist > 16 || gc.round()>=600  ){
+	        	return false;
+	        }
+        //}
+        if (idx != -1) {
+        	//MAYBE add bug pathing
+            //Pathing.move(ranger, units.get(idx).location().mapLocation());
+            	PlanetMap map = gc.startingMap(ranger.location().mapLocation().getPlanet());
+                MapLocation tmp = units.get(idx).location().mapLocation();
+                int initx = tmp.getX();
+                int inity = tmp.getY();
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity);
+                if (map.onMap(tmp)){
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
+                if (map.onMap(tmp)){
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity - 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+                tmp = new MapLocation(Planet.Earth, initx, inity + 1);
+                if (map.onMap(tmp)) {
+                	if(!Pathing.move(ranger, tmp)){
+                		Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(tmp));
+                	}
+                	return true;
+                }
+        }
+        return false;
+    }
+
 }
