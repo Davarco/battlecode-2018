@@ -54,8 +54,8 @@ public class Knight {
     		rush();
     		attack();
     		return;
-    	}*/
-        
+    	}
+        */
         rush();
 		attack();
         /*

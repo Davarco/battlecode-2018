@@ -33,6 +33,7 @@ public class Worker {
 	public static boolean initialreached = false;
 	public static int maxworkers = 0;
 	public static boolean initialfactory = false;
+	public static int factorycap = 4;
 
 
 	public static void init(GameController controller) {
@@ -100,10 +101,18 @@ public class Worker {
         		return;
         }
         
+
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Worker)<10){
+        if(Player.mapsize.equals("largemap")  && Info.number(UnitType.Worker)<10){
             replicate();
         }
+        if(!Player.mapsize.equals("largemap")  && Info.number(UnitType.Worker)<5){
+            replicate();
+        }
+        
+    	if (Info.number(UnitType.Factory) * 20 > 3 * Info.number(UnitType.Worker)) {
+			replicate();
+		}
         
         // Build things that we need to
         build();
@@ -245,7 +254,7 @@ public class Worker {
 			}
 		}
 		if (Player.mapsize.equals("largemap")) {
-			if (gc.karbonite() - 200 >= 20 * Info.number(UnitType.Factory) && Info.number(UnitType.Factory) < 4) {
+			if (gc.karbonite() - 200 >= 20 * Info.number(UnitType.Factory) && Info.number(UnitType.Factory) < factorycap) {
 				Unit temp = closestFactory();
 				if (temp == null && initialfactory == false) {
 					create(UnitType.Factory);
@@ -562,12 +571,47 @@ public class Worker {
 	}
 
     private static boolean moveTowardsKarbonite() {
-    	if(stopcollecting == true ||( gc.planet().equals(Planet.Earth) && gc.round()>300)){
-        	return false;
-    	}
-    
-       return moveTowardsKarboniteFar();
-    }
+		/*
+		 * MapLocation temp = ranger.location().mapLocation(); for(int x =
+		 * temp.getX-2; x<temp..getX()-2; x++){ for(int y = temp.getY()+2;
+		 * y<ranger.location().mapLocation().getY()-2; y++){ MapLocation t1 =
+		 * new MapLocation(temp.getPlanet(), temp.getX(), temp.getY())
+		 * if(gc.karboniteAt()!=0){
+		 * Pathing.tryMove(worker,worker.location().mapLocation().directionTo(
+		 * bestKarb)); } } }
+		 */
+		if (stopcollecting == true) {
+			return moveTowardsFactory();
+		}
+		MapLocation bestKarb;
+		if (gc.planet() == Planet.Earth)
+			bestKarb = bestKarboniteLoc();
+		else {
+			bestKarb = bestKarboniteLocMars();
+		}
+		if (bestKarb != null) { // bestKarboniteLoc returns the worker's
+								// position if nothing is found
+			if (gc.planet().equals(Planet.Earth)) {
+				if (Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation()
+						.getY()] == Mars.earthplaces[bestKarb.getX()][bestKarb.getY()]) {
+					if (Pathing.move(worker, bestKarb) == false) {
+						Pathing.tryMove(worker, worker.location().mapLocation().directionTo(bestKarb));
+						System.out.println("*************" + bestKarb);
+					}
+				}
+			} else {
+				if (Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation()
+						.getY()] == Mars.marsplaces[bestKarb.getX()][bestKarb.getY()]) {
+					if (Pathing.move(worker, bestKarb) == false) {
+						Pathing.tryMove(worker, worker.location().mapLocation().directionTo(bestKarb));
+						System.out.println("*************" + bestKarb);
+					}
+				}
+			}
+			return true;
+		}
+		return moveTowardsKarboniteFar();
+	}
     private static boolean ditchFactory() {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
@@ -760,12 +804,14 @@ public class Worker {
     private static void create(UnitType type) {
 		int num = (int) (Math.random() * Direction.values().length);
 		boolean check = false;
+		int min = 1<<30;
+		Direction d = null;
 		for (int i = num; i < Direction.values().length + num; i++) {
 			int tmp = i % Direction.values().length;
 			Direction dir = Direction.values()[tmp];
 			MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
+			int count = 0;
 			if (type.equals(UnitType.Factory)) {
-				int count = 0;
 				MapLocation ml = Pathing.DirectionToMapLocation(temp, Direction.North);
 				Unit vu = null;
 				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
@@ -808,14 +854,19 @@ public class Worker {
 				}
 			}
 			if (gc.canBlueprint(worker.id(), type, dir)) {
-				gc.blueprint(worker.id(), type, dir);
-				check = true;
-				return;
+				if(min>count){
+					min = count;
+					d = dir;
+				}
 			}
 		}
-		if(!check){
-			create1(type);
+		if(d != null){
+			gc.blueprint(worker.id(), type, d);
+			check = true;
 		}
+		/*else{
+			create1(type);
+		}*/
 	}
 	
 	  private static void create1(UnitType type) {

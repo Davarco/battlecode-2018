@@ -121,6 +121,9 @@ public class Player {
             // Get units and get counts
 
             setUnits();
+            if(gc.karbonite()>1000){
+            	Worker.factorycap++;
+            }
 
             int idx1 = 0;
             if(gc.round() == 1 && gc.planet().equals(Planet.Earth)){
