@@ -221,28 +221,6 @@ public class Pathing {
     }
 
     public static boolean move(Unit unit, MapLocation end) {
-
-        // Check if we already have it
-        long t1 = System.currentTimeMillis();
-        MapLocation start = unit.location().mapLocation();
-        if (stored.containsKey(end)) {
-
-            // Look for a location that's close to the beginning
-            for (MapLocation location: stored.get(end)) {
-                if (location.distanceSquaredTo(start) <= 50) {
-
-                    // Try to bug path to that unit, make sure it can
-                    Direction dir = start.directionTo(location);
-                    stored.putIfAbsent(location, new ArrayList<>());
-                    stored.get(location).add(start);
-                    long t2 = System.currentTimeMillis();
-                    //System.out.println((t2 - t1) + " " + unit.location().mapLocation() + " to " + end + " round " + gc.round() + " " + dir);
-                    return tryMove(unit, dir);
-                }
-            }
-        }
-
-        // Run AStar if necessary
         Direction dir = astar(unit, end);
         stored.putIfAbsent(end, new ArrayList<>());
         stored.get(end).add(start);

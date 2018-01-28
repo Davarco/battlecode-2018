@@ -86,23 +86,15 @@ public class Worker {
         //long t1 = System.currentTimeMillis();
         updateKarboniteIndexEarth();
         updateKarboniteIndexMars();
-        if(gc.round()<=15){
-        	moveTowardsKarbonite();
-        	harvestKarbonite();
-        	return;
-        }
         
         if(gc.karbonite()>=200 ){
-        	Player.initialKarbReached=true;
+        		Player.initialKarbReached=true;
         }
         if(!Player.initialKarbReached){
-        	System.out.println("adfqadavshdhua " + gc.round() );
-        	harvestKarbonite();
-        	if(moveTowardsKarbonite()){
+        		moveTowardsKarbonite();
+        		replicate();
+        		harvestKarbonite();
         		return;
-        	}
-        	bounce();
-        	return;
         }
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
@@ -161,7 +153,7 @@ public class Worker {
         	if (moveTowardsKarbonite()){	
                 return;
             }
-            if (escape())
+         if (escape())
                 return;
             
         } 
@@ -169,9 +161,9 @@ public class Worker {
             if (escape()){
                 return;
             }
-    		if(worker.health()<=80){
-    			moveTowardsFactory();
-    		}
+	    		/*if(worker.health()<=80){
+	    			moveTowardsFactory();
+	    		}*/
             if (moveTowardsKarbonite()){	
                 return;
             }
@@ -203,9 +195,6 @@ public class Worker {
        if(returnToFactory()){
     	   return;
        }
-       if(bounce()){
-	   	   return;
-       }
     }
     private static void harvestEarly(){
         for (int i = 0; i < Direction.values().length; i++) {
@@ -228,7 +217,7 @@ public class Worker {
     	
     	int FactoryNumber=Info.number(UnitType.Factory);
     	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)) {
+	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*8)/4)) {
 	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
 	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
 	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
@@ -470,7 +459,7 @@ public class Worker {
 
     
     private static boolean moveTowardsKarboniteFar() {
-		if (gc.planet().equals(Planet.Earth)) {
+    	if (gc.planet().equals(Planet.Earth)) {
 			int idx = Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
 			if (Mars.karboniteplacesEarth.get(idx).size() == 0) {
 				if(skipIndex.get(idx) == false){
@@ -492,14 +481,15 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(Pathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
+			if(Pathing.move(worker, Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))));
-        	//}
+        		}
         		System.out.println("*************"+Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)));
 
 			return true;
-		} else {
+		} 
+		else {
 			int idx = Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()];
 			if (Mars.karboniteplacesMars.get(idx).size() == 0) {
 				if(skipIndex.get(idx) == false){
@@ -521,51 +511,19 @@ public class Worker {
 				}
 				return false;
 			}
-			//if(Pathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
+			if(Pathing.move(worker, Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx)))==false){
 				Pathing.tryMove(worker, worker.location().mapLocation()
 						.directionTo(Mars.karboniteplacesMars.get(idx).get(marskarboindex.get(idx))));
-        	//}
+			}
 			return true;
 		}
 	}
 
     private static boolean moveTowardsKarbonite() {
-    	/*MapLocation temp = ranger.location().mapLocation();
-    	for(int x = temp.getX-2; x<temp..getX()-2; x++){
-    		for(int y = temp.getY()+2; y<ranger.location().mapLocation().getY()-2; y++){
-    			MapLocation t1 = new MapLocation(temp.getPlanet(), temp.getX(), temp.getY())
-        		if(gc.karboniteAt()!=0){
-            		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
-        		}
-        	}
-    	}*/
     	if(stopcollecting == true){
-        	return moveTowardsFactory();
+        	return false;
     	}
-    	MapLocation bestKarb;
-    	if(gc.planet()==Planet.Earth)bestKarb = bestKarboniteLoc();
-    	else{
-    		bestKarb = bestKarboniteLocMars();
-    	}
-        if (bestKarb != null) { // bestKarboniteLoc returns the worker's position if nothing is found
-        	if(gc.planet().equals(Planet.Earth)){
-        		if(Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()] == Mars.earthplaces[bestKarb.getX()][bestKarb.getY()]){
-                	if(Pathing.move(worker, bestKarb)==false){
-                		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
-                		System.out.println("*************"+bestKarb);
-                	}
-        		}
-        	}
-        	else{
-        		if(Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation().getY()] == Mars.marsplaces[bestKarb.getX()][bestKarb.getY()]){
-                	if(Pathing.move(worker, bestKarb)==false){
-                		Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
-                		System.out.println("*************"+bestKarb);
-                	}
-        		}
-        	}
-            return true;
-        }
+    
        return moveTowardsKarboniteFar();
     }
     private static boolean ditchFactory() {
@@ -689,8 +647,8 @@ public class Worker {
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
                 if (i >= 0 && i < Player.earthWidth && j >= 0 && j < Player.earthHeight && Player.karboniteMap[i][j] != 0) {
-                	int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
-                    if (heuristic < bestHeuristicSoFar) {
+                		int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
+                		if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
                         bestISoFar = i;
                         bestJSoFar = j;
