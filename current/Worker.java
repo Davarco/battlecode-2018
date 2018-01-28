@@ -94,9 +94,7 @@ public class Worker {
         }
         if(!Player.initialKarbReached){
         		moveTowardsKarbonite();
-        		if(gc.round()%2 == 0){
-        			replicate();
-        		}
+        		replicate();
         		harvestKarbonite();
         		return;
         }
@@ -132,7 +130,7 @@ public class Worker {
         // Harvest karbonite if we can
     }
     public static void runMars(Unit unit){
-    	worker = unit;
+    		worker = unit;
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
         if(Info.number(UnitType.Worker)<10 || gc.round()>=750){
         	replicateMars();
@@ -141,11 +139,19 @@ public class Worker {
         workerId = worker.id();
         marsKarbonitei = gc.karbonite();
         harvestKarbonite();
-        move();
+        moveMars();
         updateWorkerStats();
         
     }
-
+    private static void moveMars() {
+    		if (escape())
+    			return;
+    		if (moveTowardsKarbonite()){	
+            return;
+    		}
+    		//bounce();
+    }
+    
     private static void move() {
     	
         /*
@@ -165,7 +171,7 @@ public class Worker {
         		return;
         	if (moveTowardsKarbonite()){	
                 return;
-            }
+           }
          if (escape())
                 return;
             

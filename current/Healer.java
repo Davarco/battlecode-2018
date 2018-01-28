@@ -151,6 +151,9 @@ public class Healer {
         }
         // Otherwise changes towards a low HP troop
         // TODO Implement this as a heuristic
+        if (Player.focalPoint != null) {
+    			Pathing.move(healer, Player.focalPoint);	
+        }
         friendlies = gc.senseNearbyUnitsByTeam(healer.location().mapLocation(), healer.visionRange(), Util.friendlyTeam());
         long minDist = Long.MAX_VALUE;
         int idx = -1;
