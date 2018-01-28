@@ -32,6 +32,7 @@ public class Worker {
 	public static boolean stopcollecting = false;
 	public static boolean initialreached = false;
 	public static int maxworkers = 0;
+	public static boolean initialfactory = false;
 
 
 	public static void init(GameController controller) {
@@ -92,13 +93,15 @@ public class Worker {
         }
         if(!Player.initialKarbReached){
         		moveTowardsKarbonite();
-        		replicate();
+        		if(gc.round()%2 == 0){
+        			replicate();
+        		}
         		harvestKarbonite();
         		return;
         }
         
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Info.number(UnitType.Factory)*20>3*Info.number(UnitType.Worker)){
+        if(Info.number(UnitType.Worker)<10){
             replicate();
         }
         
@@ -212,46 +215,68 @@ public class Worker {
     	}
     }
     private static void build() {
-    	
-        // Create factories
-    	
-    	int FactoryNumber=Info.number(UnitType.Factory);
-    	if(Player.mapsize.equals("largemap")){
-	    	if (gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)<=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*8)/4)) {
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Ranger);
-	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc,16, UnitType.Factory);
-	    		if(rthings.size()>0 &&  rthings1.size()<2 && things.size()>0){
-		            create(UnitType.Rocket);
-	    		}
-	        }
-    	}
-    	else{
-    		if (gc.round() > 50) {
-    			VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 32, UnitType.Factory);
-	    		VecUnit rthings = gc.senseNearbyUnitsByType(workerLoc, 12, UnitType.Ranger);
-	    		VecUnit rthings1 = gc.senseNearbyUnitsByType(workerLoc, 16, UnitType.Rocket);
-	    		if(rthings.size()>0 &&  rthings1.size()<2&& things.size()>0){
-	    			
-		            create(UnitType.Rocket);
-	    		}
-	        }
-    	}
-    	if(Player.mapsize.equals("largemap")){
-    		VecUnit things = gc.senseNearbyUnitsByType(workerLoc, 32, UnitType.Factory);
-    		VecUnit enemies = gc.senseNearbyUnitsByTeam(workerLoc, worker.visionRange(), Util.enemyTeam());
-	    	if (gc.karbonite()-200>=20*Info.number(UnitType.Factory)&& Info.number(UnitType.Factory)<=2) {
-		        if(things.size()==0 && enemies.size()==0)
-		        	create(UnitType.Factory);
-		    }
-    	}
-    	else{
-    		if (gc.karbonite()>10*(FactoryNumber) && Info.number(UnitType.Factory)<=5) {
-    	        create(UnitType.Factory);
-    	    }
-    	}
-	    return;
-    }
+
+		// Create factories
+
+		int FactoryNumber = Info.number(UnitType.Factory);
+		if (Player.mapsize.equals("largemap")) {
+			if (gc.round() > Config.ROCKET_CREATION_ROUND
+					&& (Info.number(UnitType.Rocket) <= (Info.number(UnitType.Ranger) + Info.number(UnitType.Healer)
+							- Info.number(UnitType.Factory) * 5) / 4)) {
+				Unit temp = closestFactory();
+				if (temp != null
+						&& Math.abs(worker.location().mapLocation().getX() + worker.location().mapLocation().getY()
+								- temp.location().mapLocation().getX() - temp.location().mapLocation().getY()) <= 4) {
+					create(UnitType.Rocket);
+				} else {
+					moveTowardsFactory();
+				}
+			}
+		} else {
+			if (gc.round() > 100) {
+				Unit temp = closestFactory();
+				if (temp != null
+						&& Math.abs(worker.location().mapLocation().getX() + worker.location().mapLocation().getY()
+								- temp.location().mapLocation().getX() - temp.location().mapLocation().getY()) <= 4) {
+					create(UnitType.Rocket);
+				} else {
+					moveTowardsFactory();
+				}
+			}
+		}
+		if (Player.mapsize.equals("largemap")) {
+			if (gc.karbonite() - 200 >= 20 * Info.number(UnitType.Factory) && Info.number(UnitType.Factory) < 4) {
+				Unit temp = closestFactory();
+				if (temp == null && initialfactory == false) {
+					create(UnitType.Factory);
+					initialfactory = true;
+				}
+				if (temp != null
+						&& Math.abs(worker.location().mapLocation().getX() + worker.location().mapLocation().getY()
+								- temp.location().mapLocation().getX() - temp.location().mapLocation().getY()) <= 4) {
+					create(UnitType.Factory);
+				} else {
+					moveTowardsFactory();
+				}
+			}
+		} else {
+			if (gc.karbonite() > 10 * (FactoryNumber) && Info.number(UnitType.Factory) <= 2) {
+				Unit temp = closestFactory();
+				if (temp == null && initialfactory == false) {
+					initialfactory = true;
+					create(UnitType.Factory);
+				}
+				if (temp != null
+						&& Math.abs(worker.location().mapLocation().getX() + worker.location().mapLocation().getY()
+								- temp.location().mapLocation().getX() - temp.location().mapLocation().getY()) <= 4) {
+					create(UnitType.Factory);
+				} else {
+					moveTowardsFactory();
+				}
+			}
+		}
+		return;
+	}
 
     private static boolean escape() {
 
@@ -344,6 +369,23 @@ public class Worker {
 
         return false;
     }
+    
+	public static Unit closestFactory() {
+		List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
+		if (units.size() == 0) {
+			return null;
+		}
+		long minDist = Long.MAX_VALUE;
+		int idx = 0;
+		for (int i = 0; i < units.size(); i++) {
+			long dist = worker.location().mapLocation().distanceSquaredTo(units.get(i).location().mapLocation());
+			if (dist < minDist && (units.get(i).structureIsBuilt() == 0 || gc.round() >= 600)) {
+				minDist = dist;
+				idx = i;
+			}
+		}
+		return units.get(idx);
+	}
 
     private static boolean moveTowardsFactory() {
 
@@ -520,7 +562,7 @@ public class Worker {
 	}
 
     private static boolean moveTowardsKarbonite() {
-    	if(stopcollecting == true){
+    	if(stopcollecting == true ||( gc.planet().equals(Planet.Earth) && gc.round()>300)){
         	return false;
     	}
     
@@ -716,21 +758,76 @@ public class Worker {
     }
 
     private static void create(UnitType type) {
-    	int num = (int) (Math.random() * Direction.values().length);
-        for (int i = num; i < Direction.values().length+num; i++) {
-        	int tmp = i % Direction.values().length;
-        	Direction dir = Direction.values()[tmp];
-        	MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
-        	if(type.equals(UnitType.Factory) || type.equals(UnitType.Rocket)){
-        		if(FocusPoints.geographicmap[temp.getX()+1][temp.getY()+1]<=1){
-        			return;
-        		}
-        	}
-            if (gc.canBlueprint(worker.id(), type, dir)) {
-                gc.blueprint(worker.id(), type, dir);
-            }
-        }
-    }
+		int num = (int) (Math.random() * Direction.values().length);
+		boolean check = false;
+		for (int i = num; i < Direction.values().length + num; i++) {
+			int tmp = i % Direction.values().length;
+			Direction dir = Direction.values()[tmp];
+			MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
+			if (type.equals(UnitType.Factory)) {
+				int count = 0;
+				MapLocation ml = Pathing.DirectionToMapLocation(temp, Direction.North);
+				Unit vu = null;
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.South);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.East);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.West);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				if (count > 1) {
+					continue;
+				}
+			}
+			if (gc.canBlueprint(worker.id(), type, dir)) {
+				gc.blueprint(worker.id(), type, dir);
+				check = true;
+				return;
+			}
+		}
+		if(!check){
+			create1(type);
+		}
+	}
+	
+	  private static void create1(UnitType type) {
+	        int num = (int) (Math.random() * Direction.values().length);
+	        for (int i = num; i < Direction.values().length + num; i++) {
+	            int tmp = i % Direction.values().length;
+	            Direction dir = Direction.values()[tmp];
+	            if (gc.canBlueprint(worker.id(), type, dir)) {
+	                gc.blueprint(worker.id(), type, dir);
+	            }
+	        }
+	    }
     private static void updateWorkerStats() {
         workerId = worker.id();
         if (worker.location().isInGarrison() || worker.location().isInSpace()) return;

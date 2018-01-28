@@ -31,7 +31,15 @@ public class Pathing {
         MapLocation start = unit.location().mapLocation();
         if (loc.equals(start) || loc.equals(dest))
             return true;
-        return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1);
+       /* if(unit.unitType().equals(UnitType.Ranger)){
+        	return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1);
+        }
+        else{
+        	return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1)
+        			&& (gc.planet().equals(Planet.Earth) && FocusPoints.geographicmap[start.getX()][start.getY()]<=FocusPoints.geographicmap[loc.getX()][loc.getY()]);
+        }*/
+    	return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1);
+
     }
 
     private static boolean isDestination(MapLocation loc) {
@@ -352,27 +360,31 @@ public class Pathing {
             return this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight());
         }
     }
-    public static MapLocation DirectionToMapLocation(Unit unit, Direction direction) {
-        switch (direction) {
-            case North:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY()+1);
-            case Northeast:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()+1, unit.location().mapLocation().getY()+1);
-            case East:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()+1, unit.location().mapLocation().getY());
-            case Southeast:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()+1, unit.location().mapLocation().getY()-1);
-            case South:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY()-1);
-            case Southwest:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()-1, unit.location().mapLocation().getY()-1);
-            case West:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()-1, unit.location().mapLocation().getY());
-            case Northwest:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX()-1, unit.location().mapLocation().getY()+1);
-            case Center:
-                return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY());
-        }
-        return null;
-}
+    public static MapLocation DirectionToMapLocation(MapLocation temp, Direction direction) {
+   	 switch (direction) {
+        case North:
+            return new MapLocation(temp.getPlanet(), temp.getX(), temp.getY()+1);
+        case Northeast:
+            return new MapLocation(temp.getPlanet(), temp.getX()+1, temp.getY()+1);
+        case East:
+            return new MapLocation(temp.getPlanet(), temp.getX()+1, temp.getY());
+        case Southeast:
+            return new MapLocation(temp.getPlanet(), temp.getX()+1, temp.getY()-1);
+        case South:
+            return new MapLocation(temp.getPlanet(), temp.getX(), temp.getY()-1);
+        case Southwest:
+            return new MapLocation(temp.getPlanet(), temp.getX()-1, temp.getY()-1);
+        case West:
+            return new MapLocation(temp.getPlanet(), temp.getX()-1, temp.getY());
+        case Northwest:
+            return new MapLocation(temp.getPlanet(), temp.getX()-1, temp.getY()+1);
+        case Center:
+            return new MapLocation(temp.getPlanet(), temp.getX(), temp.getY());
+    }
+    return null;
+   }
+    
+   public static MapLocation DirectionToMapLocation(Unit unit, Direction direction) {
+      return DirectionToMapLocation(unit.location().mapLocation(), direction);
+   }
 }

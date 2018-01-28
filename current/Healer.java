@@ -44,13 +44,28 @@ public class Healer {
         }
     }
 
-
     public static void runMars(Unit unit) {
+
+        // Receive healer from main runner
         healer = unit;
 
-        System.out.println("Healer #" + healer.id() + " is on Mars!");
+        /*
+        Scenario 1: Heal first and then runEarth away to get out of enemy range
+        Scenario 2: Move first to get into range and then heal
+         */
+        if (!heal()) {
+            long t1 = System.currentTimeMillis();
+            move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
+            heal();
+        } else {
+            long t1 = System.currentTimeMillis();
+            move();
+            long t2 = System.currentTimeMillis();
+            Player.time += (t2 - t1);
+        }
     }
-    
     private static boolean heal() {
 
         // Return true if we cannot heal
@@ -63,12 +78,49 @@ public class Healer {
             return false;
 
         // Heal lowest HP target by difference
-        long minHp = 0;
-        int idx = -1;
+        long minHP = 0;
+        int idx = 0;
+        boolean check1 = false;
+        boolean  check2 = false;
+        boolean  check3 = false;
         for (int i = 0; i < friendlies.size(); i++) {
-            if (friendlies.get(i).maxHealth() - friendlies.get(i).health() >= minHp) {
-                minHp = friendlies.get(i).maxHealth() - friendlies.get(i).health();
-                idx = i;
+           if(friendlies.get(i).unitType().equals(UnitType.Healer) && friendlies.get(i).maxHealth() - friendlies.get(i).health()>=0){
+        	   check1 = true;
+           }
+           if(friendlies.get(i).unitType().equals(UnitType.Mage) && friendlies.get(i).maxHealth() - friendlies.get(i).health()>=0){
+        	   check2 = true;
+           }
+           if(friendlies.get(i).unitType().equals(UnitType.Ranger) && friendlies.get(i).maxHealth() - friendlies.get(i).health()>=0){
+        	   check3 = true;
+           }
+           
+        }
+        
+        
+        for (int i = 0; i < friendlies.size(); i++) {
+            if(check1 == true){
+            	if(friendlies.get(i).equals(UnitType.Healer) && friendlies.get(i).maxHealth() - friendlies.get(i).health() >= minHP){
+            		minHP = friendlies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else if(check2 == true){
+            	if(friendlies.get(i).equals(UnitType.Mage) && friendlies.get(i).maxHealth() - friendlies.get(i).health() >= minHP){
+            		minHP = friendlies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else if(check3 == true){
+            	if(friendlies.get(i).equals(UnitType.Ranger) && friendlies.get(i).maxHealth() - friendlies.get(i).health() >= minHP){
+            		minHP = friendlies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else{
+            	if(friendlies.get(i).health()<minHP){
+            		minHP = friendlies.get(i).health();
+            		idx = i;
+            	}
             }
         }
         if (gc.canHeal(healer.id(), friendlies.get(idx).id()) && gc.isHealReady(healer.id())) {

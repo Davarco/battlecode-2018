@@ -12,6 +12,9 @@ public class Ranger {
     private static VecUnit friendly;
     private static HashMap<Integer, Direction> directionMap;
     private static HashMap<Integer, Integer> counterMap;
+    private static boolean stoprushing = false;
+    public static int extraproduced = 0;
+    public static int initialrushsize = 0;
 
     public static void init(GameController controller) {
         gc = controller;
@@ -126,7 +129,31 @@ public class Ranger {
         // If none of the above work, changes in a random direction (placeholder for now)
         // Pathing.move(ranger, FocusPoints.GeographicFocusPointsE.get(0));
     }
- private static boolean moveTowardsRocketSmall() {
+ 
+ 	private static boolean rush(){
+ 		if(Player.enemy == null || stoprushing == true){
+ 			return false;
+ 		}
+        enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
+        if(enemies == null || enemies.size() == 0){
+			return Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(Player.enemy));
+		
+        }
+        for(int x = 0; x<enemies.size(); x++){
+        	if(enemies.get(x).unitType().equals(UnitType.Factory)){
+    			return Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
+        	}
+        	if(enemies.get(x).unitType().equals(UnitType.Worker)){
+    			return Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
+        	}
+        	if(enemies.get(x).unitType().equals(UnitType.Ranger)){
+    			return Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
+        	}
+        }
+		return Pathing.tryMove(ranger, ranger.location().mapLocation().directionTo(enemies.get(0).location().mapLocation()));
+ 	}
+ 	
+ 	private static boolean moveTowardsRocketSmall() {
  	if(ranger.location().mapLocation().getPlanet()==Planet.Mars)return false;
      // Move towards a low-HP rocket if possible
      VecUnit rockets = gc.senseNearbyUnitsByType(ranger.location().mapLocation(), ranger.visionRange(), UnitType.Rocket);
@@ -220,22 +247,57 @@ public class Ranger {
             return false;
 
         // Attack lowest HP target
-        long minHp = Long.MAX_VALUE;
+        long minHP = Long.MAX_VALUE;
         
-        int idx = -1;
-        boolean checkiffactory = false;
+        int idx = 0;
+        boolean check1 = false;
+        boolean  check2 = false;
+        boolean  check3 = false;
         for (int i = 0; i < enemies.size(); i++) {
-            if (!checkiffactory && enemies.get(i).health() < minHp && gc.canAttack(ranger.id(), enemies.get(i).id())) {
-                minHp = enemies.get(i).health();
-                idx = i;
+           if(enemies.get(i).unitType().equals(UnitType.Healer)){
+        	   check1 = true;
+           }
+           if(enemies.get(i).unitType().equals(UnitType.Mage)){
+        	   check2 = true;
+           }
+           if(enemies.get(i).unitType().equals(UnitType.Ranger)){
+        	   check3 = true;
+           }
+           
+        }
+        for (int i = 0; i < enemies.size(); i++) {
+            if(check1 == true){
+            	if(enemies.get(i).equals(UnitType.Healer) && enemies.get(i).health()<minHP){
+            		minHP = enemies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else if(check2 == true){
+            	if(enemies.get(i).equals(UnitType.Mage) && enemies.get(i).health()<minHP){
+            		minHP = enemies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else if(check3 == true){
+            	if(enemies.get(i).equals(UnitType.Ranger) && enemies.get(i).health()<minHP){
+            		minHP = enemies.get(i).health();
+            		idx = i;
+            	}
+            }
+            else{
+            	if(enemies.get(i).health()<minHP){
+            		minHP = enemies.get(i).health();
+            		idx = i;
+            	}
             }
         }
         
         if (idx!= -1 && gc.canAttack(ranger.id(), enemies.get(idx).id())) {
             gc.attack(ranger.id(), enemies.get(idx).id());
+            return true;
         }
+        return false;
 
-        return true;
     }
 
     private static void move() {

@@ -6,6 +6,7 @@ public class Factory {
 
     private static Unit factory;
     private static GameController gc;
+    public static boolean initialknights = false;
 
     public static void init(GameController controller) {
         gc = controller;
@@ -46,6 +47,21 @@ public class Factory {
                 Info.addUnit(UnitType.Worker);
             }
         }
+    	
+    	if(!initialknights && Player.enemy!=null){
+    		/*if (Info.number(UnitType.Mage)<1 &&  Info.number(UnitType.Knight)>4 && gc.canProduceRobot(factory.id(), UnitType.Mage)) {
+    			gc.produceRobot(factory.id(), UnitType.Mage);
+    			Info.addUnit(UnitType.Mage);
+    		}*/
+	        if (gc.canProduceRobot(factory.id(), UnitType.Knight)) {
+				gc.produceRobot(factory.id(), UnitType.Knight);
+				Info.addUnit(UnitType.Knight);
+				Info.knightsCreated++;
+				if(Info.knightsCreated>=7){
+					initialknights = true;
+				}
+	        }
+    	}
 
         // See if the factory can build the ranger
         if(Player.mapsize.equals("largemap")){

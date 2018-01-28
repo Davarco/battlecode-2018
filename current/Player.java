@@ -13,19 +13,20 @@ public class Player {
     public static MapLocation focalPoint;
     public static MapLocation focalPointMars;
     public static long time = 0;
+    private static int W, H;
     public static String mapsize = "";
     public static int roundcount=0;
     public static long workertime=0,rangertime=0, factorytime = 0;
     public static int rangercount=0, workercount = 0;
     public static int[][] karboniteMap;
     public static int[][] karboniteMapMars;
-    public static MapLocation[][] mapLocations;
-    public static MapLocation[][] mapLocationsMars;
     public static int earthWidth;
     public static int earthHeight;
     public static int marsWidth;
     public static int marsHeight;
     public static int launchCounter = 0;
+    public static MapLocation enemy = null;
+
      
  
      public static void main(String[] args) {
@@ -40,9 +41,9 @@ public class Player {
         marsHeight = (int)pm1.getHeight();
         marsWidth = (int)pm1.getWidth();
         karboniteMap = new int[earthWidth][earthHeight];
-        mapLocations = new MapLocation[earthWidth][earthHeight];
         karboniteMapMars = new int[marsWidth][marsHeight];
-        mapLocationsMars = new MapLocation[marsWidth][marsHeight];
+        W = (int)pm.getWidth();
+        H = (int)pm.getHeight();
        
         
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
@@ -55,7 +56,6 @@ public class Player {
         	 for (int i = 0; i < earthWidth; i++) {
                  for (int j = 0; j < earthHeight; j++) {
                      karboniteMap[i][j] = (int) pm.initialKarboniteAt(new MapLocation(Planet.Earth, i, j));
-                     mapLocations[i][j] = new MapLocation(Planet.Earth, i, j);
                  }
              }
         }
@@ -63,7 +63,6 @@ public class Player {
     		for (int i = 0; i < marsWidth; i++) {
                 for (int j = 0; j < marsHeight; j++) {
                     karboniteMapMars[i][j] = (int) pm1.initialKarboniteAt(new MapLocation(Planet.Mars, i, j));
-                    mapLocationsMars[i][j] = new MapLocation(Planet.Mars, i, j);
                 }
             }
     	}
@@ -123,6 +122,16 @@ public class Player {
 
             setUnits();
 
+            int idx1 = 0;
+            if(gc.round() == 1 && gc.planet().equals(Planet.Earth)){
+            	MapLocation mltemp = units.get(idx1).location().mapLocation();
+            	System.out.println(mltemp.getX()+" "+mltemp.getY()+" "+W+" "+H+" "+"HI");
+            	while(Mars.earthplaces[mltemp.getX()][mltemp.getY()]!= Mars.earthplaces[W-mltemp.getX()-1][H-mltemp.getY()-1]){
+            		idx1++;
+                	 mltemp = units.get(idx1).location().mapLocation();
+            	}
+            	enemy = new MapLocation(mltemp.getPlanet(), W-mltemp.getX(), H-mltemp.getY());
+            }
             // Run corresponding code for each type of unit
 
             long ta, tb;

@@ -14,8 +14,11 @@ public class Info {
     public static int workerCount;
     public static int rangerCount;
     public static int factoryCount;
+    public static int mageCount;
+    public static int knightCount;
     public static int healerCount;
     public static long totalUnits;
+    public static int knightsCreated = 0;
 
     public static void reset() {
         rocketCount=0;
@@ -23,6 +26,8 @@ public class Info {
         rangerCount = 0;
         factoryCount = 0;
         healerCount = 0;
+        mageCount = 0;
+        knightCount = 0;
         unitByTypes = new EnumMap<>(UnitType.class);
         unitByTypes.put(UnitType.Rocket, new ArrayList<>());
         unitByTypes.put(UnitType.Factory, new ArrayList<>());
@@ -52,6 +57,12 @@ public class Info {
     	case Healer:
     		healerCount++;
     		break;
+    	case Mage:
+    		mageCount++;
+    		break;
+    	case Knight:
+    		knightCount++;
+    		break;
 		}
     	return;
     }
@@ -68,6 +79,10 @@ public class Info {
 	    		return rocketCount;
 	    	case Healer:
 	    		return healerCount;
+	    	case Mage:
+	    		return mageCount;
+	    	case Knight:
+	    		return knightCount;
     	}
     	return -1;
     }
