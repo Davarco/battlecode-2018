@@ -81,10 +81,8 @@ public class Ranger {
         // Avoid enemy units, walk outside of their view range
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
-        if(enemies.size()>=friendly.size() && gc.round()<=300){
         	if (Pathing.escape(ranger)) {
         		return;
-        	}
         }
         if (Player.focalPoint != null) {
             if (Player.focalPoint.isWithinRange(ranger.visionRange(), ranger.location().mapLocation()) && gc.canSenseLocation(Player.focalPoint) &&
@@ -319,11 +317,9 @@ public class Ranger {
         // Avoid enemy units, walk outside of their view range
         enemies = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
         friendly = gc.senseNearbyUnitsByTeam(ranger.location().mapLocation(), ranger.visionRange(), Util.enemyTeam());
-        if(enemies.size()>=friendly.size()){
         	if (Pathing.escape(ranger)) {
         		return;
         	}
-        }
 
         // Move towards initial enemy worker locations
         /*

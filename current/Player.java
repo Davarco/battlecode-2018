@@ -232,23 +232,22 @@ public class Player {
         System.out.println("Initializing research tree!");
         gc.queueResearch(UnitType.Worker);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
+        gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+        gc.queueResearch(UnitType.Ranger);  // 25
+        gc.queueResearch(UnitType.Healer);  // 25
+    }
+    private static void initResearchSmall() {
+    		gc.queueResearch(UnitType.Worker);  // 25
+        gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Rocket);  // 100 <- Enables us to send troops to Mars
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Healer);  // 25
         gc.queueResearch(UnitType.Ranger);  // 25
         gc.queueResearch(UnitType.Healer);  // 25
-    }
-    private static void initResearchSmall() {
-    	gc.queueResearch(UnitType.Rocket);
-        System.out.println("Initializing research tree!");
-        gc.queueResearch(UnitType.Worker);  // 25
-        gc.queueResearch(UnitType.Ranger);  // 25
-          // 100 <- Enables us to send troops to Mars
-        gc.queueResearch(UnitType.Ranger);  // 25
-        gc.queueResearch(UnitType.Ranger);  // 25
-        gc.queueResearch(UnitType.Worker);  // 25
-        gc.queueResearch(UnitType.Worker);  // 25
     }
 
     private static void setUnits() {

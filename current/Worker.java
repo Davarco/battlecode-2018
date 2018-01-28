@@ -94,25 +94,22 @@ public class Worker {
         }
         if(!Player.initialKarbReached){
         		moveTowardsKarbonite();
-        		replicate();
+        		if(Info.number(UnitType.Worker)<7) {
+        			replicate();
+        		}
         		harvestKarbonite();
         		return;
         }
         
 
         //MAKE SURE THIS IS RUN!!!!!!!!!!!!!!!
-        if(Player.mapsize.equals("largemap")  && Info.number(UnitType.Worker)<10){
-            replicate();
-        }
-        if(!Player.mapsize.equals("largemap")  && Info.number(UnitType.Worker)<5){
-            replicate();
-        }
-        
-    	if (Info.number(UnitType.Factory) * 20 >= 5 * Info.number(UnitType.Worker)) {
+        if (Info.number(UnitType.Factory) * 20 >= 5 * Info.number(UnitType.Worker)) {
 			replicate();
 		}
         
         // Build things that we need to
+        if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
+    		repairStructure(UnitType.Factory);
         build();
 
         // General move function, handles priorities
@@ -122,8 +119,8 @@ public class Worker {
         updateWorkerStats();
         
         // Repair structures that we can
-        if (worker.location().isInGarrison() || worker.location().isInSpace()) return;
-        repairStructure(UnitType.Factory);
+       
+        
         repairStructure(UnitType.Rocket);
         
         bounce();
@@ -238,7 +235,7 @@ public class Worker {
 		if (Player.mapsize.equals("largemap")) {
 			if (gc.round() > Config.ROCKET_CREATION_ROUND
 					&& (Info.number(UnitType.Rocket) <= (Info.number(UnitType.Ranger) + Info.number(UnitType.Healer)
-							- Info.number(UnitType.Factory) * 5) / 4)) {
+							- Info.number(UnitType.Factory) * 5) / 4) && gc.round()>200) {
 				Unit temp = closestFactory();
 				if (temp != null
 						&& Math.abs(worker.location().mapLocation().getX() + worker.location().mapLocation().getY()
@@ -590,33 +587,18 @@ public class Worker {
 		if (stopcollecting == true) {
 			return moveTowardsFactory();
 		}
-		/*MapLocation bestKarb;
+		MapLocation bestKarb;
 		if (gc.planet() == Planet.Earth)
 			bestKarb = bestKarboniteLoc();
 		else {
 			bestKarb = bestKarboniteLocMars();
 		}
 		if (bestKarb != null) { // bestKarboniteLoc returns the worker's
-								// position if nothing is found
-			if (gc.planet().equals(Planet.Earth)) {
-				if (Mars.earthplaces[worker.location().mapLocation().getX()][worker.location().mapLocation()
-						.getY()] == Mars.earthplaces[bestKarb.getX()][bestKarb.getY()]) {
-					if (Pathing.move(worker, bestKarb) == false) {
-						Pathing.tryMove(worker, worker.location().mapLocation().directionTo(bestKarb));
-						System.out.println("*************" + bestKarb);
-					}
-				}
-			} else {
-				if (Mars.marsplaces[worker.location().mapLocation().getX()][worker.location().mapLocation()
-						.getY()] == Mars.marsplaces[bestKarb.getX()][bestKarb.getY()]) {
-					if (Pathing.move(worker, bestKarb) == false) {
-						Pathing.tryMove(worker, worker.location().mapLocation().directionTo(bestKarb));
-						System.out.println("*************" + bestKarb);
-					}
-				}
+			if(!Pathing.move(worker,bestKarb)) {
+				Pathing.tryMove(worker,worker.location().mapLocation().directionTo(bestKarb));
 			}
 			return true;
-		}*/
+		}
 		return moveTowardsKarboniteFar();
 	}
     private static boolean ditchFactory() {
@@ -739,7 +721,7 @@ public class Worker {
     	int bestJSoFar = -1;
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
-                if (i >= 0 && i < Player.earthWidth && j >= 0 && j < Player.earthHeight && Player.karboniteMap[i][j] != 0) {
+                if (i >= 0 && i < Player.earthWidth && j >= 0 && j < Player.earthHeight && gc.karboniteAt(new MapLocation(Planet.Earth,i,j))>0) {
                 		int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
                 		if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;
@@ -763,7 +745,7 @@ public class Worker {
     	int bestJSoFar = -1;
         for (int i = x - 4; i < x + 4; i++) {
             for (int j = y - 4; j < y + 4; j++) {
-                if (i >= 0 && i < Player.marsWidth && j >= 0 && j < Player.marsHeight && Player.karboniteMapMars[i][j] != 0) {
+                if (i >= 0 && i < Player.marsWidth && j >= 0 && j < Player.marsHeight && gc.karboniteAt(new MapLocation(Planet.Mars,i,j))>0) {
                 	int heuristic = (int) (Math.pow((x-i), 2) + Math.pow((y-j), 2));
                     if (heuristic < bestHeuristicSoFar) {
                         bestHeuristicSoFar = heuristic;

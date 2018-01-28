@@ -96,15 +96,16 @@ public class Knight {
        	return false;
        }
        for(int x = 0; x<enemies.size(); x++){
+          if(enemies.get(x).unitType().equals(UnitType.Ranger)){
+         		if(!Pathing.move(knight, enemies.get(x).location().mapLocation())){
+           			return Pathing.tryMove(knight, knight.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
+           		}        	
+           	}
        	if(enemies.get(x).unitType().equals(UnitType.Factory)){
        		if(!Pathing.move(knight, enemies.get(x).location().mapLocation())){
        			return Pathing.tryMove(knight, knight.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
        		}
        	}
-       	if(enemies.get(x).unitType().equals(UnitType.Worker)){
-       		if(!Pathing.move(knight, enemies.get(x).location().mapLocation())){
-       			return Pathing.tryMove(knight, knight.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
-       		}        	}
        	if(enemies.get(x).unitType().equals(UnitType.Knight)){
        		if(!Pathing.move(knight, enemies.get(x).location().mapLocation())){
        			return Pathing.tryMove(knight, knight.location().mapLocation().directionTo(enemies.get(x).location().mapLocation()));
