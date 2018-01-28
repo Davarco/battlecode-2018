@@ -53,7 +53,7 @@ public class Factory {
 	        	if(gc.round()<=100){
 	        		 if((Info.number(UnitType.Mage)+Info.number(UnitType.Ranger))<2*Info.number(UnitType.Worker) ){
 	        			 if(Info.number(UnitType.Mage)>Info.number(UnitType.Ranger)){
-	        				 if(Info.number(UnitType.Mage)*3>Info.number(UnitType.Ranger)){
+	        				 if(Info.number(UnitType.Mage)*10>Info.number(UnitType.Ranger)){
 		        					gc.produceRobot(factory.id(), UnitType.Ranger);
 			        	    		Info.addUnit(UnitType.Ranger);
 		        				}
@@ -72,7 +72,7 @@ public class Factory {
 	        		if(gc.round()<=650){
 		        		if(gc.round() > Config.ROCKET_CREATION_ROUND && (Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer)-Info.number(UnitType.Factory)*5)/4)){
 		        			if(Info.number(UnitType.Healer)>=(Info.number(UnitType.Mage)+Info.number(UnitType.Ranger))/3){
-		        				if(Info.number(UnitType.Mage)*3>Info.number(UnitType.Ranger)){
+		        				if(Info.number(UnitType.Mage)*10>Info.number(UnitType.Ranger)){
 		        					gc.produceRobot(factory.id(), UnitType.Ranger);
 			        	    		Info.addUnit(UnitType.Ranger);
 		        				}
@@ -91,7 +91,7 @@ public class Factory {
 	        		else{
 	        			if(Info.number(UnitType.Rocket)>=(Info.number(UnitType.Ranger)+Info.number(UnitType.Healer))/5){
 	        				if(Info.number(UnitType.Healer)>=(Info.number(UnitType.Mage)+Info.number(UnitType.Ranger))/3){
-	        					if(Info.number(UnitType.Mage)*3>Info.number(UnitType.Ranger)){
+	        					if(Info.number(UnitType.Mage)*10>Info.number(UnitType.Ranger)){
 		        					gc.produceRobot(factory.id(), UnitType.Ranger);
 			        	    		Info.addUnit(UnitType.Ranger);
 		        				}
