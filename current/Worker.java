@@ -110,7 +110,7 @@ public class Worker {
             replicate();
         }
         
-    	if (Info.number(UnitType.Factory) * 20 > 3 * Info.number(UnitType.Worker)) {
+    	if (Info.number(UnitType.Factory) * 20 >= 5 * Info.number(UnitType.Worker)) {
 			replicate();
 		}
         
@@ -128,6 +128,7 @@ public class Worker {
         repairStructure(UnitType.Factory);
         repairStructure(UnitType.Rocket);
         
+        bounce();
         // Harvest karbonite if we can
     }
     public static void runMars(Unit unit){
@@ -254,7 +255,7 @@ public class Worker {
 			}
 		}
 		if (Player.mapsize.equals("largemap")) {
-			if (gc.karbonite() - 200 >= 20 * Info.number(UnitType.Factory) && Info.number(UnitType.Factory) < factorycap) {
+			if (gc.karbonite() >= 20 * Info.number(UnitType.Factory) && Info.number(UnitType.Factory) < factorycap) {
 				Unit temp = closestFactory();
 				if (temp == null && initialfactory == false) {
 					create(UnitType.Factory);
@@ -493,7 +494,6 @@ public class Worker {
 				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))
 				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))) == 0) {
 			earthkarboindex.set(idx, earthkarboindex.get(idx) + 1);
-			Player.karboniteMap[Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getX()][Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getY()] = 0;
 		}
 	}
 
@@ -506,7 +506,6 @@ public class Worker {
 				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx)))
 				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx))) == 0) {
 			marskarboindex.set(idx, marskarboindex.get(idx) + 1);
-			Player.karboniteMapMars[Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getX()][Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getY()] = 0;
 		}
 	}
 
@@ -786,6 +785,7 @@ public class Worker {
          	Direction dir = Direction.values()[tmp];
             if (gc.canReplicate(worker.id(), dir)) {
                 gc.replicate(worker.id(), dir);
+                Info.addUnit(UnitType.Worker);
             }
         }
     }

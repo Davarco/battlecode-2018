@@ -84,7 +84,7 @@ public class Knight {
     }
     
     private static boolean rush(){
-		if(Player.enemy == null || Info.number(UnitType.Knight)<5){
+		if(Player.enemy == null ){ //|| Info.number(UnitType.Knight)<5
 			return false;
 		}
 		rush = true;
