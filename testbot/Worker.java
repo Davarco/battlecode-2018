@@ -204,15 +204,16 @@ public class Worker {
 			return;
 		}
 	}
+
 	private static boolean escape() {
 
-        // See if unit needs to escape
-        if (Pathing.escape(worker)) {
-            return true;
-        }
+		// See if unit needs to escape
+		if (Pathing.escape(worker)) {
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 	private static void harvestEarly() {
 		for (int i = 0; i < Direction.values().length; i++) {
@@ -427,58 +428,58 @@ public class Worker {
 			int inity = tmp.getY();
 			tmp = new MapLocation(Planet.Earth, initx + 1, inity);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx - 1, inity);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx + 1, inity + 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx, inity - 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 			tmp = new MapLocation(Planet.Earth, initx, inity + 1);
 			if (map.onMap(tmp)) {
-				//if (!Pathing.move(worker, tmp)) {
-					Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
-				//}
+				// if (!Pathing.move(worker, tmp)) {
+				Pathing.tryMove(worker, worker.location().mapLocation().directionTo(tmp));
+				// }
 				return true;
 			}
 		}
@@ -821,48 +822,69 @@ public class Worker {
 		}
 	}
 
-	/*
-	 * private static void create(UnitType type) { int num = (int)
-	 * (Math.random() * Direction.values().length); for (int i = num; i <
-	 * Direction.values().length+num; i++) { int tmp = i %
-	 * Direction.values().length; Direction dir = Direction.values()[tmp];
-	 * MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
-	 * if(type.equals(UnitType.Factory) || type.equals(UnitType.Rocket)){ int
-	 * count = 0; MapLocation ml = Pathing.DirectionToMapLocation(temp,
-	 * Direction.North); Unit vu = null; if((earthmap.onMap(ml) &&
-	 * earthmap.isPassableTerrainAt(ml) != 1)){ count++; } else
-	 * if(gc.hasUnitAtLocation(ml)){ vu = gc.senseUnitAtLocation(ml);
-	 * if((vu.unitType().equals(UnitType.Factory) ||
-	 * vu.unitType().equals(UnitType.Rocket))){ count++; } } ml =
-	 * Pathing.DirectionToMapLocation(temp, Direction.South);
-	 * if((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)){
-	 * count++; } else if(gc.hasUnitAtLocation(ml)){ vu =
-	 * gc.senseUnitAtLocation(ml); if((vu.unitType().equals(UnitType.Factory) ||
-	 * vu.unitType().equals(UnitType.Rocket))){ count++; } } ml =
-	 * Pathing.DirectionToMapLocation(temp, Direction.East);
-	 * if((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)){
-	 * count++; } else if(gc.hasUnitAtLocation(ml)){ vu =
-	 * gc.senseUnitAtLocation(ml); if((vu.unitType().equals(UnitType.Factory) ||
-	 * vu.unitType().equals(UnitType.Rocket))){ count++; } } ml =
-	 * Pathing.DirectionToMapLocation(temp, Direction.West);
-	 * if((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)){
-	 * count++; } else if(gc.hasUnitAtLocation(ml)){ vu =
-	 * gc.senseUnitAtLocation(ml); if((vu.unitType().equals(UnitType.Factory) ||
-	 * vu.unitType().equals(UnitType.Rocket))){ count++; } } if(count>1){
-	 * continue; } } if (gc.canBlueprint(worker.id(), type, dir)) {
-	 * gc.blueprint(worker.id(), type, dir); } } }
-	 */
-
 	private static void create(UnitType type) {
 		int num = (int) (Math.random() * Direction.values().length);
+		boolean check = false;
 		for (int i = num; i < Direction.values().length + num; i++) {
 			int tmp = i % Direction.values().length;
 			Direction dir = Direction.values()[tmp];
+			MapLocation temp = Pathing.DirectionToMapLocation(worker, dir);
+			if (type.equals(UnitType.Factory) || type.equals(UnitType.Rocket)) {
+				int count = 0;
+				MapLocation ml = Pathing.DirectionToMapLocation(temp, Direction.North);
+				Unit vu = null;
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.South);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.East);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				ml = Pathing.DirectionToMapLocation(temp, Direction.West);
+				if ((earthmap.onMap(ml) && earthmap.isPassableTerrainAt(ml) != 1)) {
+					count++;
+				} else if (gc.hasUnitAtLocation(ml)) {
+					vu = gc.senseUnitAtLocation(ml);
+					if ((vu.unitType().equals(UnitType.Factory) || vu.unitType().equals(UnitType.Rocket))) {
+						count++;
+					}
+				}
+				if (count > 1) {
+					continue;
+				}
+			}
 			if (gc.canBlueprint(worker.id(), type, dir)) {
 				gc.blueprint(worker.id(), type, dir);
+				check = true;
+			}
+		}
+		if(!check){
+			if (gc.canBlueprint(worker.id(), type, Direction.North)) {
+				gc.blueprint(worker.id(), type, Direction.North);
+				check = true;
 			}
 		}
 	}
+
 
 	private static void updateWorkerStats() {
 		workerId = worker.id();
