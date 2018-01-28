@@ -493,6 +493,7 @@ public class Worker {
 				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)))
 				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx))) == 0) {
 			earthkarboindex.set(idx, earthkarboindex.get(idx) + 1);
+			Player.karboniteMap[Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getX()][Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getY()] = 0;
 		}
 	}
 
@@ -505,6 +506,7 @@ public class Worker {
 				&& gc.canSenseLocation(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx)))
 				&& gc.karboniteAt(Mars.karboniteplacesEarth.get(idx).get(marskarboindex.get(idx))) == 0) {
 			marskarboindex.set(idx, marskarboindex.get(idx) + 1);
+			Player.karboniteMapMars[Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getX()][Mars.karboniteplacesEarth.get(idx).get(earthkarboindex.get(idx)).getY()] = 0;
 		}
 	}
 
@@ -583,7 +585,7 @@ public class Worker {
 		if (stopcollecting == true) {
 			return moveTowardsFactory();
 		}
-		MapLocation bestKarb;
+		/*MapLocation bestKarb;
 		if (gc.planet() == Planet.Earth)
 			bestKarb = bestKarboniteLoc();
 		else {
@@ -609,7 +611,7 @@ public class Worker {
 				}
 			}
 			return true;
-		}
+		}*/
 		return moveTowardsKarboniteFar();
 	}
     private static boolean ditchFactory() {
