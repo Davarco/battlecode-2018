@@ -72,8 +72,8 @@ public class Mars {
          while (!queue.isEmpty()) {
              MapLocation location = queue.poll();
              for (int i = 0; i < 8; i++) {
-                 int a = location.getX() + EarthPathing.move[i][0];
-                 int b = location.getY() + EarthPathing.move[i][1];
+                 int a = location.getX() + Pathing.move[i][0];
+                 int b = location.getY() + Pathing.move[i][1];
                  MapLocation temp = new MapLocation(p, a, b);
                  if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
                      visited[a][b] = true;
@@ -96,8 +96,8 @@ public class Mars {
          }
          marsplaces[location.getX()][location.getY()] = idx;
          for (int i = 0; i < 8; i++) {
-             int a = location.getX() + EarthPathing.move[i][0];
-             int b = location.getY() + EarthPathing.move[i][1];
+             int a = location.getX() + Pathing.move[i][0];
+             int b = location.getY() + Pathing.move[i][1];
              MapLocation temp = new MapLocation(p, a, b);
              if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
                  visited[a][b] = true;
@@ -119,8 +119,8 @@ public class Mars {
             }
             earthplaces[location.getX()][location.getY()] = idx;
             for (int i = 0; i < 8; i++) {
-                int a = location.getX() + EarthPathing.move[i][0];
-                int b = location.getY() + EarthPathing.move[i][1];
+                int a = location.getX() + Pathing.move[i][0];
+                int b = location.getY() + Pathing.move[i][1];
                 MapLocation temp = new MapLocation(p, a, b);
                 if (map.onMap(temp) && map.isPassableTerrainAt(temp) == 1 && !visited[a][b]) {
                     visited[a][b] = true;
@@ -149,7 +149,13 @@ public class Mars {
         });
         int min = 1<<30;
         for(int x = 0; x<locations.size();x++){
+        	if(locations.get(x).size() <= 4){
+        		continue;
+        	}
         	min = locations.get(x).size()<min?locations.get(x).size():min;
+        }
+        if(min == 1<<30){
+        	min = 1;
         }
         for(int x = 0; x<locations.size();x++){
         	Rocket.ratio.add((int)(locations.get(x).size()/min));
@@ -161,7 +167,7 @@ public class Mars {
     
     private static void floodfillEarth() {
         // Setup the visited grid
-
+    	index = 0;
         // Go through points, bfs
     		for (int x = 0; x < W; x++) {
             for (int y = 0; y < H; y++) {
@@ -178,7 +184,8 @@ public class Mars {
             		 	index++;
                 }
             }
-        }
+            
+    	}
     }
     
     private static void floodfillMars() {

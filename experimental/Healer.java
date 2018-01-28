@@ -90,7 +90,7 @@ public class Healer {
         }
 
         // See if unit needs to escape
-        if (EarthPathing.escape(healer)) {
+        if (Pathing.escape(healer)) {
             isAttacked = true;
             // System.out.println("Healer " + healer.location().mapLocation() + " is being attacked!");
             return;
@@ -110,8 +110,8 @@ public class Healer {
             }
         }
         if (idx != -1) {
-            if (!EarthPathing.move(healer, friendlies.get(idx).location().mapLocation())) {
-                EarthPathing.move(healer, friendlies.get(idx).location().mapLocation());
+            if(Pathing.move(healer, friendlies.get(idx).location().mapLocation()) == false) {
+                Pathing.move(healer, friendlies.get(idx).location().mapLocation());
             }
         }
 
@@ -123,7 +123,6 @@ public class Healer {
         if(ditchRocket())
         	return;
     }
-
     private static boolean moveTowardsRocket() {
     	if(healer.location().mapLocation().getPlanet()==Planet.Mars)return false;
         // Move towards a low-HP rocket if possible
@@ -145,57 +144,57 @@ public class Healer {
             int inity = tmp.getY();
             tmp = new MapLocation(Planet.Earth, initx + 1, inity);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity);
             if (map.onMap(tmp)){
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth,initx + 1,inity + 1);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity - 1);
             if (map.onMap(tmp)){
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx + 1, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx - 1, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity - 1);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
             tmp = new MapLocation(Planet.Earth, initx, inity + 1);
             if (map.onMap(tmp)) {
-            	if(!EarthPathing.move(healer, tmp)){
-            		EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
+            	if(!Pathing.move(healer, tmp)){
+            		Pathing.tryMove(healer, healer.location().mapLocation().directionTo(tmp));
             	}
             	return true;
             }
@@ -205,7 +204,6 @@ public class Healer {
 
         return false;
     }
-
     private static boolean returnToFactory(){
     	List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
@@ -221,10 +219,9 @@ public class Healer {
         }
         if (minDist >= 1000)  return false;
         if(idx == -1)return false;
-        EarthPathing.tryMove(healer, healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(healer, healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
         return true;
     }
-
     private static boolean ditchFactory() {
         List<Unit> units = Info.unitByTypes.get(UnitType.Factory);
         if (units.size() == 0) return false;
@@ -239,8 +236,8 @@ public class Healer {
         }
         if (maxDist <= 0)  return false;
 
-        Direction opposite = EarthPathing.opposite(healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
-        EarthPathing.tryMove(healer, opposite);
+        Direction opposite = Pathing.opposite(healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(healer, opposite);
         return true;
     }
     private static boolean ditchRocket() {
@@ -258,8 +255,8 @@ public class Healer {
         }
         if (maxDist <= 0)  return false;
 
-        Direction opposite = EarthPathing.opposite(healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
-        EarthPathing.tryMove(healer, opposite);
+        Direction opposite = Pathing.opposite(healer.location().mapLocation().directionTo(units.get(idx).location().mapLocation()));
+        Pathing.tryMove(healer, opposite);
         return true;
     }
 }

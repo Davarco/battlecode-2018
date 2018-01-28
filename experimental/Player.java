@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import bc.*;
@@ -12,7 +13,7 @@ public class Player {
     public static MapLocation focalPoint;
     public static MapLocation focalPointMars;
     public static long time = 0;
-    public static boolean largemap;
+    public static String mapsize = "";
     public static int roundcount=0;
     public static long workertime=0,rangertime=0, factorytime = 0;
     public static int rangercount=0, workercount = 0;
@@ -44,7 +45,12 @@ public class Player {
         mapLocationsMars = new MapLocation[marsWidth][marsHeight];
        
         
-        largemap = !(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth() < 55);
+        if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
+        	mapsize = "smallmap";
+        }
+        else{
+        	mapsize = "largemap";
+        }
         if(gc.planet()==Planet.Earth){
         	 for (int i = 0; i < earthWidth; i++) {
                  for (int j = 0; j < earthHeight; j++) {
@@ -68,7 +74,8 @@ public class Player {
 
         // Initialize the different types of troops
         setUnits();
-        EarthPathing.reset();
+        Pathing.reset();
+        FocusPoints.init(gc);
         Mars.init(gc);
         Worker.init(gc);
         Knight.init(gc);
@@ -83,15 +90,22 @@ public class Player {
         Util.init(gc);
 
         // Initialize path searching
-        EarthPathing.init(gc);
+        Pathing.init(gc);
 
         // Initialize the research tree
-        if(largemap){
+        if(mapsize.equals("largemap")){
         	initResearch();
         }
         else{
         	initResearchSmall();
         }
+//
+//        MapLocation start = new MapLocation(Planet.Earth, 0, (int)gc.startingMap(Planet.Earth).getHeight()-1);
+//        MapLocation end = new MapLocation(Planet.Earth, (int)gc.startingMap(Planet.Earth).getWidth()-1,0);
+//        double t1 = System.currentTimeMillis();
+//        ArrayList<MapLocation> res = Pathing.path(start, end);
+//        double t2 = System.currentTimeMillis();
+//        System.out.println("JPS took " + (t2-t1) + " ms :" + res);
 
         /*
         Main runner for player, do not change.
@@ -101,13 +115,16 @@ public class Player {
         	
         	//System.out.println(gc.round() +" "+ gc.karbonite());
             long t1 = System.currentTimeMillis();
+//            if (gc.round()==15)System.out.println("sfhabvsufgaksvl");
             // Debug, print current round
             // System.out.println("Current round: " + gc.round());
 
             // Get units and get counts
+
             setUnits();
 
             // Run corresponding code for each type of unit
+
             long ta, tb;
             for (int i = 0; i < units.size(); i++) {
                 Unit unit = units.get(i);
@@ -132,7 +149,7 @@ public class Player {
                         if (onMars)
                             Worker.runMars(unit);
                         tb=System.currentTimeMillis();
-                        workertime+=tb-ta;
+                        //workertime+=tb-ta;
                         break;
                     case Knight:
                         if (onEarth)
@@ -170,15 +187,14 @@ public class Player {
             long t2 = System.currentTimeMillis();
             
             Player.time = 0;
-            /*
-            System.out.println("Ranger #"+Info.number(UnitType.Ranger));
+            /*System.out.println("Ranger #"+Info.number(UnitType.Ranger));
             System.out.println("Ranger Time: "+rangertime);
             System.out.println("Worker #"+Info.number(UnitType.Worker));
             System.out.println("Worker Time: "+workertime);
             System.out.println("Factory #"+Info.number(UnitType.Factory));
             System.out.println("Factory Time: "+factorytime);
             System.out.println("Total time "+ (t2-t1));
-            */
+            ;*/
             
             rangertime = 0;
             workertime = 0;
@@ -236,6 +252,6 @@ public class Player {
             Info.addUnit(unit.unitType());
         }
         Info.totalUnits = units.size();
-        // System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
+        System.out.println("sdfoijwoij "+Info.number(UnitType.Ranger)+" "+Info.number(UnitType.Healer)+" "+Info.number(UnitType.Rocket)+" "+Info.number(UnitType.Factory));
     }
 }

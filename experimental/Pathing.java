@@ -2,20 +2,19 @@ import bc.*;
 
 import java.util.*;
 
-public class MarsPathing {
+public class Pathing {
 
     // Movements correspond from N -> NE... -> W -> SW.
     public static int move[][] = {
             {0, 1}, {1, 1}, {1, 0}, {1, -1},
             {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}
     };
-    private static HashMap<MapLocation, List<MapLocation>> stored;
+    public static int H, W;
+    public static HashMap<MapLocation, List<MapLocation>> stored;
     private static GameController gc;
     private static PlanetMap map;
     private static MapLocation start, dest;
     private static Planet planet;
-    private static int H, W;
-    private static boolean passable[][];
 
     private static class Cell {
         int pX, pY;
@@ -25,14 +24,14 @@ public class MarsPathing {
     private static boolean isValid(MapLocation loc) {
         int x = loc.getX();
         int y = loc.getY();
-        return (x >= 0) && (y >= 0) && (x < W) && (y < H) && (passable[x][y]);
+        return (x >= 0) && (y >= 0) && (x < W) && (y < H);
     }
 
     private static boolean isUnblocked(Unit unit, MapLocation loc) {
         MapLocation start = unit.location().mapLocation();
         if (loc.equals(start) || loc.equals(dest))
             return true;
-        return (isValid(loc));
+        return (map.onMap(loc) && map.isPassableTerrainAt(loc) == 1);
     }
 
     private static boolean isDestination(MapLocation loc) {
@@ -188,18 +187,10 @@ public class MarsPathing {
 
         // Get map constraints
         System.out.println("Initializing pathing directions!");
-        planet = Planet.Mars;
+        planet = gc.planet();
         map = gc.startingMap(planet);
         W = (int) map.getWidth();
         H = (int) map.getHeight();
-
-        // Get passable blocks
-        passable = new boolean[W][H];
-        for (int x = 0; x < W; x++) {
-            for (int y = 0; y < H; y++) {
-                passable[x][y] = map.isPassableTerrainAt(new MapLocation(planet, x, y)) == 1;
-            }
-        }
     }
 
     public static void reset() {
@@ -405,5 +396,5 @@ public class MarsPathing {
                 return new MapLocation(unit.location().mapLocation().getPlanet(), unit.location().mapLocation().getX(), unit.location().mapLocation().getY());
         }
         return null;
-    }
+}
 }

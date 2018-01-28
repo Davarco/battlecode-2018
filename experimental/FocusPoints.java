@@ -32,16 +32,12 @@ public class FocusPoints {
         gc = controller;
         // Get map constraints
         // map = gc.startingMap(Planet.Earth);
+        GeographicFocusPoints();
     }
 
     public void EnemyFocusPoints() {
         W = (int) map.getWidth();
         H = (int) map.getHeight();
-        for (int x = 0; x < W; x++) {
-            for (int y = 0; y > H; y++) {
-
-            }
-        }
     }
 
     public static String tab(int x) {
@@ -72,8 +68,8 @@ public class FocusPoints {
         while (!queue.isEmpty()) {
             BufferPoint location = queue.poll();
             for (int i = 0; i < 8; i++) {
-                int a = location.x + EarthPathing.move[i][0];
-                int b = location.y + EarthPathing.move[i][1];
+                int a = location.x + Pathing.move[i][0];
+                int b = location.y + Pathing.move[i][1];
                 if (a >= 0 && a < W + 2 && b >= 0 && b < H + 2 && geographicmap[a][b] == -1) {
                     geographicmap[a][b] = geographicmap[location.x][location.y] + 1;
                     max = max > geographicmap[location.x][location.y] + 1 ? max : geographicmap[location.x][location.y] + 1;
