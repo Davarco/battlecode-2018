@@ -16,6 +16,7 @@ public class Healer {
     private static VecUnit friendlies;
 
     private static boolean isAttacked;
+    private static int healerId;
 
     public static void init(GameController controller) {
         gc = controller;

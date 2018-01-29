@@ -26,6 +26,7 @@ public class Player {
     public static int marsHeight;
     public static int launchCounter = 0;
     public static MapLocation enemy = null;
+    public static HashMap<MapLocation, Integer> snipeHitList;
 
      
  
@@ -44,6 +45,7 @@ public class Player {
         karboniteMapMars = new int[marsWidth][marsHeight];
         W = (int)pm.getWidth();
         H = (int)pm.getHeight();
+        snipeHitList = new HashMap<MapLocation, Integer>();
        
         
         if(gc.startingMap(Planet.Earth).getHeight()+gc.startingMap(Planet.Earth).getWidth()<55){
